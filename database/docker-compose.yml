@@ -1,0 +1,22 @@
+version: "3.7" # Specify docker-compose version
+
+# Define services/containers to be run
+services:
+  mysql: # Name of the database service
+    container_name: icei-mysql
+    image: icei-mysql
+    build: ./
+    environment:
+      MYSQL_DATABASE: "icei"
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: "password"
+      # Timezone
+      # TZ: 'America/Argentina/Buenos_Aires'
+    volumes:
+      - type: bind
+        source: /home/manuelnucci/backups/icei/mysql/data
+        target: /var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
