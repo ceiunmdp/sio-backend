@@ -3,5 +3,5 @@ export enum UserRole {
   STUDENT = 2, // Usuario estudiante
   SCHOLARSHIP = 3, // Usuario becado
   CAMPUS = 4, // Sede (central o anexo)
-  PROFESSORSHIP = 5 // Cátedra universitaria
+  PROFESSORSHIP = 5, // Cátedra universitaria
 }

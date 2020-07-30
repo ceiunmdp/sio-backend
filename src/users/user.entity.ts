@@ -1,19 +1,10 @@
 import { Expose } from 'class-transformer';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { UserRole } from './user-role';
 
 @Entity()
 export class User {
-  constructor() {
-    (this.id = 4),
-      (this.username = 'manuucci96'),
-      (this.firstName = 'Manuel'),
-      (this.lastName = 'Nucci'),
-      (this.password = 'password');
-  }
-
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column('text')
   username: string;
@@ -39,6 +30,6 @@ export class User {
   // )
   // role: Role;
 
-  @Column({ type: 'enum', enum: UserRole })
-  role: UserRole;
+  // @Column({ type: 'enum', enum: UserRole })
+  // role: UserRole;
 }

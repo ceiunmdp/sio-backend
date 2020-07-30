@@ -1,13 +1,15 @@
-import { ValidationPipe, HttpStatus } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import * as rateLimit from 'express-rate-limit';
 import * as slowDown from 'express-slow-down';
+import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
 import { AppModule } from './app.module';
+import { AppConfigService } from './config/app/app-config.service';
+import { Paths } from './routes';
 
 async function bootstrap() {
   // HTTPS
@@ -21,14 +23,14 @@ async function bootstrap() {
   // });
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: ['log', 'error', 'warn']
+    logger: ['log', 'error', 'warn'],
   });
   // See https://expressjs.com/en/guide/behind-proxies.html
   // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
   app.set('trust proxy', 1);
 
   // Global prefix
-  app.setGlobalPrefix('/api/v1');
+  app.setGlobalPrefix(Paths.API);
   // Apply the compression middleware as global middleware
   app.use(compression());
   // Apply helmet as a global middleware
@@ -40,9 +42,9 @@ async function bootstrap() {
   // Apply the rate-limiter as global middleware
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    max: 100, // limit each IP to 100 requests per windowMs
   });
-  app.use('/api', apiLimiter);
+  app.use(Paths.API, apiLimiter);
   // Apply slow-down as global middleware
   const speedLimiter = slowDown({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -52,9 +54,9 @@ async function bootstrap() {
     // request # 102 is delayed by 1000ms
     // request # 103 is delayed by 1500ms
     // etc.
-    maxDelayMs: 20000 // load balancer or reverse proxy that has a request timeout
+    maxDelayMs: 20000, // load balancer or reverse proxy that has a request timeout
   });
-  app.use('/api', speedLimiter);
+  app.use(Paths.API, speedLimiter);
 
   // Enable global-scoped AllExceptionsFilter
   // Another alternative to bind AllExceptionsFilter to all endpoints, but can't inject dependencies
@@ -63,13 +65,14 @@ async function bootstrap() {
   // Enable ValidationPipe globally
   app.useGlobalPipes(
     new ValidationPipe({
-      // disableErrorMessages: true,
-      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      forbidUnknownValues: true,
+      // skipMissingProperties: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true
-    })
+      forbidUnknownValues: true,
+      // disableErrorMessages: true, // Useful in production
+      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
+    }),
   );
 
   // Set up global interceptor to serialize responses
@@ -78,16 +81,27 @@ async function bootstrap() {
   // Enable Swagger UI
   const options = new DocumentBuilder()
     .setTitle('API Documentation')
-    .setDescription('Description of endpoints exposed by NestJS server')
+    .setDescription('List of endpoints exposed by NestJS server')
     .setVersion('1.0.0')
-    // .addTag('cats')
+    .addServer('http://')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  const configService = app.get(ConfigService);
-  await app.listen(configService.get('PORT'));
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  // Firebase Admin SDK
+  // console.log(admin.apps.length);
+  if (!admin.apps.length) {
+    // console.log('Initialize App');
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+      // databaseURL: 'https://<DATABASE_NAME>.firebaseio.com',
+    });
+  }
+
+  const appConfigService = app.get(AppConfigService);
+  await app.listen(appConfigService.port);
+  console.log(`Application is runnng on: ${await app.getUrl()}`);
 
   // Enable Hot-Module Replacement
   if (module.hot) {

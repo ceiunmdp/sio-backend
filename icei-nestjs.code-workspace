@@ -3,5 +3,8 @@
     {
       "path": "."
     }
-  ]
+  ],
+  "settings": {
+    "typescript.suggest.paths": false
+  }
 }

@@ -5,7 +5,7 @@ export class ParseArrayPipeIds extends ParseArrayPipe {
     super({
       items: Number,
       separator: ',',
-      optional: true
+      optional: true,
     });
   }
 }
