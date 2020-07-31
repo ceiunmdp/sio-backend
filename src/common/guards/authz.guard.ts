@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { UserIdentity } from '../user-identity';
+import { UserIdentity } from '../interfaces/user-identity.interface';
 
 @Injectable()
 export class AuthZGuard implements CanActivate {
@@ -19,7 +19,7 @@ export class AuthZGuard implements CanActivate {
     const authorized = this.matchRoles(roles, user.role);
 
     if (!authorized) {
-      this.logger.warn(`User ${user.id} tried to access ${request.url}`);
+      this.logger.warn(`User ${user.id} tried to access ${request.method} ${request.url}`);
     }
     return authorized;
   }

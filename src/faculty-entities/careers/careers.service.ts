@@ -1,6 +1,12 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPaginationOptions, Pagination, paginate } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 import { CreateCareerDto } from './dto/create-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
@@ -8,35 +14,47 @@ import { Career } from './entities/career.entity';
 
 @Injectable()
 export class CareersService {
-  constructor(@InjectRepository(Career) private readonly careerRepository: Repository<Career>) {}
+  constructor(@InjectRepository(Career) private readonly careersRepository: Repository<Career>) {}
 
   async findAll(options: IPaginationOptions): Promise<Pagination<Career>> {
-    return paginate<Career>(this.careerRepository, options);
+    return paginate<Career>(this.careersRepository, options);
   }
 
   async findById(id: string) {
-    return this.careerRepository.findOneOrFail(id);
+    const career = await this.careersRepository.findOne(id);
+    if (career) {
+      return career;
+    } else {
+      throw new NotFoundException(`Carrera ${id} no encontrada.`);
+    }
   }
 
   async create(createCareerDto: CreateCareerDto) {
-    const career = await this.careerRepository.findOne({ name: createCareerDto.name });
+    const career = await this.careersRepository.findOne({ name: createCareerDto.name });
     if (!career) {
-      return this.careerRepository.save(createCareerDto);
+      return this.careersRepository.save(createCareerDto);
     } else {
-      throw new ConflictException('Ya existe una carrera con el nombre elegido.');
+      throw new ConflictException(`Ya existe una carrera con el nombre elegido.`);
     }
   }
 
   async update(id: string, updateCareerDto: UpdateCareerDto) {
-    return this.careerRepository.save({ id, ...updateCareerDto });
+    return this.careersRepository.save({ id, ...updateCareerDto });
   }
 
   async delete(id: string) {
-    // TODO: Check there aren't any courses associated with it
-
-    const result = await this.careerRepository.delete(id);
-    if (result.affected) {
-      return {};
+    const career = await this.careersRepository.findOne(id, { relations: ['careerCourseRelations'] });
+    if (career) {
+      if (career.careerCourseRelations.length) {
+        throw new BadRequestException(`No es posible eliminar la carrera ya que está vinculada con una o más materias`);
+      } else {
+        const result = await this.careersRepository.delete(id);
+        if (result.affected) {
+          return;
+        } else {
+          throw new InternalServerErrorException(`Career ${id} could not be deleted.`);
+        }
+      }
     } else {
       throw new NotFoundException(`Carrera ${id} no encontrada.`);
     }

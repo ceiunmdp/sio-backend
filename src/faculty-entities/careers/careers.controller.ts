@@ -1,15 +1,14 @@
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { UserRole } from 'src/auth/user-role';
+import { ApiTags } from '@nestjs/swagger';
+import { Auth } from 'src/common/decorators/auth.decorator';
+import { Id } from 'src/common/decorators/id.decorator';
+import { Limit, Page } from 'src/common/decorators/pagination.decorator';
+import { Paths } from 'src/common/enums/paths';
+import { UserRole } from 'src/common/enums/user-role';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { Auth } from 'src/helpers/decorators/auth.decorator';
-import { Id } from 'src/helpers/decorators/id.decorator';
-import { Limit, Page } from 'src/helpers/decorators/pagination.decorator';
-import { Paths } from 'src/routes';
 import { CareersService } from './careers.service';
 import { CreateCareerDto } from './dto/create-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
-import { Career } from './entities/career.entity';
 
 @ApiTags('Careers')
 @Controller(Paths.CAREERS)
@@ -34,7 +33,7 @@ export class CareersController {
 
   @Post()
   @Auth(UserRole.ADMIN)
-  @ApiCreatedResponse({ description: 'The career has been successfully created', type: Career })
+  // @ApiCreatedResponse({ description: 'The career has been successfully created', type: Career })
   async create(@Body() createCareerDto: CreateCareerDto) {
     return this.careersService.create(createCareerDto);
   }

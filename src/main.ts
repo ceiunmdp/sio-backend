@@ -8,8 +8,9 @@ import * as slowDown from 'express-slow-down';
 import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
 import { AppModule } from './app.module';
+import { Paths } from './common/enums/paths';
 import { AppConfigService } from './config/app/app-config.service';
-import { Paths } from './routes';
+import { FacultyEntitiesModule } from './faculty-entities/faculty-entities.module';
 
 async function bootstrap() {
   // HTTPS
@@ -23,7 +24,7 @@ async function bootstrap() {
   // });
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: ['log', 'error', 'warn'],
+    logger: ['debug', 'log', 'warn', 'error'],
   });
   // See https://expressjs.com/en/guide/behind-proxies.html
   // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
@@ -33,7 +34,7 @@ async function bootstrap() {
   app.setGlobalPrefix(Paths.API);
   // Apply the compression middleware as global middleware
   app.use(compression());
-  // Apply helmet as a global middleware
+  // Apply helmet as global middleware
   app.use(helmet());
   // Enable CORS
   app.enableCors();
@@ -75,18 +76,21 @@ async function bootstrap() {
     }),
   );
 
-  // Set up global interceptor to serialize responses
+  // Setup global interceptor to serialize responses
   // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Enable Swagger UI
   const options = new DocumentBuilder()
     .setTitle('API Documentation')
     .setDescription('List of endpoints exposed by NestJS server')
+    .setContact('ICEI Support', 'https://support.icei.com.ar', 'support@icei.com.ar')
     .setVersion('1.0.0')
-    .addServer('http://')
+    // .setLicense('MIT', 'url')
+    // .setTermsOfService('Terms of Service')
+    .addServer('http://localhost:3000')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, options);
+  const document = SwaggerModule.createDocument(app, options, { include: [FacultyEntitiesModule] });
   SwaggerModule.setup('api', app, document);
 
   // Firebase Admin SDK
@@ -101,7 +105,7 @@ async function bootstrap() {
 
   const appConfigService = app.get(AppConfigService);
   await app.listen(appConfigService.port);
-  console.log(`Application is runnng on: ${await app.getUrl()}`);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 
   // Enable Hot-Module Replacement
   if (module.hot) {

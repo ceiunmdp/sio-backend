@@ -1,7 +1,7 @@
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiUnauthorizedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
-import { AuthNGuard } from 'src/auth/guards/authn.guard';
-import { AuthZGuard } from 'src/auth/guards/authz.guard';
+import { ApiBearerAuth, ApiForbiddenResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { AuthNGuard } from 'src/common/guards/authn.guard';
+import { AuthZGuard } from 'src/common/guards/authz.guard';
 
 export function Auth(...roles: number[]) {
   return applyDecorators(

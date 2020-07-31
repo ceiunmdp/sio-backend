@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Paths } from 'src/routes';
+import { Paths } from 'src/common/enums/paths';
 
 interface EnvironmentVariables {
   'app.env': string;

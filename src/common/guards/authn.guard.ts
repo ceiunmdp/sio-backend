@@ -9,8 +9,13 @@ export class AuthNGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const idToken = (request.headers.authorization as string).split(' ')[1];
-    return this.validateRequest(request, idToken);
+    const authorization = request.headers.authorization as string;
+    if (authorization) {
+      const idToken = authorization.split(' ')[1];
+      return this.validateRequest(request, idToken);
+    } else {
+      return false;
+    }
   }
 
   async validateRequest(request: Request, idToken: string) {

@@ -18,6 +18,7 @@ import { DatabaseConfigService } from 'src/config/database/database-config.servi
         autoLoadEntities: true,
         synchronize: true,
         keepConnectionAlive: true,
+        // logging: ['info'],
       }),
     }),
   ],
