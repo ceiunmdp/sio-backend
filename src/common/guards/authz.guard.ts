@@ -10,7 +10,7 @@ export class AuthZGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.get('roles', context.getHandler()) as number[];
+    const roles = this.reflector.get('roles', context.getHandler()) as string[];
     if (!roles) {
       return true;
     }
@@ -24,7 +24,7 @@ export class AuthZGuard implements CanActivate {
     return authorized;
   }
 
-  matchRoles(roles: number[], role: number) {
+  matchRoles(roles: string[], role: string) {
     return roles.indexOf(role) !== -1;
   }
 }

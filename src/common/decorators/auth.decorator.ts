@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiForbiddenResponse, ApiUnauthorizedResponse } from '@n
 import { AuthNGuard } from 'src/common/guards/authn.guard';
 import { AuthZGuard } from 'src/common/guards/authz.guard';
 
-export function Auth(...roles: number[]) {
+export function Auth(...roles: string[]) {
   return applyDecorators(
     SetMetadata('roles', roles),
     UseGuards(AuthNGuard, AuthZGuard),

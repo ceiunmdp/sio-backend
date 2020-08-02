@@ -1,4 +1,4 @@
-import { CacheInterceptor, CacheModule, Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { MulterModule } from '@nestjs/platform-express';
@@ -7,6 +7,7 @@ import { routes } from 'src/common/constants/routes.constant';
 import { AllExceptionsFilter } from 'src/common/filters/http-exception.filter';
 import { ErrorsInterceptor } from 'src/common/interceptors/errors.interceptor';
 import { LoggingInterceptor } from 'src/common/interceptors/logging.interceptor';
+import { SerializerInterceptor } from 'src/common/interceptors/serializer.interceptor';
 import { TimeoutInterceptor } from 'src/common/interceptors/timeout.interceptor';
 import { TransformInterceptor } from 'src/common/interceptors/transform.interceptor';
 import { DatabaseModule } from 'src/database/database.module';
@@ -19,6 +20,8 @@ import { HealthModule } from 'src/health/health.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         ttl: configService.get<string>('CACHE_TTL'),
+        max: configService.get<string>('CACHE_MAX'),
+        // store: configService.get<string>('CACHE_STORE'),
       }),
     }),
     DatabaseModule,
@@ -53,10 +56,10 @@ import { HealthModule } from 'src/health/health.module';
 
     // Enable CacheInterceptor globally
     // Bind CacheInterceptor to all endpoints globally
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CacheInterceptor,
+    // },
 
     // Enable AllExceptionsFilter globally
     {
@@ -77,11 +80,11 @@ import { HealthModule } from 'src/health/health.module';
     // },
 
     // Set up global interceptor to serialize responses
-    // {
-    //     provide: APP_INTERCEPTOR,
-    //     // useClass: ClassSerializerInterceptor,
-    //     useClass: SerializerInterceptor,
-    // },})
+    {
+      provide: APP_INTERCEPTOR,
+      // useClass: ClassSerializerInterceptor,
+      useClass: SerializerInterceptor,
+    },
   ],
 })
 export class CoreModule {}

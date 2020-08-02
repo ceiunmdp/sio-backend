@@ -37,7 +37,7 @@ export class AuthNGuard implements CanActivate {
       this.logger.error(err.code);
       // return false;
 
-      request.user = { id: '[UUID]', role: 1 };
+      request.user = { id: '[UUID]', role: 'admin' };
       return true;
     }
   }

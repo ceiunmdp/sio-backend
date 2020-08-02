@@ -2,6 +2,7 @@
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const StartServerPlugin = require('start-server-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = function (options) {
   return {
@@ -18,6 +19,7 @@ module.exports = function (options) {
       new webpack.HotModuleReplacementPlugin(),
       new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
       new StartServerPlugin({ name: options.output.filename }),
+      new CleanWebpackPlugin(),
     ],
   };
 };

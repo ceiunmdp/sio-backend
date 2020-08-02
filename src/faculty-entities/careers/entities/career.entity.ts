@@ -1,13 +1,15 @@
+import { Exclude, Expose } from 'class-transformer';
+import { UserRole } from 'src/common/enums/user-role';
 import { CareerCourseRelation } from 'src/faculty-entities/relations/entities/career-course-relation.entity';
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
-  Index,
-  CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
 } from 'typeorm';
 
 @Entity('careers')
@@ -15,19 +17,27 @@ export class Career {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Index('IDX_name', { unique: true })
+  @Expose({ groups: [UserRole.ADMIN] })
+  @Index('name-idx', { unique: true })
   @Column('varchar', { nullable: false })
   name!: string;
 
   @OneToMany(() => CareerCourseRelation, (careerCourseRelation) => careerCourseRelation.career)
   careerCourseRelations?: CareerCourseRelation[];
 
+  @Exclude()
   @CreateDateColumn()
   created!: Date;
 
+  @Exclude()
   @UpdateDateColumn()
   updated!: Date;
 
+  @Exclude()
   @DeleteDateColumn()
   deletedAt?: Date;
+
+  constructor(partial: Partial<Career>) {
+    Object.assign(this, partial);
+  }
 }
