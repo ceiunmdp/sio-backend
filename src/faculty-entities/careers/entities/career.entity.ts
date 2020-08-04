@@ -16,12 +16,12 @@ import {
 @Entity('careers')
 export class Career {
   @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  id: string;
 
   @Expose({ groups: [UserRole.ADMIN] })
   @Index('name-idx', { unique: true })
   @Column('varchar', { nullable: false })
-  name!: string;
+  name: string;
 
   @AutoMap(() => CareerCourseRelation)
   @OneToMany(() => CareerCourseRelation, (careerCourseRelation) => careerCourseRelation.career)

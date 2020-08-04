@@ -13,4 +13,8 @@ export class Course {
   @AutoMap(() => CareerCourseRelation)
   @OneToMany(() => CareerCourseRelation, (careerCourseRelation) => careerCourseRelation.course)
   careerCourseRelations: CareerCourseRelation[];
+
+  constructor(partial: Partial<Course>) {
+    Object.assign(this, partial);
+  }
 }

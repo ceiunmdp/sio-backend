@@ -20,4 +20,8 @@ export class CareerCourseRelation {
   @AutoMap(() => Relation)
   @ManyToOne(() => Relation, (relation) => relation.careerCourseRelations, { nullable: false })
   relation: Relation;
+
+  constructor(partial: Partial<CareerCourseRelation>) {
+    Object.assign(this, partial);
+  }
 }
