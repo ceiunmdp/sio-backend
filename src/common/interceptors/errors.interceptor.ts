@@ -1,20 +1,26 @@
 import {
+  BadRequestException,
   CallHandler,
   ExecutionContext,
   HttpException,
   HttpStatus,
   Injectable,
-  Logger,
+  InternalServerErrorException,
   NestInterceptor,
+  NotFoundException,
 } from '@nestjs/common';
+import { MulterError } from 'multer';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { QueryFailedError } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 
 @Injectable()
 export class ErrorsInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(ErrorsInterceptor.name);
+  constructor(private readonly logger: CustomLoggerService) {
+    this.logger.context = ErrorsInterceptor.name;
+  }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(catchError((err) => throwError(this.buildHttpException(err))));
@@ -22,29 +28,17 @@ export class ErrorsInterceptor implements NestInterceptor {
 
   buildHttpException(err: Error) {
     if (err instanceof HttpException) {
-      this.logError(err.getStatus(), err);
-      return err;
+      return this.handleHttpException(err);
     } else if (err instanceof TimeoutError) {
-      this.logError(HttpStatus.INTERNAL_SERVER_ERROR, err);
-      return new HttpException(
-        { error: 'Internal Server Error', message: 'Server Timeout' },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return this.handleTimeoutError(err);
     } else if (err instanceof EntityNotFoundError) {
-      this.logError(HttpStatus.NOT_FOUND, err);
-      return new HttpException({ error: err.name, message: err.message }, HttpStatus.NOT_FOUND);
+      return this.handleEntityNotFoundError(err);
+    } else if (err instanceof MulterError) {
+      return this.handleMulterError(err);
     } else if (err instanceof QueryFailedError) {
-      this.logError(HttpStatus.INTERNAL_SERVER_ERROR, err);
-      return new HttpException(
-        { error: 'Internal Server Error', message: 'Internal Server Error' },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return this.handleQueryFailedError(err);
     } else {
-      // Default
-      return new HttpException(
-        { error: 'Internal Server Error', message: 'Unexpected Error. Please add handler in ErrorsInterceptor' },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return this.handleError(err);
     }
   }
 
@@ -52,5 +46,44 @@ export class ErrorsInterceptor implements NestInterceptor {
     if (status >= 500) {
       this.logger.error(`\nHttpStatus: ${status}\nName: ${name}\nMessage: ${message}\nStack: ${stack}`);
     }
+  }
+
+  handleHttpException(err: HttpException) {
+    this.logError(err.getStatus(), err);
+    return err;
+  }
+
+  handleTimeoutError(err: TimeoutError) {
+    this.logError(HttpStatus.INTERNAL_SERVER_ERROR, err);
+    return new InternalServerErrorException({ error: 'Internal Server Error', message: 'Server Timeout' });
+  }
+
+  handleEntityNotFoundError(err: EntityNotFoundError) {
+    this.logError(HttpStatus.NOT_FOUND, err);
+    return new NotFoundException({ error: err.name, message: err.message });
+  }
+
+  handleMulterError(err: MulterError) {
+    this.logError(HttpStatus.BAD_REQUEST, err);
+    let message;
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = `Archivo demasiado grande. Solo es posible subir archivos hasta 100 MB`;
+    } else {
+      message = `Evaluate rest of cases`;
+    }
+    return new BadRequestException({ error: err.name, message });
+  }
+
+  handleQueryFailedError(err: QueryFailedError) {
+    this.logError(HttpStatus.INTERNAL_SERVER_ERROR, err);
+    return new InternalServerErrorException({ error: 'Internal Server Error', message: 'Internal Server Error' });
+  }
+
+  handleError(err: Error) {
+    this.logError(HttpStatus.INTERNAL_SERVER_ERROR, err);
+    return new InternalServerErrorException({
+      error: 'Internal Server Error',
+      message: 'Unexpected Error. Please add handler in ErrorsInterceptor',
+    });
   }
 }

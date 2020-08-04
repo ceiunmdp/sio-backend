@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
+import { SharedModule } from 'src/shared/shared.module';
 import { CareersController } from './careers/careers.controller';
 import { CareersRepository } from './careers/careers.repository';
 import { CareersService } from './careers/careers.service';
 import { Career } from './careers/entities/career.entity';
+// import './careers/profiles/career.profile';
 import { CoursesController } from './courses/courses.controller';
 import { CoursesService } from './courses/courses.service';
 import { Course } from './courses/entities/course.entity';
@@ -15,6 +17,7 @@ import { RelationsService } from './relations/relations.service';
 
 @Module({
   imports: [
+    SharedModule,
     AppConfigModule,
     TypeOrmModule.forFeature([Career, Course, Relation, CareerCourseRelation, CareersRepository]),
   ],

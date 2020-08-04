@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from '../users/users.module';
+import { SharedModule } from 'src/shared/shared.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [UsersModule],
+  imports: [SharedModule],
   providers: [AuthService],
   controllers: [AuthController],
 })

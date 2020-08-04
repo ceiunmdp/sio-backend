@@ -3,6 +3,14 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "plugins": ["@nestjs/swagger/plugin"]
+    "plugins": [
+      {
+        "name": "@nartc/automapper-transformer-plugin",
+        "options": {
+          "modelFileNameSuffix": [".entity.ts", ".dto.ts"]
+        }
+      },
+      "@nestjs/swagger/plugin"
+    ]
   }
 }

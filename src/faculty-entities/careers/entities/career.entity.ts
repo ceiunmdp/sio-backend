@@ -1,4 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
+import { AutoMap } from 'nestjsx-automapper';
 import { UserRole } from 'src/common/enums/user-role';
 import { CareerCourseRelation } from 'src/faculty-entities/relations/entities/career-course-relation.entity';
 import {
@@ -22,6 +23,7 @@ export class Career {
   @Column('varchar', { nullable: false })
   name!: string;
 
+  @AutoMap(() => CareerCourseRelation)
   @OneToMany(() => CareerCourseRelation, (careerCourseRelation) => careerCourseRelation.career)
   careerCourseRelations?: CareerCourseRelation[];
 

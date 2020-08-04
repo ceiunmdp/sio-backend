@@ -1,11 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import * as admin from 'firebase-admin';
 import { Observable } from 'rxjs';
+import { CustomLoggerService } from 'src/logger/custom-logger.service';
 
 @Injectable()
 export class AuthNGuard implements CanActivate {
-  private readonly logger = new Logger(AuthNGuard.name);
+  constructor(private readonly logger: CustomLoggerService) {
+    this.logger.context = AuthNGuard.name;
+  }
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest();

@@ -1,13 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { UserIdentity } from '../interfaces/user-identity.interface';
 
 @Injectable()
 export class AuthZGuard implements CanActivate {
-  private readonly logger = new Logger(AuthZGuard.name);
-
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector, private readonly logger: CustomLoggerService) {
+    this.logger.context = AuthZGuard.name;
+  }
 
   canActivate(context: ExecutionContext): boolean {
     const roles = this.reflector.get('roles', context.getHandler()) as string[];

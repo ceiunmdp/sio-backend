@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-interface EnvironmentVariables {
+interface DatabaseEnvironmentVariables {
   'database.type': string;
   'database.host': string;
   'database.port': number;
@@ -10,14 +10,9 @@ interface EnvironmentVariables {
   'database.name': string;
 }
 
-/**
- * Service dealing with database config based operations.
- *
- * @class
- */
 @Injectable()
 export class DatabaseConfigService {
-  constructor(private readonly configService: ConfigService<EnvironmentVariables>) {}
+  constructor(private readonly configService: ConfigService<DatabaseEnvironmentVariables>) {}
 
   get type() {
     return this.configService.get<string>('database.type');

@@ -1,3 +1,4 @@
+import { AutoMap } from 'nestjsx-automapper';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CareerCourseRelation } from './career-course-relation.entity';
 
@@ -9,6 +10,7 @@ export class Relation {
   @Column('varchar', { nullable: false, unique: true })
   name: string;
 
+  @AutoMap(() => CareerCourseRelation)
   @OneToMany(() => CareerCourseRelation, (careerCourseRelation) => careerCourseRelation.relation)
   careerCourseRelations: CareerCourseRelation[];
 }
