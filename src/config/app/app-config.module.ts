@@ -1,19 +1,19 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { Environment } from 'src/common/enums/environment';
 import { AppConfigService } from './app-config.service';
 import appConfig from './app.config';
-import { Environment } from 'src/common/enums/environment';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       // isGlobal: true, // No need to import ConfigModule in other modules once it's been loaded in the root module
-      // envFilePath: '.development.env',
+      // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
       load: [appConfig],
       expandVariables: true,
       validationSchema: Joi.object({
-        APP_ENV: Joi.valid(Environment.DEVELOPMENT, Environment.TESTING, Environment.PRODUCTION).default(
+        NODE_ENV: Joi.valid(Environment.DEVELOPMENT, Environment.TESTING, Environment.PRODUCTION).default(
           Environment.DEVELOPMENT,
         ),
         APP_SCHEME: Joi.valid('http', 'https').default('http'),

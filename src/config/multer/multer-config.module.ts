@@ -7,6 +7,7 @@ import multerConfig from './multer.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
       load: [multerConfig],
       expandVariables: true,
       validationSchema: Joi.object({

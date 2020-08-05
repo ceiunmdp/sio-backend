@@ -7,6 +7,7 @@ import cacheConfig from './cache.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
       load: [cacheConfig],
       expandVariables: true,
       validationSchema: Joi.object({

@@ -14,6 +14,8 @@ import { FacultyEntitiesModule } from './faculty-entities/faculty-entities.modul
 import { FilesModule } from './files/files.module';
 import { SharedModule } from './shared/shared.module';
 
+// export const ENV = process.env.NODE_ENV;
+
 @Module({
   imports: [CoreModule, SharedModule, AuthModule, FacultyEntitiesModule, FilesModule], // UsersModule],
   providers: [

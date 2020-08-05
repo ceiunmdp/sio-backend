@@ -1,12 +1,13 @@
 import { registerAs } from '@nestjs/config';
 
-export default registerAs('database', () => ({
-  type: process.env.DB_TYPE,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  name: process.env.DB_NAME,
-  synchronize: process.env.DB_SYNCHRONIZE,
-  connectionLimit: process.env.DB_CONNECTION_LIMIT,
+export default registerAs('typeorm', () => ({
+  connection: process.env.TYPEORM_CONNECTION,
+  host: process.env.TYPEORM_HOST,
+  port: process.env.TYPEORM_PORT,
+  username: process.env.TYPEORM_USERNAME,
+  password: process.env.TYPEORM_PASSWORD,
+  database: process.env.TYPEORM_DATABASE,
+  synchronize: process.env.TYPEORM_SYNCHRONIZE,
+  logging: process.env.TYPEORM_LOGGING,
+  connectionLimit: process.env.TYPEORM_CONNECTION_LIMIT,
 }));
