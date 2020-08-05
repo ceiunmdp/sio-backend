@@ -8,8 +8,6 @@ import apiSpeedConfig from './api-speed.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      // isGlobal: true, // No need to import ConfigModule in other modules once it's been loaded in the root module
-      // envFilePath: '.development.env',
       load: [apiRateConfig, apiSpeedConfig],
       expandVariables: true,
       validationSchema: Joi.object({

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
-import { format, LoggerOptions, transports } from 'winston';
+import { utilities as nestWinstonModuleUtilities, WinstonModuleOptions } from 'nest-winston';
+import { Environment } from 'src/common/enums/environment';
+import { format, transports } from 'winston';
 import 'winston-daily-rotate-file';
 import { AppConfigService } from '../app/app-config.service';
 
@@ -21,9 +22,9 @@ export class LoggerConfigService {
     private readonly appConfigService: AppConfigService,
   ) {}
 
-  get format() {
+  getFormat() {
     const { combine, timestamp, json } = format;
-    if (this.appConfigService.env === 'development') {
+    if (this.appConfigService.env === Environment.DEVELOPMENT) {
       return combine(
         // colorize(),
         timestamp({ format: 'DD/MM/YYYY, HH:MM:ss' }),
@@ -34,8 +35,8 @@ export class LoggerConfigService {
     }
   }
 
-  get transports() {
-    if (this.appConfigService.env === 'development') {
+  getTransports() {
+    if (this.appConfigService.env === Environment.DEVELOPMENT) {
       return [new transports.Console()];
     } else {
       return [
@@ -65,18 +66,18 @@ export class LoggerConfigService {
     }
   }
 
-  get customFormat() {
+  getCustomFormat() {
     return format.printf(({ level, message, context, timestamp }) => {
       return `${timestamp}  [${context}] ${level}: ${message}`;
     });
   }
 
-  get options(): LoggerOptions {
+  getOptions(): WinstonModuleOptions {
     return {
       level: 'info',
       // defaultMeta: { service: 'nest' },
-      format: this.format,
-      transports: this.transports,
+      format: this.getFormat(),
+      transports: this.getTransports(),
     };
   }
 }

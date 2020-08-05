@@ -8,7 +8,7 @@ export class CustomLoggerService implements LoggerService {
   private _context = 'DefaultContext';
 
   constructor(private readonly loggerConfigService: LoggerConfigService) {
-    this._logger = WinstonModule.createLogger(this.loggerConfigService.options);
+    this._logger = WinstonModule.createLogger(this.loggerConfigService.getOptions());
   }
 
   public get context() {

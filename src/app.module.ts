@@ -3,6 +3,7 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ErrorsInterceptor } from './common/interceptors/errors.interceptor';
+import { HttpCacheInterceptor } from './common/interceptors/http-cache.interceptor';
 import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 import { SerializerInterceptor } from './common/interceptors/serializer.interceptor';
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
@@ -30,12 +31,11 @@ import { SharedModule } from './shared/shared.module';
       useClass: LoggerInterceptor,
     },
 
-    // Enable CacheInterceptor globally
-    // Bind CacheInterceptor to all endpoints globally
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: CacheInterceptor,
-    // },
+    // Enable HttpCacheInterceptor globally
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpCacheInterceptor,
+    },
 
     // Enable TimeoutInterceptor globally
     {

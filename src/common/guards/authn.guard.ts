@@ -11,7 +11,7 @@ export class AuthNGuard implements CanActivate {
   }
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const request: Request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const authorization = request.headers.authorization as string;
     if (authorization) {
       const idToken = authorization.split(' ')[1];

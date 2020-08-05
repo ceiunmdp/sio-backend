@@ -26,6 +26,6 @@ export class AuthZGuard implements CanActivate {
   }
 
   matchRoles(roles: string[], role: string) {
-    return roles.indexOf(role) !== -1;
+    return roles.includes(role);
   }
 }

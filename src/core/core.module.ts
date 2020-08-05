@@ -1,11 +1,12 @@
 import { SnakeCaseNamingConvention } from '@nartc/automapper';
 import { CacheModule, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RouterModule } from 'nest-router';
 import { AutomapperModule } from 'nestjsx-automapper';
 import { routes } from 'src/common/constants/routes.constant';
 import { ApiConfigModule } from 'src/config/api/api-config.module';
 import { AppConfigModule } from 'src/config/app/app-config.module';
+import { CacheConfigModule } from 'src/config/cache/cache-config.module';
+import { CacheConfigService } from 'src/config/cache/cache-config.service';
 import { DatabaseModule } from 'src/database/database.module';
 import { HealthModule } from 'src/health/health.module';
 import { LoggerModule } from 'src/logger/logger.module';
@@ -18,18 +19,14 @@ import { LoggerModule } from 'src/logger/logger.module';
       destinationNamingConvention: SnakeCaseNamingConvention,
     }),
     CacheModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        ttl: configService.get<string>('CACHE_TTL'),
-        max: configService.get<string>('CACHE_MAX'),
-        // store: configService.get<string>('CACHE_STORE'),
-      }),
+      imports: [CacheConfigModule],
+      useExisting: CacheConfigService,
     }),
     DatabaseModule,
     HealthModule,
     LoggerModule,
     RouterModule.forRoutes(routes), // Setup routes
   ],
+  exports: [CacheModule],
 })
 export class CoreModule {}

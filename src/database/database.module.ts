@@ -8,19 +8,7 @@ import { DatabaseConfigService } from 'src/config/database/database-config.servi
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [DatabaseConfigModule],
-      inject: [DatabaseConfigService],
-      useFactory: (databaseConfigService: DatabaseConfigService) => ({
-        type: databaseConfigService.type as any,
-        host: databaseConfigService.host,
-        port: databaseConfigService.port,
-        username: databaseConfigService.username,
-        password: databaseConfigService.password,
-        database: databaseConfigService.name,
-        autoLoadEntities: true,
-        synchronize: true,
-        keepConnectionAlive: true,
-        // logging: ['info'],
-      }),
+      useExisting: DatabaseConfigService,
     }),
   ],
   exports: [TypeOrmModule],

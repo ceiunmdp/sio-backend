@@ -67,9 +67,9 @@ export class ErrorsInterceptor implements NestInterceptor {
     this.logError(HttpStatus.BAD_REQUEST, err);
     let message;
     if (err.code === 'LIMIT_FILE_SIZE') {
-      message = `Archivo demasiado grande. Solo es posible subir archivos hasta 100 MB`;
+      message = 'Archivo demasiado grande. Solo es posible subir archivos hasta 100 MB';
     } else {
-      message = `Evaluate rest of cases`;
+      message = 'Evaluate rest of cases';
     }
     return new BadRequestException({ error: err.name, message });
   }

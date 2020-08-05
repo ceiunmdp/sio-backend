@@ -1,14 +1,13 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { Environment } from 'src/common/enums/environment';
 import { DatabaseConfigService } from './database-config.service';
 import databaseConfig from './database.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      // isGlobal: true, // No need to import ConfigModule in other modules once it's been loaded in the root module
-      // envFilePath: '.development.env',
       load: [databaseConfig],
       expandVariables: true,
       validationSchema: Joi.object({
@@ -18,6 +17,14 @@ import databaseConfig from './database.config';
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
         DB_NAME: Joi.string().required(),
+        DB_SYNCHRONIZE: Joi.boolean()
+          .when('APP_ENV', {
+            is: Environment.PRODUCTION,
+            then: Joi.valid(false),
+            otherwise: Joi.valid(true, false),
+          })
+          .default(false),
+        DB_CONNECTION_LIMIT: Joi.number().min(5).max(50).default(10),
       }),
       validationOptions: {
         allowUnknown: true,
