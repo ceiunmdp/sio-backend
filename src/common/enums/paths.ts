@@ -4,4 +4,5 @@ export enum Paths {
   HEALTH = '/health',
   USERS = '/users',
   CAREERS = '/careers',
+  MENU = '/menu',
 }

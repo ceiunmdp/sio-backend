@@ -9,5 +9,6 @@ export default registerAs('typeorm', () => ({
   database: process.env.TYPEORM_DATABASE,
   synchronize: process.env.TYPEORM_SYNCHRONIZE,
   logging: process.env.TYPEORM_LOGGING,
+  logger: process.env.TYPEORM_LOGGER,
   connectionLimit: process.env.TYPEORM_CONNECTION_LIMIT,
 }));

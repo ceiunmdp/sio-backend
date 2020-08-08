@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { AutoMapper, InjectMapper } from 'nestjsx-automapper';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
@@ -12,19 +11,11 @@ import { CareersService } from './careers.service';
 import { CreateCareerDto } from './dto/create-career.dto';
 import { ResponseCareerDto } from './dto/response-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
-import { CareerProfile } from './profiles/career.profile';
 
 @ApiTags('Careers')
 @Controller(Paths.CAREERS)
 export class CareersController {
-  constructor(
-    @InjectMapper() private readonly mapper: AutoMapper,
-    private readonly appConfigService: AppConfigService,
-    private readonly careersService: CareersService,
-  ) {
-    this.mapper.dispose();
-    this.mapper.addProfile(CareerProfile);
-  }
+  constructor(private readonly appConfigService: AppConfigService, private readonly careersService: CareersService) {}
 
   @Get()
   @Auth(UserRole.ADMIN)
@@ -48,6 +39,7 @@ export class CareersController {
 
   @Post()
   @Auth(UserRole.ADMIN)
+  @Mapper(ResponseCareerDto)
   @ApiCreatedResponse({ description: 'The career has been successfully created.', type: ResponseCareerDto })
   async create(@Body() createCareerDto: CreateCareerDto) {
     return this.careersService.create(createCareerDto);
@@ -55,6 +47,7 @@ export class CareersController {
 
   @Put(':id')
   @Auth(UserRole.ADMIN)
+  @Mapper(ResponseCareerDto)
   @ApiOkResponse({ description: 'The career has been successfully updated.', type: ResponseCareerDto })
   async update(@Id() id: string, @Body() updateCareerDto: UpdateCareerDto) {
     return this.careersService.update(id, updateCareerDto);

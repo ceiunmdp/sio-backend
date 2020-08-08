@@ -4,5 +4,5 @@ import { IsString } from 'class-validator';
 export class CreateCareerDto {
   @IsString()
   @ApiProperty({ description: 'Name of career' })
-  name: string;
+  name!: string;
 }

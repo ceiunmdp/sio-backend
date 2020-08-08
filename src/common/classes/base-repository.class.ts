@@ -1,5 +1,4 @@
-import { DeepPartial, ObjectLiteral, Repository, SaveOptions } from 'typeorm';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { DeepPartial, ObjectID, ObjectLiteral, Repository, SaveOptions } from 'typeorm';
 
 interface IId {
   id?: string | number;
@@ -11,12 +10,15 @@ export class BaseRepository<E extends ObjectLiteral> extends Repository<E> {
     return this.findOne(newEntity.id);
   }
 
-  async updateAndReload(id: string | number, partialEntity: QueryDeepPartialEntity<E>) {
-    await this.update(id, partialEntity);
+  async updateAndReload(id: string | number | Date | ObjectID, partialEntity: DeepPartial<E>) {
+    //! "Update" method executes a primitive operation without cascades, relations and other operations included
+    // await this.update(id, partialEntity);
+
+    await this.save({ id, ...partialEntity });
     return this.findOne(id);
   }
 
-  async restoreAndReload(id: string | number) {
+  async restoreAndReload(id: string | number | Date | ObjectID) {
     await this.restore(id);
     return this.findOne(id);
   }

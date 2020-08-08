@@ -1,8 +1,8 @@
-import { AutoMapper, ProfileBase } from 'nestjsx-automapper';
+import { AutoMapper, Profile, ProfileBase } from 'nestjsx-automapper';
 import { ResponseCareerDto } from '../dto/response-career.dto';
 import { Career } from '../entities/career.entity';
 
-// @Profile()
+@Profile()
 export class CareerProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();

@@ -7,11 +7,11 @@ import { Career } from '../entities/career.entity';
 export class ResponseCareerDto {
   @Expose()
   @ApiProperty({ description: 'UUID of career' })
-  id: string;
+  id!: string;
 
   @Expose({ groups: [UserRole.ADMIN] })
   @ApiProperty({ description: 'Name of career' })
-  name: string;
+  name!: string;
 
   constructor(partial: Partial<Career>) {
     Object.assign(this, partial);

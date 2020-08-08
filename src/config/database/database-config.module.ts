@@ -25,10 +25,22 @@ import databaseConfig from './database.config';
           .when('NODE_ENV', {
             is: Environment.PRODUCTION,
             then: Joi.valid(false),
-            otherwise: Joi.valid(true, false),
+            otherwise: Joi.boolean(),
           })
           .default(false),
-        TYPEORM_LOGGING: Joi.boolean().default(false),
+        TYPEORM_LOGGING: Joi.alternatives(
+          Joi.boolean(),
+          Joi.valid('all'),
+          Joi.array().items('query', 'schema', 'error', 'warn', 'info', 'log', 'migration').default(false),
+        ),
+        TYPEORM_LOGGER: Joi.when('TYPEORM_LOGGING', {
+          is: Joi.not(false),
+          then: Joi.when('NODE_ENV', {
+            is: Environment.PRODUCTION,
+            then: 'file',
+            otherwise: Joi.valid('advanced-console', 'simple-console', 'file', 'debug').default('advanced-console'),
+          }),
+        }),
         TYPEORM_CONNECTION_LIMIT: Joi.number().min(5).max(50).default(10),
       }),
       validationOptions: {

@@ -12,12 +12,28 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { CoreModule } from './core/core.module';
 import { FacultyEntitiesModule } from './faculty-entities/faculty-entities.module';
 import { FilesModule } from './files/files.module';
+import { MenuModule } from './menu/menu.module';
 import { SharedModule } from './shared/shared.module';
+import { UsersModule } from './users/users.module';
+import { ItemsModule } from './items/items.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { OrdersModule } from './orders/orders.module';
 
 // export const ENV = process.env.NODE_ENV;
 
 @Module({
-  imports: [CoreModule, SharedModule, AuthModule, FacultyEntitiesModule, FilesModule], // UsersModule],
+  imports: [
+    AuthModule,
+    CoreModule,
+    FacultyEntitiesModule,
+    FilesModule,
+    MenuModule,
+    SharedModule,
+    UsersModule,
+    ItemsModule,
+    NotificationsModule,
+    OrdersModule,
+  ],
   providers: [
     // Request -> Middlewares -> Guards -> Interceptors -> Pipes -> Request Handler -> Interceptors -> Filters -> Middlewares -> Response
 
