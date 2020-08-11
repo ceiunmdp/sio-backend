@@ -1,9 +1,8 @@
-import { ChildEntity, Column, TableInheritance } from 'typeorm';
+import { ChildEntity, Column } from 'typeorm';
 import { User } from './user.entity';
-import { StudentType } from '../enums/student-type';
 
 @ChildEntity()
-@TableInheritance({ column: { type: 'enum', enum: StudentType, name: 'type' } })
+// @TableInheritance({ column: { type: 'enum', enum: StudentType, name: 'student_type' } })
 export class Student extends User {
   @Column()
   balance!: number;

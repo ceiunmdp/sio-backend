@@ -21,13 +21,6 @@ import databaseConfig from './database.config';
         TYPEORM_USERNAME: Joi.string().required(),
         TYPEORM_PASSWORD: Joi.string().required(),
         TYPEORM_DATABASE: Joi.string().required(),
-        TYPEORM_SYNCHRONIZE: Joi.boolean()
-          .when('NODE_ENV', {
-            is: Environment.PRODUCTION,
-            then: Joi.valid(false),
-            otherwise: Joi.boolean(),
-          })
-          .default(false),
         TYPEORM_LOGGING: Joi.alternatives(
           Joi.boolean(),
           Joi.valid('all'),
@@ -40,6 +33,27 @@ import databaseConfig from './database.config';
             then: 'file',
             otherwise: Joi.valid('advanced-console', 'simple-console', 'file', 'debug').default('advanced-console'),
           }),
+        }),
+        TYPEORM_MAX_QUERY_EXECUTION_TIME: Joi.number().min(1000).max(5000).default(1000),
+        TYPEORM_SYNCHRONIZE: Joi.boolean().when('NODE_ENV', {
+          is: Environment.PRODUCTION,
+          then: Joi.valid(false),
+          otherwise: Joi.boolean().default(false),
+        }),
+        TYPEORM_MIGRATIONS_RUN: Joi.boolean().when('TYPEORM_SYNCHRONIZE', {
+          is: true,
+          then: Joi.valid(false),
+          otherwise: Joi.boolean().default(false),
+        }),
+        TYPEORM_MIGRATIONS: Joi.string().when('TYPEORM_MIGRATIONS_RUN', {
+          is: true,
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        }),
+        TYPEORM_MIGRATIONS_DIR: Joi.string().when('TYPEORM_MIGRATIONS_RUN', {
+          is: true,
+          then: Joi.required(),
+          otherwise: Joi.optional(),
         }),
         TYPEORM_CONNECTION_LIMIT: Joi.number().min(5).max(50).default(10),
       }),

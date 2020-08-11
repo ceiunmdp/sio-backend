@@ -11,9 +11,13 @@ interface DatabaseEnvironmentVariables {
   'typeorm.username': string;
   'typeorm.password': string;
   'typeorm.database': string;
-  'typeorm.synchronize': boolean;
   'typeorm.logging': LoggerOptions;
   'typeorm.logger': string;
+  'typeorm.maxQueryExecutionTime': number;
+  'typeorm.synchronize': boolean;
+  'typeorm.migrationsRun': boolean;
+  'typeorm.migrations': string;
+  'typeorm.migrationsDir': string;
   'typeorm.connectionLimit': number;
 }
 
@@ -45,16 +49,32 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
     return this.configService.get<string>('typeorm.database');
   }
 
-  get synchronize() {
-    return this.configService.get<boolean>('typeorm.synchronize');
-  }
-
   get logging() {
     return this.configService.get<LoggerOptions>('typeorm.logging');
   }
 
   get logger() {
     return this.configService.get<string>('typeorm.logger');
+  }
+
+  get maxQueryExecutionTime() {
+    return this.configService.get<number>('typeorm.maxQueryExecutionTime');
+  }
+
+  get synchronize() {
+    return this.configService.get<boolean>('typeorm.synchronize');
+  }
+
+  get migrationsRun() {
+    return this.configService.get<boolean>('typeorm.migrationsRun');
+  }
+
+  get migrations() {
+    return this.configService.get<string>('typeorm.migrations');
+  }
+
+  get migrationsDir() {
+    return this.configService.get<string>('typeorm.migrationsDir');
   }
 
   get connectionLimit() {
@@ -73,8 +93,13 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
       database: this.database,
       logging: this.logging, // boolean | "all" | ("query" | "schema" | "error" | "warn" | "info" | "log" | "migration")[]
       logger: this.logger as 'advanced-console' | 'simple-console' | 'file' | 'debug',
+      maxQueryExecutionTime: this.maxQueryExecutionTime, // Log long-running queries
       synchronize: this.synchronize,
-      // maxQueryExecutionTime: 1000, // Log long-running queries
+      migrationsRun: this.migrationsRun,
+      migrations: [__dirname + this.migrations],
+      cli: {
+        migrationsDir: __dirname + this.migrationsDir,
+      },
       // dropSchema: true,
       // cache: {
       //   alwaysEnabled: false, // boolean

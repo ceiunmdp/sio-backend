@@ -1,5 +1,5 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { HttpStatus, MiddlewareConsumer, Module, NestModule, RequestMethod, ValidationPipe } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ErrorsInterceptor } from './common/interceptors/errors.interceptor';
@@ -12,12 +12,13 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { CoreModule } from './core/core.module';
 import { FacultyEntitiesModule } from './faculty-entities/faculty-entities.module';
 import { FilesModule } from './files/files.module';
-import { MenuModule } from './menu/menu.module';
-import { SharedModule } from './shared/shared.module';
-import { UsersModule } from './users/users.module';
 import { ItemsModule } from './items/items.module';
+import { MenuModule } from './menu/menu.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
+import { SharedModule } from './shared/shared.module';
+import { UsersModule } from './users/users.module';
+import { ValidatorsModule } from './validators/validators.module';
 
 // export const ENV = process.env.NODE_ENV;
 
@@ -27,12 +28,13 @@ import { OrdersModule } from './orders/orders.module';
     CoreModule,
     FacultyEntitiesModule,
     FilesModule,
-    MenuModule,
-    SharedModule,
-    UsersModule,
     ItemsModule,
+    MenuModule,
     NotificationsModule,
     OrdersModule,
+    SharedModule,
+    UsersModule,
+    ValidatorsModule,
   ],
   providers: [
     // Request -> Middlewares -> Guards -> Interceptors -> Pipes -> Request Handler -> Interceptors -> Filters -> Middlewares -> Response
@@ -74,17 +76,25 @@ import { OrdersModule } from './orders/orders.module';
       useClass: SerializerInterceptor,
     },
 
+    // Enable ValidationPipe globally (every DTO is automatically validated)
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        // skipMissingProperties: true,
+        whitelist: true, // Strip all properties that don't have any decorators
+        forbidNonWhitelisted: true, // In combination with the previous flag, it'll throw an error when there's any extra property
+        forbidUnknownValues: true, // Prevent unknown objects from passing validation
+        // disableErrorMessages: true, // Useful in production
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
+      }),
+    },
+
     // Enable AllExceptionsFilter globally
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
-
-    // Enable ValidationPipe globally (every DTO is automatically validated)
-    // {
-    //     provide: APP_PIPE,
-    //     useClass: ValidationPipe, // Use app.useGlobalPipes() in case of custom configuration needed
-    // },
   ],
 })
 export class AppModule implements NestModule {

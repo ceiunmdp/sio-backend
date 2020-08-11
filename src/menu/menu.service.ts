@@ -1,15 +1,15 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { TransactionUtil } from 'src/common/utils/transaction-util.class';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/users/entities/role.entity';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
 import { Functionality } from './entities/functionality.entity';
+import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
 
 @Injectable()
 export class MenuService {
   constructor(
     @InjectRepository(Functionality) private readonly menuRepository: TreeRepository<Functionality>,
-    private readonly connection: Connection,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   async find(userRole: string) {
@@ -28,7 +28,7 @@ export class MenuService {
   }
 
   async cloneDeepWithFunctionalitiesAllowed(functionality: Functionality, userRole: string) {
-    if (!functionality.subFunctionalities.length) {
+    if (!functionality.subFunctionalities?.length) {
       // Leaf
       return (await this.isFunctionalityAllowed(functionality, userRole)) ? functionality : null;
     } else {
@@ -37,7 +37,7 @@ export class MenuService {
 
       const sortedSubFunctionalities = subFunctionalities
         .slice()
-        .sort((f1, f2) => f1.created.getTime() - f2.created.getTime());
+        .sort((f1, f2) => f1.createDate.getTime() - f2.createDate.getTime());
 
       const clonedSubFunctionalities = await Promise.all(
         sortedSubFunctionalities.map((f) => this.cloneDeepWithFunctionalitiesAllowed(f, userRole)),
@@ -58,25 +58,28 @@ export class MenuService {
     let menu = new Functionality({ name: 'Menu' });
 
     // Second level
-    const home = new Functionality({ name: 'Inicio', supraFunctionality: menu });
-    const orders = new Functionality({ name: 'Pedidos', supraFunctionality: menu });
-    const operations = new Functionality({ name: 'Operaciones', supraFunctionality: menu });
+    const home = new Functionality({ name: 'Inicio', supraFunctionality: Promise.resolve(menu) });
+    const orders = new Functionality({ name: 'Pedidos', supraFunctionality: Promise.resolve(menu) });
+    const operations = new Functionality({ name: 'Operaciones', supraFunctionality: Promise.resolve(menu) });
 
     // Third level
-    const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: orders });
-    const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: orders });
-    const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: operations });
-    const transferMoney = new Functionality({ name: 'Transferir dinero', supraFunctionality: operations });
+    const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: Promise.resolve(orders) });
+    const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: Promise.resolve(orders) });
+    const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: Promise.resolve(operations) });
+    const transferMoney = new Functionality({
+      name: 'Transferir dinero',
+      supraFunctionality: Promise.resolve(operations),
+    });
 
     // Roles
     const admin = new Role({ name: 'admin' });
     const campus = new Role({ name: 'campus' });
 
-    home.roles = [admin, campus];
-    newOrder.roles = [admin];
-    myOrders.roles = [admin, campus];
-    depositMoney.roles = [admin];
-    transferMoney.roles = [campus];
+    home.roles = Promise.resolve([admin, campus]);
+    newOrder.roles = Promise.resolve([admin]);
+    myOrders.roles = Promise.resolve([admin, campus]);
+    depositMoney.roles = Promise.resolve([admin]);
+    transferMoney.roles = Promise.resolve([campus]);
 
     menu = await this.menuRepository.save(menu);
     await this.menuRepository.save(home);
@@ -89,23 +92,56 @@ export class MenuService {
     return this.menuRepository.findDescendantsTree(menu);
   }
 
+  //! Alternative 1
+  // @Transactional({ propagation: Propagation.REQUIRED, isolationLevel: IsolationLevel.REPEATABLE_READ }) //! Defaults
   async delete() {
     const roots = await Promise.all(
       (await this.menuRepository.findRoots()).map((root) => this.menuRepository.findDescendantsTree(root)),
     );
-    return await TransactionUtil.execute(this.connection, async (manager: EntityManager) => {
-      await manager.createQueryBuilder().delete().from('functionalities_closure').execute();
-      await Promise.all(roots.map((tree) => this.deleteTree(manager, tree)));
-      return true;
+
+    //! Alternative 1
+    // await this.menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
+    // await Promise.all(roots.map((tree) => this.removeTree(tree)));
+    // return;
+
+    //! Alternative 2
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+      const menuRepository = manager.getTreeRepository(Functionality);
+      await menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
+      await Promise.all(roots.map((tree) => this.removeTree2(menuRepository, tree)));
+      return;
     });
+
+    //! Alternative 3 (recommended by NestJS)
+    // return await TransactionUtil.execute(this.connection, async (manager: EntityManager) => {
+    //   const menuRepository = manager.getTreeRepository(Functionality);
+    //   await menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
+    //   await Promise.all(roots.map((tree) => this.removeTree2(menuRepository, tree)));
+    //   return;
+    // });
   }
 
-  async deleteTree(manager: EntityManager, functionality: Functionality) {
-    if (!functionality.subFunctionalities.length) {
-      return await manager.delete(Functionality, functionality.id);
+  async removeTree(functionality: Functionality) {
+    if (!functionality.subFunctionalities?.length) {
+      //! Only "delete" works with @Transactional
+      return await this.menuRepository.delete(functionality.id);
+      // return await this.menuRepository.remove(functionality);
     } else {
-      await Promise.all(functionality.subFunctionalities.map((f) => this.deleteTree(manager, f)));
-      return await manager.delete(Functionality, functionality.id);
+      await Promise.all(functionality.subFunctionalities.map((f) => this.removeTree(f)));
+      return await this.menuRepository.delete(functionality.id);
+      // return await this.menuRepository.remove(functionality);
+    }
+  }
+
+  async removeTree2(menuRepository: TreeRepository<Functionality>, functionality: Functionality) {
+    if (!functionality.subFunctionalities.length) {
+      // return await menuRepository.delete(functionality.id);
+      //! "remove" works when the native connection.transaction() is used
+      return await menuRepository.remove(functionality);
+    } else {
+      await Promise.all(functionality.subFunctionalities.map((f) => this.removeTree2(menuRepository, f)));
+      // return await menuRepository.delete(functionality.id);
+      return await menuRepository.remove(functionality);
     }
   }
 }

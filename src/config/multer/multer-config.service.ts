@@ -26,7 +26,8 @@ export class MulterConfigService implements MulterOptionsFactory {
   }
 
   getDestination(req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
-    //TODO: If we decide to store each file in it's correponding folder according to role, here we have to retrieve the appropiate destination
+    // TODO: If we decide to store each file in it's correponding folder according to role, here we have to retrieve the appropiate destination
+    // TODO: Check if __dirname should be used
     cb(null, this.destination);
   }
 

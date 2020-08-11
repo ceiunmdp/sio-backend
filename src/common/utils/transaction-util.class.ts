@@ -4,7 +4,7 @@ export abstract class TransactionUtil {
   static async execute(connection: Connection, callback: (manager: EntityManager) => Promise<any>) {
     const queryRunner = connection.createQueryRunner();
     await queryRunner.connect();
-    await queryRunner.startTransaction();
+    await queryRunner.startTransaction('REPEATABLE READ'); // "READ UNCOMMITTED" | "READ COMMITTED" | "REPEATABLE READ" | "SERIALIZABLE";
     try {
       const result = await callback(queryRunner.manager);
       await queryRunner.commitTransaction();

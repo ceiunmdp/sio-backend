@@ -7,22 +7,22 @@ import { Relation } from './relation.entity';
 @Entity('careers_courses_relations')
 export class CareerCourseRelation {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @AutoMap(() => Career)
   @ManyToOne(() => Career, (career) => career.careerCourseRelations, { nullable: false })
   @JoinColumn({ name: 'career_id' })
-  career: Career;
+  career!: Promise<Career>;
 
   @AutoMap(() => Course)
   @ManyToOne(() => Course, (course) => course.careerCourseRelations, { nullable: false })
   @JoinColumn({ name: 'course_id' })
-  course: Course;
+  course!: Promise<Course>;
 
   @AutoMap(() => Relation)
   @ManyToOne(() => Relation, (relation) => relation.careerCourseRelations, { nullable: false })
   @JoinColumn({ name: 'relation_id' })
-  relation: Relation;
+  relation!: Promise<Relation>;
 
   constructor(partial: Partial<CareerCourseRelation>) {
     Object.assign(this, partial);

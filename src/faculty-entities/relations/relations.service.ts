@@ -28,10 +28,12 @@ export class RelationsService {
   }
 
   async update(id: string, updateRelationDto: UpdateRelationDto) {
-    return this.relationsRepository.save({ id, ...updateRelationDto });
+    // TODO: Call "saveAndReload"
+    return this.relationsRepository.save({ ...updateRelationDto, id });
   }
 
   async delete(id: string) {
+    // TODO: Implement "softRemove"
     return await this.relationsRepository.softDelete(id);
   }
 }

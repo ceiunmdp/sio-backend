@@ -8,5 +8,5 @@ export class Professorship extends User {
   @AutoMap(() => Course)
   @ManyToOne(() => Course, (course) => course.professorships)
   @JoinColumn({ name: 'course_id' })
-  course?: Course;
+  course!: Promise<Course>;
 }

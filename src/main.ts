@@ -1,12 +1,18 @@
-import { HttpStatus, LoggerService, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, LoggerService } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 import * as compression from 'compression';
 import * as rateLimit from 'express-rate-limit';
 import * as slowDown from 'express-slow-down';
 import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
+import {
+  initializeTransactionalContext,
+  patchTypeORMRepositoryWithBaseRepository,
+  patchTypeORMTreeRepositoryWithBaseTreeRepository,
+} from 'typeorm-transactional-cls-hooked';
 import { AppModule } from './app.module';
 import { Paths } from './common/enums/paths';
 import { buildError } from './common/filters/http-exception.filter';
@@ -32,8 +38,17 @@ async function bootstrap() {
   setupSlowDown(app);
 
   // enableAllExceptionsFilterGlobally(app);
-  enableValidationPipeGlobally(app);
-  // enableClassSerializerInterceptorGlobally(app);
+  // enableValidationPipeGlobally(app);
+  // enableSerializerInterceptorGlobally(app);
+
+  // This will cause class-validator to use the nestJS module resolution,
+  // the fallback option is to spare our selfs from importing all the class-validator modules to nestJS
+  useContainer(app.select(AppModule), { fallback: true });
+
+  //! Alternative 1
+  // initializeTransactionalContext(); // Initialize cls-hooked
+  // patchTypeORMRepositoryWithBaseRepository(); // Patch Repository with BaseRepository
+  // patchTypeORMTreeRepositoryWithBaseTreeRepository(); // Patch TreeRepository with BaseTreeRepository
 
   enableSwaggerUI(app);
   setupFirebaseAdminSDK(logger);
@@ -143,23 +158,23 @@ function setupSlowDown(app: NestExpressApplication) {
 //   // app.useGlobalFilters(new AllExceptionsFilter());
 // }
 
-function enableValidationPipeGlobally(app: NestExpressApplication) {
-  app.useGlobalPipes(
-    new ValidationPipe({
-      // skipMissingProperties: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-      // disableErrorMessages: true, // Useful in production
-      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
-    }),
-  );
-}
+// function enableValidationPipeGlobally(app: NestExpressApplication) {
+//   app.useGlobalPipes(
+//     new ValidationPipe({
+//       // skipMissingProperties: true,
+//       whitelist: true, // Strip all properties that don't have any decorators
+//       forbidNonWhitelisted: true, // In combination with the previous flag, it'll throw an error when there's any extra property
+//       forbidUnknownValues: true, // Prevent unknown objects from passing validation
+//       // disableErrorMessages: true, // Useful in production
+//       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+//       transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
+//     }),
+//   );
+// }
 
-// function enableClassSerializerInterceptorGlobally(app: NestExpressApplication) {
+// function enableSerializerInterceptorGlobally(app: NestExpressApplication) {
 //   // Setup global interceptor to serialize responses
-//   // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+//   // app.useGlobalInterceptors(new SerializerInterceptor());
 // }
 
 function enableSwaggerUI(app: NestExpressApplication) {
@@ -178,7 +193,7 @@ function enableSwaggerUI(app: NestExpressApplication) {
 }
 
 function setupFirebaseAdminSDK(logger: LoggerService) {
-  // console.log(admin.apps.length);
+  // logger.log(admin.apps.length);
   if (!admin.apps.length) {
     logger.log('Firebase Admin SDK initialized');
     admin.initializeApp({

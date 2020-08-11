@@ -15,7 +15,7 @@ export class ResponseFunctionalityDto {
   @Expose()
   @AutoMap(() => ResponseFunctionalityDto)
   @ApiProperty({ description: 'List of subFunctionalities', type: () => ResponseFunctionalityDto })
-  subFunctionalities?: ResponseFunctionalityDto[];
+  subFunctionalities!: ResponseFunctionalityDto[];
 
   constructor(partial: Partial<ResponseFunctionalityDto>) {
     Object.assign(this, partial);

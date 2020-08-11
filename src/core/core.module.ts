@@ -1,7 +1,7 @@
-import { SnakeCaseNamingConvention } from '@nartc/automapper';
 import { CacheModule, Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { RouterModule } from 'nest-router';
-import { AutomapperModule } from 'nestjsx-automapper';
+import { join } from 'path';
 import { routes } from 'src/common/constants/routes.constant';
 import { ApiConfigModule } from 'src/config/api/api-config.module';
 import { AppConfigModule } from 'src/config/app/app-config.module';
@@ -15,9 +15,9 @@ import { LoggerModule } from 'src/logger/logger.module';
   imports: [
     AppConfigModule,
     ApiConfigModule,
-    AutomapperModule.withMapper({
-      destinationNamingConvention: SnakeCaseNamingConvention,
-    }),
+    // AutomapperModule.withMapper({
+    //   destinationNamingConvention: SnakeCaseNamingConvention,
+    // }),
     CacheModule.registerAsync({
       imports: [CacheConfigModule],
       useExisting: CacheConfigService,
@@ -26,6 +26,10 @@ import { LoggerModule } from 'src/logger/logger.module';
     HealthModule,
     LoggerModule,
     RouterModule.forRoutes(routes), // Setup routes
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/api*'],
+    }),
   ],
   exports: [CacheModule],
 })

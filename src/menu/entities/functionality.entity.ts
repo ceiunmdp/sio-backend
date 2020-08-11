@@ -1,33 +1,33 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/classes/base-entity.class';
 import { Role } from 'src/users/entities/role.entity';
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, Tree, TreeChildren, TreeParent } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent } from 'typeorm';
 
 @Entity('functionalities')
 @Tree('closure-table')
 export class Functionality extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  // @PrimaryGeneratedColumn('uuid')
+  // id!: string;
 
   @Column()
   name!: string;
 
   @AutoMap(() => Functionality)
   @TreeParent()
-  supraFunctionality?: Functionality;
+  supraFunctionality!: Promise<Functionality>;
 
   @AutoMap(() => Functionality)
   @TreeChildren({ cascade: true })
-  subFunctionalities?: Functionality[];
+  subFunctionalities?: Functionality[]; //* Should be Promise<Functionality[]> but TreeRepository doesn't support it
 
   @AutoMap(() => Role)
-  @ManyToMany(() => Role, (role) => role.functionalities, { lazy: true, cascade: ['insert', 'update', 'remove'] })
+  @ManyToMany(() => Role, (role) => role.functionalities, { cascade: true }) // Default -> onDelete: "CASCADE", onUpdate: "NO ACTION"
   @JoinTable({
     name: 'functionalities_roles',
     joinColumn: { name: 'functionality_id' },
     inverseJoinColumn: { name: 'role_id' },
   })
-  roles?: Role[];
+  roles!: Promise<Role[]>;
 
   constructor(partial: Partial<Functionality>) {
     super();
