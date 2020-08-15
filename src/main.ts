@@ -8,11 +8,6 @@ import * as rateLimit from 'express-rate-limit';
 import * as slowDown from 'express-slow-down';
 import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
-import {
-  initializeTransactionalContext,
-  patchTypeORMRepositoryWithBaseRepository,
-  patchTypeORMTreeRepositoryWithBaseTreeRepository,
-} from 'typeorm-transactional-cls-hooked';
 import { AppModule } from './app.module';
 import { Paths } from './common/enums/paths';
 import { buildError } from './common/filters/http-exception.filter';
