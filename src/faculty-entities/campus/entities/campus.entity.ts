@@ -1,14 +1,15 @@
-import { AutoMap } from 'nestjsx-automapper';
-import { BaseEntity } from 'src/common/classes/base-entity.class';
+import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { CampusUser } from 'src/users/entities/campus-user.entity';
-import { Entity, OneToMany } from 'typeorm';
+import { Entity, OneToMany, Index, Column } from 'typeorm';
+import { AutoMap } from 'nestjsx-automapper';
 
 @Entity()
 export class Campus extends BaseEntity {
-  // @PrimaryGeneratedColumn('uuid')
-  // id!: string;
+  @Index('name-idx', { unique: true })
+  @Column()
+  name!: string;
 
   @AutoMap(() => CampusUser)
   @OneToMany(() => CampusUser, (campusUser) => campusUser.campus)
-  campusUsers!: Promise<CampusUser[]>;
+  readonly campusUsers!: Promise<CampusUser[]>;
 }

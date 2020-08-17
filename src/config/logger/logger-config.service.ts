@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { utilities as nestWinstonModuleUtilities, WinstonModuleOptions } from 'nest-winston';
-import { Environment } from 'src/common/enums/environment';
+import { Environment } from 'src/common/enums/environment.enum';
 import { format, transports } from 'winston';
 import 'winston-daily-rotate-file';
 import { AppConfigService } from '../app/app-config.service';

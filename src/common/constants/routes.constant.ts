@@ -2,7 +2,7 @@ import { Routes } from 'nest-router';
 import { AuthModule } from '../../auth/auth.module';
 import { FacultyEntitiesModule } from '../../faculty-entities/faculty-entities.module';
 import { HealthModule } from '../../health/health.module';
-import { Paths } from '../enums/paths';
+import { Path } from '../enums/path.enum';
 
 export const routes: Routes = [
   // {
@@ -20,11 +20,11 @@ export const routes: Routes = [
   //   ],
   // },
   {
-    path: Paths.AUTH,
+    path: Path.AUTH,
     module: AuthModule,
   },
   {
-    path: Paths.HEALTH,
+    path: Path.HEALTH,
     module: HealthModule,
   },
   // {

@@ -1,4 +1,4 @@
-export enum Paths {
+export enum Path {
   API = '/api/v1',
   AUTH = '/auth',
   HEALTH = '/health',

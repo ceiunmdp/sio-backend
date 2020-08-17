@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Paths } from 'src/common/enums/paths';
+import { Path } from 'src/common/enums/path.enum';
 
 export interface AppEnvironmentVariables {
   'app.env': string;
@@ -34,6 +34,6 @@ export class AppConfigService {
   }
 
   get basePath() {
-    return `${this.origin}${Paths.API}`;
+    return `${this.origin}${Path.API}`;
   }
 }

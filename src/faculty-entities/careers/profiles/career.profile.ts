@@ -1,4 +1,6 @@
 import { AutoMapper, Profile, ProfileBase } from 'nestjsx-automapper';
+import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
+import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
 import { ResponseCareerDto } from '../dto/response-career.dto';
 import { Career } from '../entities/career.entity';
 
@@ -6,10 +8,6 @@ import { Career } from '../entities/career.entity';
 export class CareerProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();
-    mapper.createMap(Career, ResponseCareerDto);
-    // .forMember(
-    //   (dest) => dest.namee,
-    //   mapFrom((src) => src.name),
-    // );
+    mapper.createMap(Career, ResponseCareerDto, { includeBase: [BaseEntity, ResponseBaseEntity] });
   }
 }

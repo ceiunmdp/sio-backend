@@ -1,6 +1,7 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { RouterModule } from 'nest-router';
+import { AutomapperModule } from 'nestjsx-automapper';
 import { join } from 'path';
 import { routes } from 'src/common/constants/routes.constant';
 import { ApiConfigModule } from 'src/config/api/api-config.module';
@@ -10,14 +11,16 @@ import { CacheConfigService } from 'src/config/cache/cache-config.service';
 import { DatabaseModule } from 'src/database/database.module';
 import { HealthModule } from 'src/health/health.module';
 import { LoggerModule } from 'src/logger/logger.module';
+//! Profiles
+import '../common/base-classes/base-entity.profile';
 
 @Module({
   imports: [
     AppConfigModule,
     ApiConfigModule,
-    // AutomapperModule.withMapper({
-    //   destinationNamingConvention: SnakeCaseNamingConvention,
-    // }),
+    AutomapperModule.withMapper({
+      // destinationNamingConvention: SnakeCaseNamingConvention,
+    }),
     CacheModule.registerAsync({
       imports: [CacheConfigModule],
       useExisting: CacheConfigService,

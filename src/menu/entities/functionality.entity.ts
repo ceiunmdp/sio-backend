@@ -1,14 +1,11 @@
 import { AutoMap } from 'nestjsx-automapper';
-import { BaseEntity } from 'src/common/classes/base-entity.class';
+import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Role } from 'src/users/entities/role.entity';
 import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent } from 'typeorm';
 
 @Entity('functionalities')
 @Tree('closure-table')
 export class Functionality extends BaseEntity {
-  // @PrimaryGeneratedColumn('uuid')
-  // id!: string;
-
   @Column()
   name!: string;
 

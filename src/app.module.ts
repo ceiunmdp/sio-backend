@@ -1,5 +1,5 @@
-import { HttpStatus, MiddlewareConsumer, Module, NestModule, RequestMethod, ValidationPipe } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ErrorsInterceptor } from './common/interceptors/errors.interceptor';
@@ -18,7 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
 import { SharedModule } from './shared/shared.module';
 import { UsersModule } from './users/users.module';
-import { ValidatorsModule } from './validators/validators.module';
+import { MovementsModule } from './movements/movements.module';
 
 // export const ENV = process.env.NODE_ENV;
 
@@ -30,11 +30,11 @@ import { ValidatorsModule } from './validators/validators.module';
     FilesModule,
     ItemsModule,
     MenuModule,
+    MovementsModule,
     NotificationsModule,
     OrdersModule,
     SharedModule,
     UsersModule,
-    ValidatorsModule,
   ],
   providers: [
     // Request -> Middlewares -> Guards -> Interceptors -> Pipes -> Request Handler -> Interceptors -> Filters -> Middlewares -> Response
@@ -77,18 +77,18 @@ import { ValidatorsModule } from './validators/validators.module';
     },
 
     // Enable ValidationPipe globally (every DTO is automatically validated)
-    {
-      provide: APP_PIPE,
-      useValue: new ValidationPipe({
-        // skipMissingProperties: true,
-        whitelist: true, // Strip all properties that don't have any decorators
-        forbidNonWhitelisted: true, // In combination with the previous flag, it'll throw an error when there's any extra property
-        forbidUnknownValues: true, // Prevent unknown objects from passing validation
-        // disableErrorMessages: true, // Useful in production
-        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
-      }),
-    },
+    // {
+    //   provide: APP_PIPE,
+    //   useValue: new ValidationPipe({
+    //     // skipMissingProperties: true,
+    //     whitelist: true, // Strip all properties that don't have any decorators
+    //     forbidNonWhitelisted: true, // In combination with the previous flag, it'll throw an error when there's any extra property
+    //     forbidUnknownValues: true, // Prevent unknown objects from passing validation
+    //     // disableErrorMessages: true, // Useful in production
+    //     errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+    //     transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
+    //   }),
+    // },
 
     // Enable AllExceptionsFilter globally
     {

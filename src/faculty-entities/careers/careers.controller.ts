@@ -4,8 +4,8 @@ import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
-import { Paths } from 'src/common/enums/paths';
-import { UserRole } from 'src/common/enums/user-role';
+import { Path } from 'src/common/enums/path.enum';
+import { UserRole } from 'src/common/enums/user-role.enum';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { CareersService } from './careers.service';
 import { CreateCareerDto } from './dto/create-career.dto';
@@ -13,7 +13,7 @@ import { ResponseCareerDto } from './dto/response-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
 
 @ApiTags('Careers')
-@Controller(Paths.CAREERS)
+@Controller(Path.CAREERS)
 export class CareersController {
   constructor(private readonly appConfigService: AppConfigService, private readonly careersService: CareersService) {}
 
@@ -25,13 +25,13 @@ export class CareersController {
     return this.careersService.findAll({
       page,
       limit,
-      route: `${this.appConfigService.basePath}${Paths.CAREERS}`,
+      route: `${this.appConfigService.basePath}${Path.CAREERS}`,
     });
   }
 
   @Get(':id')
   @Auth(UserRole.ADMIN)
-  @Mapper(ResponseCareerDto)
+  // @Mapper(ResponseCareerDto)
   @ApiOkResponse({ description: 'Career', type: ResponseCareerDto })
   async findById(@Id() id: string) {
     return this.careersService.findById(id);
@@ -39,7 +39,7 @@ export class CareersController {
 
   @Post()
   @Auth(UserRole.ADMIN)
-  // @Mapper(ResponseCareerDto)
+  @Mapper(ResponseCareerDto)
   @ApiCreatedResponse({ description: 'The career has been successfully created.', type: ResponseCareerDto })
   async create(@Body() createCareerDto: CreateCareerDto) {
     return this.careersService.create(createCareerDto);

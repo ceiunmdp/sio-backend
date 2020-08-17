@@ -8,4 +8,9 @@ export class Scholarship extends Student {
 
   @Column({ name: 'remaining_copies' })
   remainingCopies!: number;
+
+  constructor(partial: Partial<Scholarship>) {
+    super(partial);
+    Object.assign(this, partial);
+  }
 }

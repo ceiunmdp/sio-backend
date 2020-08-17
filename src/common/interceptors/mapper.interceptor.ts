@@ -1,10 +1,10 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { AutoMapper, InjectMapper } from 'nestjsx-automapper';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
-import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class MapperInterceptor implements NestInterceptor {

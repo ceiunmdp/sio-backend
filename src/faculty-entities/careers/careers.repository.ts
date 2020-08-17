@@ -1,4 +1,4 @@
-import { BaseRepository } from 'src/common/classes/base-repository.class';
+import { BaseRepository } from 'src/common/base-classes/base-repository.repository';
 import { EntityRepository } from 'typeorm';
 import { Career } from './entities/career.entity';
 

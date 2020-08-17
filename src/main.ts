@@ -1,15 +1,14 @@
-import { HttpStatus, LoggerService } from '@nestjs/common';
+import { HttpStatus, LoggerService, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { useContainer } from 'class-validator';
 import * as compression from 'compression';
 import * as rateLimit from 'express-rate-limit';
 import * as slowDown from 'express-slow-down';
 import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
 import { AppModule } from './app.module';
-import { Paths } from './common/enums/paths';
+import { Path } from './common/enums/path.enum';
 import { buildError } from './common/filters/http-exception.filter';
 import { ApiConfigService } from './config/api/api-config.service';
 import { AppConfigService } from './config/app/app-config.service';
@@ -33,12 +32,12 @@ async function bootstrap() {
   setupSlowDown(app);
 
   // enableAllExceptionsFilterGlobally(app);
-  // enableValidationPipeGlobally(app);
+  enableValidationPipeGlobally(app);
   // enableSerializerInterceptorGlobally(app);
 
   // This will cause class-validator to use the nestJS module resolution,
   // the fallback option is to spare our selfs from importing all the class-validator modules to nestJS
-  useContainer(app.select(AppModule), { fallback: true });
+  // useContainer(app.select(AppModule), { fallback: true });
 
   //! Alternative 1
   // initializeTransactionalContext(); // Initialize cls-hooked
@@ -79,7 +78,7 @@ function setupLogger(app: NestExpressApplication, logger: LoggerService) {
 
 function setupGlobalPrefix(app: NestExpressApplication) {
   // Global prefix
-  app.setGlobalPrefix(Paths.API);
+  app.setGlobalPrefix(Path.API);
 }
 
 function setupCompression(app: NestExpressApplication) {
@@ -122,7 +121,7 @@ function setupRateLimiting(app: NestExpressApplication) {
       );
     },
   });
-  app.use(Paths.API, apiLimiter);
+  app.use(Path.API, apiLimiter);
 }
 
 function enableTrustProxy(app: NestExpressApplication) {
@@ -144,7 +143,7 @@ function setupSlowDown(app: NestExpressApplication) {
     // etc.
     maxDelayMs: apiConfigService.speedMaxDelayMS, // load balancer or reverse proxy that has a request timeout
   });
-  app.use(Paths.API, speedLimiter);
+  app.use(Path.API, speedLimiter);
 }
 
 // function enableAllExceptionsFilterGlobally(app: NestExpressApplication) {
@@ -153,19 +152,19 @@ function setupSlowDown(app: NestExpressApplication) {
 //   // app.useGlobalFilters(new AllExceptionsFilter());
 // }
 
-// function enableValidationPipeGlobally(app: NestExpressApplication) {
-//   app.useGlobalPipes(
-//     new ValidationPipe({
-//       // skipMissingProperties: true,
-//       whitelist: true, // Strip all properties that don't have any decorators
-//       forbidNonWhitelisted: true, // In combination with the previous flag, it'll throw an error when there's any extra property
-//       forbidUnknownValues: true, // Prevent unknown objects from passing validation
-//       // disableErrorMessages: true, // Useful in production
-//       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-//       transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
-//     }),
-//   );
-// }
+function enableValidationPipeGlobally(app: NestExpressApplication) {
+  app.useGlobalPipes(
+    new ValidationPipe({
+      // skipMissingProperties: true,
+      whitelist: true, // Strip all properties that don't have any decorators
+      forbidNonWhitelisted: true, // In combination with the previous flag, it'll throw an error when there's any extra property
+      forbidUnknownValues: true, // Prevent unknown objects from passing validation
+      // disableErrorMessages: true, // Useful in production
+      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
+    }),
+  );
+}
 
 // function enableSerializerInterceptorGlobally(app: NestExpressApplication) {
 //   // Setup global interceptor to serialize responses

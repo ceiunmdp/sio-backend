@@ -9,6 +9,7 @@ import { CareersService } from './careers/careers.service';
 import { Career } from './careers/entities/career.entity';
 //! Profiles
 // import './careers/profiles/career.profile';
+// import './relations/profiles/career-course-relation.profile';
 import { CoursesController } from './courses/courses.controller';
 import { CoursesService } from './courses/courses.service';
 import { Course } from './courses/entities/course.entity';

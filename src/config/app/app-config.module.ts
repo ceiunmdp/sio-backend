@@ -1,7 +1,7 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { Environment } from 'src/common/enums/environment';
+import { Environment } from 'src/common/enums/environment.enum';
 import { AppConfigService } from './app-config.service';
 import appConfig from './app.config';
 

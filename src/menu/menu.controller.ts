@@ -2,13 +2,13 @@ import { Controller, Delete, Get, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { User } from 'src/common/decorators/user.decorator';
-import { Paths } from 'src/common/enums/paths';
-import { UserRole } from 'src/common/enums/user-role';
+import { Path } from 'src/common/enums/path.enum';
+import { UserRole } from 'src/common/enums/user-role.enum';
 import { ResponseFunctionalityDto } from './dto/response-functionality.dto';
 import { MenuService } from './menu.service';
 
 @ApiTags('Menu')
-@Controller(Paths.MENU)
+@Controller(Path.MENU)
 export class MenuController {
   constructor(
     // @InjectMapper() private readonly mapper: AutoMapper,

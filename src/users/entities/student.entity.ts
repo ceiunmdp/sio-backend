@@ -1,12 +1,22 @@
-import { ChildEntity, Column } from 'typeorm';
+import { AutoMap } from 'nestjsx-automapper';
+import { Movement } from 'src/movements/entities/movement.entity';
+import { ChildEntity, Column, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 
 @ChildEntity()
-// @TableInheritance({ column: { type: 'enum', enum: StudentType, name: 'student_type' } })
 export class Student extends User {
-  @Column()
+  @Column({ default: 0 })
   balance!: number;
 
   @Column()
   dni!: string;
+
+  @AutoMap(() => Movement)
+  @OneToMany(() => Movement, (movement) => movement.sourceStudent || movement.targetStudent)
+  readonly movements!: Promise<Movement[]>;
+
+  constructor(partial: Partial<Student>) {
+    super(partial);
+    Object.assign(this, partial);
+  }
 }

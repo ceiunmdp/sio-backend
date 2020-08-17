@@ -1,15 +1,13 @@
 import { AutoMap } from 'nestjsx-automapper';
-import { BaseEntity } from 'src/common/classes/base-entity.class';
+import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { CareerCourseRelation } from 'src/faculty-entities/relations/entities/career-course-relation.entity';
 import { Professorship } from 'src/users/entities/professorship.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 
 @Entity('courses')
 export class Course extends BaseEntity {
-  // @PrimaryGeneratedColumn('uuid')
-  // id!: string;
-
-  @Column({ unique: true })
+  @Index('name-idx', { unique: true })
+  @Column()
   name!: string;
 
   @AutoMap(() => CareerCourseRelation)
@@ -17,8 +15,8 @@ export class Course extends BaseEntity {
   careerCourseRelations!: Promise<CareerCourseRelation[]>;
 
   @AutoMap(() => Professorship)
-  @OneToMany(() => Professorship, (professorship) => professorship.course)
-  professorships!: Promise<Professorship[]>;
+  @OneToOne(() => Professorship, (professorship) => professorship.course)
+  readonly professorship!: Promise<Professorship>;
 
   constructor(partial: Partial<Course>) {
     super();
