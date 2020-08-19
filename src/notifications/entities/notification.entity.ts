@@ -1,0 +1,41 @@
+import { AutoMap } from 'nestjsx-automapper';
+import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { NotificationType } from './notification-type.entity';
+
+@Entity('notifications')
+export class Notification extends BaseEntity {
+  @Column({ name: 'message_id', update: false })
+  readonly messageId!: string;
+
+  @AutoMap(() => User)
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
+  readonly user!: Promise<User>;
+
+  @AutoMap(() => NotificationType)
+  @ManyToOne(() => NotificationType, { nullable: false })
+  @JoinColumn({ name: 'notification_type_id' })
+  readonly type!: Promise<NotificationType>;
+
+  @Column({ update: false })
+  readonly title!: string;
+
+  @Column({ update: false, nullable: true })
+  readonly body?: string; // TODO: Define if it's optional or required
+
+  @Column({ name: 'image_url', update: false, nullable: true })
+  readonly imageUrl?: string; // TODO: Define if it's optional or required
+
+  @Column({ update: false, nullable: true })
+  readonly data?: string; //* Could be an embedded entity
+
+  @Column({ default: false })
+  read!: boolean;
+
+  constructor(partial: Partial<Notification>) {
+    super();
+    Object.assign(this, partial);
+  }
+}
