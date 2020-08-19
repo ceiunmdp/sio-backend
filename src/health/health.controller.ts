@@ -37,8 +37,8 @@ export class HealthController {
       () => this.memory.checkRSS('memory_rss', 150 * 1024 * 1024),
 
       // The used disk storage should not exceed 50% of the full disk size
-      // () => this.disk.checkStorage('storage', { thresholdPercent: 0.5, path: '/' }),
-      () => this.disk.checkStorage('storage', { thresholdPercent: 0.5, path: 'C:\\' }),
+      () => this.disk.checkStorage('storage', { thresholdPercent: 0.5, path: '/' }),
+      // () => this.disk.checkStorage('storage', { thresholdPercent: 0.5, path: 'C:\\' }),
     ]);
   }
 }
