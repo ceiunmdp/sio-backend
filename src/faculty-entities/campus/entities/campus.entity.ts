@@ -1,7 +1,7 @@
+import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { CampusUser } from 'src/users/entities/campus-user.entity';
-import { Entity, OneToMany, Index, Column } from 'typeorm';
-import { AutoMap } from 'nestjsx-automapper';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 
 @Entity()
 export class Campus extends BaseEntity {
@@ -11,5 +11,5 @@ export class Campus extends BaseEntity {
 
   @AutoMap(() => CampusUser)
   @OneToMany(() => CampusUser, (campusUser) => campusUser.campus)
-  readonly campusUsers!: Promise<CampusUser[]>;
+  readonly campusUsers!: CampusUser[];
 }

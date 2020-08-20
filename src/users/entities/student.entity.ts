@@ -13,7 +13,7 @@ export class Student extends User {
 
   @AutoMap(() => Movement)
   @OneToMany(() => Movement, (movement) => movement.sourceStudent || movement.targetStudent)
-  readonly movements!: Promise<Movement[]>;
+  readonly movements!: Movement[];
 
   constructor(partial: Partial<Student>) {
     super(partial);

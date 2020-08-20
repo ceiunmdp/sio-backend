@@ -5,9 +5,15 @@
   "compilerOptions": {
     "plugins": [
       {
+        "name": "@nestjs/swagger/plugin",
+        "options": {
+          "dtoFileNameSuffix": [".dto.ts"]
+        }
+      },
+      {
         "name": "@nartc/automapper-transformer-plugin",
         "options": {
-          "modelFileNameSuffix": [".entity.ts", ".dto.ts"]
+          "modelFileNameSuffix": [".dto.ts", ".entity.ts"]
         }
       }
     ]

@@ -2,8 +2,8 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/users/entities/role.entity';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
-import { Functionality } from './entities/functionality.entity';
 import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
+import { Functionality } from './entities/functionality.entity';
 
 @Injectable()
 export class MenuService {
@@ -58,40 +58,40 @@ export class MenuService {
     let menu = new Functionality({ name: 'Menu' });
 
     // Second level
-    // const home = new Functionality({ name: 'Inicio', supraFunctionality: menu });
-    const home = new Functionality({ name: 'Inicio', supraFunctionality: Promise.resolve(menu) });
-    // const orders = new Functionality({ name: 'Pedidos', supraFunctionality: menu });
-    const orders = new Functionality({ name: 'Pedidos', supraFunctionality: Promise.resolve(menu) });
-    // const operations = new Functionality({ name: 'Operaciones', supraFunctionality: menu });
-    const operations = new Functionality({ name: 'Operaciones', supraFunctionality: Promise.resolve(menu) });
+    const home = new Functionality({ name: 'Inicio', supraFunctionality: menu });
+    // const home = new Functionality({ name: 'Inicio', supraFunctionality: Promise.resolve(menu) });
+    const orders = new Functionality({ name: 'Pedidos', supraFunctionality: menu });
+    // const orders = new Functionality({ name: 'Pedidos', supraFunctionality: Promise.resolve(menu) });
+    const operations = new Functionality({ name: 'Operaciones', supraFunctionality: menu });
+    // const operations = new Functionality({ name: 'Operaciones', supraFunctionality: Promise.resolve(menu) });
 
     // Third level
-    // const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: orders });
-    const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: Promise.resolve(orders) });
-    // const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: orders });
-    const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: Promise.resolve(orders) });
-    // const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: operations });
-    const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: Promise.resolve(operations) });
+    const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: orders });
+    // const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: Promise.resolve(orders) });
+    const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: orders });
+    // const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: Promise.resolve(orders) });
+    const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: operations });
+    // const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: Promise.resolve(operations) });
     const transferMoney = new Functionality({
       name: 'Transferir dinero',
-      // supraFunctionality: operations,
-      supraFunctionality: Promise.resolve(operations),
+      supraFunctionality: operations,
+      // supraFunctionality: Promise.resolve(operations),
     });
 
     // Roles
     const admin = new Role({ name: 'admin' });
     const campus = new Role({ name: 'campus' });
 
-    // home.roles = [admin, campus];
-    home.roles = Promise.resolve([admin, campus]);
-    // newOrder.roles = [admin];
-    newOrder.roles = Promise.resolve([admin]);
-    // myOrders.roles = [admin, campus];
-    myOrders.roles = Promise.resolve([admin, campus]);
-    // depositMoney.roles = [admin];
-    depositMoney.roles = Promise.resolve([admin]);
-    // transferMoney.roles = [campus];
-    transferMoney.roles = Promise.resolve([campus]);
+    home.roles = [admin, campus];
+    // home.roles = Promise.resolve([admin, campus]);
+    newOrder.roles = [admin];
+    // newOrder.roles = Promise.resolve([admin]);
+    myOrders.roles = [admin, campus];
+    // myOrders.roles = Promise.resolve([admin, campus]);
+    depositMoney.roles = [admin];
+    // depositMoney.roles = Promise.resolve([admin]);
+    transferMoney.roles = [campus];
+    // transferMoney.roles = Promise.resolve([campus]);
 
     menu = await this.menuRepository.save(menu);
     await this.menuRepository.save(home);

@@ -7,9 +7,6 @@ import { CareersController } from './careers/careers.controller';
 import { CareersRepository } from './careers/careers.repository';
 import { CareersService } from './careers/careers.service';
 import { Career } from './careers/entities/career.entity';
-//! Profiles
-// import './careers/profiles/career.profile';
-// import './relations/profiles/career-course-relation.profile';
 import { CoursesController } from './courses/courses.controller';
 import { CoursesService } from './courses/courses.service';
 import { Course } from './courses/entities/course.entity';
@@ -17,6 +14,10 @@ import { CareerCourseRelation } from './relations/entities/career-course-relatio
 import { Relation } from './relations/entities/relation.entity';
 import { RelationsController } from './relations/relations.controller';
 import { RelationsService } from './relations/relations.service';
+//! Profiles
+// import './careers/profiles/career.profile';
+// import './relations/profiles/relation.profile';
+// import './courses/profiles/course.profile';
 
 @Module({
   imports: [

@@ -1,8 +1,9 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, Module, OnModuleInit } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { RouterModule } from 'nest-router';
-import { AutomapperModule } from 'nestjsx-automapper';
+import { AutoMapper, AutomapperModule, InjectMapper } from 'nestjsx-automapper';
 import { join } from 'path';
+import { BaseEntityProfile } from 'src/common/base-classes/base-entity.profile';
 import { routes } from 'src/common/constants/routes.constant';
 import { ApiConfigModule } from 'src/config/api/api-config.module';
 import { AppConfigModule } from 'src/config/app/app-config.module';
@@ -12,7 +13,7 @@ import { DatabaseModule } from 'src/database/database.module';
 import { HealthModule } from 'src/health/health.module';
 import { LoggerModule } from 'src/logger/logger.module';
 //! Profiles
-import '../common/base-classes/base-entity.profile';
+// import '../common/base-classes/base-entity.profile';
 
 @Module({
   imports: [
@@ -36,4 +37,10 @@ import '../common/base-classes/base-entity.profile';
   ],
   exports: [CacheModule],
 })
-export class CoreModule {}
+export class CoreModule implements OnModuleInit {
+  constructor(@InjectMapper() private readonly mapper: AutoMapper) {}
+
+  onModuleInit() {
+    this.mapper.addProfile(BaseEntityProfile);
+  }
+}

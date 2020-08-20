@@ -1,6 +1,6 @@
-import { Entity, Column } from 'typeorm';
-import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { IsIn } from 'class-validator';
+import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
+import { Column, Entity } from 'typeorm';
 
 @Entity('configurations')
 export class Configuration extends BaseEntity {

@@ -5,7 +5,7 @@ import { UserRole } from '../enums/user-role.enum';
 
 export class ResponseBaseEntity {
   @AutoMap()
-  @Expose({ groups: [UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP, UserRole.SCHOLARSHIP, UserRole.STUDENT] })
+  @Expose({ groups: UserRole.ALL.split(',') })
   @ApiProperty({ description: 'UUID' })
   id!: string;
 }

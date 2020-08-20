@@ -14,11 +14,11 @@ import { FacultyEntitiesModule } from './faculty-entities/faculty-entities.modul
 import { FilesModule } from './files/files.module';
 import { ItemsModule } from './items/items.module';
 import { MenuModule } from './menu/menu.module';
+import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
 import { SharedModule } from './shared/shared.module';
 import { UsersModule } from './users/users.module';
-import { MovementsModule } from './movements/movements.module';
 
 // export const ENV = process.env.NODE_ENV;
 

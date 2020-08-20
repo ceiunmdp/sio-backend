@@ -11,11 +11,11 @@ export class Functionality extends BaseEntity {
 
   @AutoMap(() => Functionality)
   @TreeParent()
-  supraFunctionality!: Promise<Functionality>;
+  supraFunctionality!: Functionality;
 
   @AutoMap(() => Functionality)
   @TreeChildren({ cascade: true })
-  subFunctionalities?: Functionality[]; //* Should be Promise<Functionality[]> but TreeRepository doesn't support it
+  subFunctionalities?: Functionality[];
 
   @AutoMap(() => Role)
   @ManyToMany(() => Role, (role) => role.functionalities, { cascade: true }) // Default -> onDelete: "CASCADE", onUpdate: "NO ACTION"
@@ -24,7 +24,7 @@ export class Functionality extends BaseEntity {
     joinColumn: { name: 'functionality_id' },
     inverseJoinColumn: { name: 'role_id' },
   })
-  roles!: Promise<Role[]>;
+  roles!: Role[];
 
   constructor(partial: Partial<Functionality>) {
     super();

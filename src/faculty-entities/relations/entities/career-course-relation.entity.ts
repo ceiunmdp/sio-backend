@@ -9,17 +9,17 @@ export class CareerCourseRelation {
   @AutoMap(() => Career)
   @ManyToOne(() => Career, (career) => career.careerCourseRelations, { primary: true, nullable: false })
   @JoinColumn({ name: 'career_id' })
-  career!: Promise<Career>;
+  career!: Career;
 
   @AutoMap(() => Course)
   @ManyToOne(() => Course, (course) => course.careerCourseRelations, { primary: true, nullable: false })
   @JoinColumn({ name: 'course_id' })
-  course!: Promise<Course>;
+  course!: Course;
 
   @AutoMap(() => Relation)
   @ManyToOne(() => Relation, { primary: true, nullable: false })
   @JoinColumn({ name: 'relation_id' })
-  relation!: Promise<Relation>;
+  relation!: Relation;
 
   constructor(partial: Partial<CareerCourseRelation>) {
     Object.assign(this, partial);

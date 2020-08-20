@@ -27,7 +27,7 @@ export class LoggerConfigService {
     if (this.appConfigService.env === Environment.DEVELOPMENT) {
       return combine(
         // colorize(),
-        timestamp({ format: 'DD/MM/YYYY, HH:MM:ss' }),
+        timestamp({ format: 'YYYY-MM-DD hh:mm:ss A' }),
         nestWinstonModuleUtilities.format.nestLike('Nest'),
       );
     } else {

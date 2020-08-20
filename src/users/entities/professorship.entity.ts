@@ -14,7 +14,7 @@ export class Professorship extends User {
   @AutoMap(() => Course)
   @OneToOne(() => Course, (course) => course.professorship) //* Could be null for the other child entities
   @JoinColumn({ name: 'course_id' })
-  readonly course!: Promise<Course>;
+  readonly course!: Course;
 
   constructor(partial: Partial<Professorship>) {
     super(partial);

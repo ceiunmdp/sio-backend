@@ -12,27 +12,27 @@ export class OrderFile extends BaseEntity {
   @AutoMap(() => Order)
   @ManyToOne(() => Order, (order) => order.orderFiles, { nullable: false })
   @JoinColumn({ name: 'order_id' })
-  readonly order!: Promise<Order>;
+  readonly order!: Order;
 
   @AutoMap(() => File)
   @ManyToOne(() => File, { nullable: false })
   @JoinColumn({ name: 'file_id' })
-  readonly file!: Promise<File>;
+  readonly file!: File;
 
   @AutoMap(() => FileState)
   @ManyToOne(() => FileState, { nullable: false })
   @JoinColumn({ name: 'file_state_id' })
-  state!: Promise<FileState>;
+  state!: FileState;
 
   @AutoMap(() => Configuration)
   @ManyToOne(() => Configuration, { nullable: false })
   @JoinColumn({ name: 'configuration_id' })
-  readonly configuration!: Promise<Configuration>;
+  readonly configuration!: Configuration;
 
   @AutoMap(() => BindingGroup)
   @ManyToOne(() => BindingGroup) //* Could be null in case file doesn't belong to any binding group
   @JoinColumn({ name: 'binding_group_id' })
-  readonly bindingGroup!: Promise<BindingGroup>;
+  readonly bindingGroup!: BindingGroup;
 
   @Column({ update: false })
   readonly position!: number;

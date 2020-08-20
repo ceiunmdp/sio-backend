@@ -11,20 +11,20 @@ export class Order extends BaseEntity {
   @AutoMap(() => Student)
   @ManyToOne(() => Student, { nullable: false })
   @JoinColumn({ name: 'student_id' })
-  readonly student!: Promise<Student>;
+  readonly student!: Student;
 
   @AutoMap(() => Campus)
   @ManyToOne(() => Campus, { nullable: false })
   @JoinColumn({ name: 'campus_id' })
-  readonly campus!: Promise<Campus>;
+  readonly campus!: Campus;
 
   @AutoMap(() => OrderFile)
   @OneToMany(() => OrderFile, (orderFile) => orderFile.order)
-  readonly orderFiles!: Promise<OrderFile[]>;
+  readonly orderFiles!: OrderFile[];
 
   @AutoMap(() => OrderToOrderState)
   @OneToMany(() => OrderToOrderState, (orderToOrderState) => orderToOrderState.order)
-  orderToOrderStates!: Promise<OrderToOrderState[]>;
+  orderToOrderStates!: OrderToOrderState[];
 
   // TODO: Define if the app should support this kind of payment
   // readonly deposit!: number

@@ -10,11 +10,15 @@ export class CareersService {
   constructor(private readonly careersRepository: CareersRepository) {}
 
   async findAll(options: IPaginationOptions): Promise<Pagination<Career>> {
-    return paginate<Career>(this.careersRepository, options);
+    return paginate<Career>(this.careersRepository, options, {
+      relations: ['careerCourseRelations', 'careerCourseRelations.course'],
+    });
   }
 
   async findById(id: string) {
-    const career = await this.careersRepository.findOne(id);
+    const career = await this.careersRepository.findOne(id, {
+      relations: ['careerCourseRelations', 'careerCourseRelations.course'],
+    });
     if (career) {
       return career;
     } else {

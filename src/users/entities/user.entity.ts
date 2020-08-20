@@ -10,7 +10,7 @@ export class User extends BaseEntity {
   @AutoMap(() => Role)
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({ name: 'users_roles', joinColumn: { name: 'user_id' }, inverseJoinColumn: { name: 'role_id' } })
-  roles!: Promise<Role[]>;
+  roles!: Role[];
 
   constructor(partial: Partial<User>) {
     super();

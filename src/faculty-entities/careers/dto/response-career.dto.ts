@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
+import { AutoMap } from 'nestjsx-automapper';
 import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
 import { UserRole } from 'src/common/enums/user-role.enum';
-import { Career } from '../entities/career.entity';
+import { ResponseCourseDto } from 'src/faculty-entities/courses/dto/response-course.dto';
 
 @Exclude()
 export class ResponseCareerDto extends ResponseBaseEntity {
@@ -10,17 +11,12 @@ export class ResponseCareerDto extends ResponseBaseEntity {
   @ApiProperty({ description: 'Name of career' })
   name!: string;
 
-  // @Expose()
-  // @AutoMap(() => ResponseTernaryDto)
-  // @ApiProperty({ description: 'Linking list between careers, courses and relations' })
-  // careerCourseRelations!: ResponseTernaryDto[];
+  @Expose({ groups: [UserRole.ADMIN] })
+  @AutoMap(() => ResponseCourseDto)
+  @ApiProperty({ description: 'Courses of career', type: [ResponseCourseDto] })
+  courses: ResponseCourseDto[];
 
-  // @Expose()
-  // @AutoMap(() => ResponseCourseDto)
-  // @ApiProperty({ description: 'Courses of career' })
-  // courses: ResponseCourseDto[];
-
-  constructor(partial: Partial<Career>) {
+  constructor(partial: Partial<ResponseCareerDto>) {
     super();
     Object.assign(this, partial);
   }

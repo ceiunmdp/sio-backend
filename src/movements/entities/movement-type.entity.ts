@@ -1,5 +1,5 @@
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { Entity, Column, Index } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity('movement_types')
 export class MovementType extends BaseEntity {

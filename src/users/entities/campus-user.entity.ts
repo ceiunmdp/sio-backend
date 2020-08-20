@@ -8,7 +8,7 @@ export class CampusUser extends User {
   @AutoMap(() => Campus)
   @ManyToOne(() => Campus, (campus) => campus.campusUsers) //* Could be null for the other child entities
   @JoinColumn({ name: 'campus_id' })
-  readonly campus!: Promise<Campus>;
+  readonly campus!: Campus;
 
   constructor(partial: Partial<Campus>) {
     super(partial);

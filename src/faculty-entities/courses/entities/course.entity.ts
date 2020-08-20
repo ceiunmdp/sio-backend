@@ -12,11 +12,11 @@ export class Course extends BaseEntity {
 
   @AutoMap(() => CareerCourseRelation)
   @OneToMany(() => CareerCourseRelation, (careerCourseRelation) => careerCourseRelation.course)
-  careerCourseRelations!: Promise<CareerCourseRelation[]>;
+  careerCourseRelations!: CareerCourseRelation[];
 
   @AutoMap(() => Professorship)
   @OneToOne(() => Professorship, (professorship) => professorship.course)
-  readonly professorship!: Promise<Professorship>;
+  readonly professorship!: Professorship;
 
   constructor(partial: Partial<Course>) {
     super();

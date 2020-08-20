@@ -1,9 +1,9 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, Index } from 'typeorm';
-import { FileType } from '../enums/file-type.enum';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { FileType } from '../enums/file-type.enum';
 
 @Entity('files')
 export class File extends BaseEntity {
@@ -22,12 +22,12 @@ export class File extends BaseEntity {
   @AutoMap(() => User)
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'owner_id' })
-  readonly owner!: Promise<User>;
+  readonly owner!: User;
 
   @AutoMap(() => Course)
   @ManyToOne(() => Course) //* Could be null for temporary files
   @JoinColumn({ name: 'course_id' })
-  readonly course!: Promise<Course>;
+  readonly course!: Course;
 
   @AutoMap(() => String)
   @Index('type-idx')

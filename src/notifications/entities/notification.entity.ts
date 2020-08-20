@@ -12,12 +12,12 @@ export class Notification extends BaseEntity {
   @AutoMap(() => User)
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_id' })
-  readonly user!: Promise<User>;
+  readonly user!: User;
 
   @AutoMap(() => NotificationType)
   @ManyToOne(() => NotificationType, { nullable: false })
   @JoinColumn({ name: 'notification_type_id' })
-  readonly type!: Promise<NotificationType>;
+  readonly type!: NotificationType;
 
   @Column({ update: false })
   readonly title!: string;
