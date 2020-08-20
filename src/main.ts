@@ -2,6 +2,7 @@ import { HttpStatus, LoggerService, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 import * as compression from 'compression';
 import * as rateLimit from 'express-rate-limit';
 import * as slowDown from 'express-slow-down';
@@ -35,9 +36,9 @@ async function bootstrap() {
   enableValidationPipeGlobally(app);
   // enableSerializerInterceptorGlobally(app);
 
-  // This will cause class-validator to use the nestJS module resolution,
-  // the fallback option is to spare our selfs from importing all the class-validator modules to nestJS
-  // useContainer(app.select(AppModule), { fallback: true });
+  // This will cause class-validator to use the NestJS module resolution
+  // The fallback option is to spare our selfs from importing all the class-validator modules to NestJS
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   //! Alternative 1
   // initializeTransactionalContext(); // Initialize cls-hooked
@@ -162,6 +163,7 @@ function enableValidationPipeGlobally(app: NestExpressApplication) {
       // disableErrorMessages: true, // Useful in production
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
+      // TODO: Add 'stopAtFirstError' when available in NestJS common library
     }),
   );
 }

@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 
 @Module({
-  // imports: [TypeOrmModule.forFeature([CareersRepository])],
-  // providers: [IsCareerExistValidator],
-  // exports: [IsCareerExistValidator],
+  // providers: [IsEntityExistConstraint],
+  // exports: [IsEntityExistConstraint],
 })
 export class ValidatorsModule {}

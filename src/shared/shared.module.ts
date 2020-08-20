@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [],
-  exports: [],
+  // imports: [ValidatorsModule],
+  // exports: [ValidatorsModule],
 })
 export class SharedModule {}
