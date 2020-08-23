@@ -1,11 +1,11 @@
-FROM 12.18-alpine3.12 AS development
+FROM node:12.18-alpine3.12 AS development
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --only=development # Change to "npm ci" when deploying
 COPY . .
 RUN npm run build
 
-FROM 12.18-alpine3.12 AS production
+FROM node:12.18-alpine3.12 AS production
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /usr/src/app
