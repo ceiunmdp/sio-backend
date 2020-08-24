@@ -1,10 +1,10 @@
-import { AutoMapper, ProfileBase } from 'nestjsx-automapper';
+import { AutoMapper, Profile, ProfileBase } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
 import { ResponseFunctionalityDto } from '../dto/response-functionality.dto';
 import { Functionality } from '../entities/functionality.entity';
 
-// @Profile()
+@Profile()
 export class FunctionalityProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();
