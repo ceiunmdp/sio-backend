@@ -1,11 +1,11 @@
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { Column, Entity, Index, TableInheritance } from 'typeorm';
+import { Column, Entity, TableInheritance, Unique } from 'typeorm';
 import { ItemType } from '../enums/item-type.enum';
 
 @Entity('items')
 @TableInheritance({ column: { type: 'enum', enum: ItemType, name: 'type' } })
+@Unique(['name'])
 export class Item extends BaseEntity {
-  @Index('name-idx', { unique: true })
   @Column()
   name!: string;
 

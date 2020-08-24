@@ -1,12 +1,12 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Functionality } from 'src/menu/entities/functionality.entity';
-import { Column, Entity, Index, ManyToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, Unique } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('roles')
+@Unique(['name'])
 export class Role extends BaseEntity {
-  @Index('name-idx', { unique: true })
   @Column({ update: false })
   readonly name!: string;
 

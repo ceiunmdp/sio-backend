@@ -2,11 +2,11 @@ import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { CareerCourseRelation } from 'src/faculty-entities/relations/entities/career-course-relation.entity';
 import { Professorship } from 'src/users/entities/professorship.entity';
-import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, Unique } from 'typeorm';
 
 @Entity('courses')
+@Unique(['name'])
 export class Course extends BaseEntity {
-  @Index('name-idx', { unique: true })
   @Column()
   name!: string;
 

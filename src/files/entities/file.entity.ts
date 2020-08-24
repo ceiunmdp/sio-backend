@@ -30,7 +30,7 @@ export class File extends BaseEntity {
   readonly course!: Course;
 
   @AutoMap(() => String)
-  @Index('type-idx')
+  @Index('IX_files_type')
   @Column({ type: 'enum', enum: FileType, update: false })
   readonly type!: FileType;
 

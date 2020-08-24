@@ -1,11 +1,11 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { CampusUser } from 'src/users/entities/campus-user.entity';
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, Unique } from 'typeorm';
 
 @Entity()
+@Unique(['name'])
 export class Campus extends BaseEntity {
-  @Index('name-idx', { unique: true })
   @Column()
   name!: string;
 

@@ -1,13 +1,14 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Role } from 'src/users/entities/role.entity';
-import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent, Unique } from 'typeorm';
 
 @Entity('functionalities')
 @Tree('closure-table')
+@Unique(['name'])
 export class Functionality extends BaseEntity {
   @Column()
-  name!: string;
+  readonly name!: string;
 
   @AutoMap(() => Functionality)
   @TreeParent()
