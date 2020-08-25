@@ -48,12 +48,12 @@ import databaseConfig from './database.config';
         TYPEORM_MIGRATIONS: Joi.string().when('TYPEORM_MIGRATIONS_RUN', {
           is: true,
           then: Joi.required(),
-          otherwise: Joi.optional(),
+          otherwise: Joi.string().default('database/migrations'),
         }),
         TYPEORM_MIGRATIONS_DIR: Joi.string().when('TYPEORM_MIGRATIONS_RUN', {
           is: true,
           then: Joi.required(),
-          otherwise: Joi.optional(),
+          otherwise: Joi.string().default('database/migrations'),
         }),
         TYPEORM_CONNECTION_LIMIT: Joi.number().min(5).max(50).default(10),
       }),

@@ -7,7 +7,7 @@ services:
       context: .
       target: development
       # target: production
-    image: nestjs
+    image: nestjs:1.0.0
     # image: nestjs-prod
     command: npm run start:dev
     env_file:

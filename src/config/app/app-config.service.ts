@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Environment } from 'src/common/enums/environment.enum';
 import { Path } from 'src/common/enums/path.enum';
 
 export interface AppEnvironmentVariables {
@@ -15,6 +16,10 @@ export class AppConfigService {
 
   get env() {
     return this.configService.get<string>('app.env');
+  }
+
+  isProduction() {
+    return this.env === Environment.PRODUCTION;
   }
 
   get scheme() {

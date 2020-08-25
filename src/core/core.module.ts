@@ -32,7 +32,7 @@ import '../common/base-classes/base-entity.profile';
     LoggerModule,
     RouterModule.forRoutes(routes), // Setup routes
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+      rootPath: join(__dirname, '../public'),
       exclude: ['/api*'],
     }),
   ],

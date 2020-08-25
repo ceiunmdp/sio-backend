@@ -40,12 +40,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
   }
 }
 
-export function buildError(req: Request, { status, error, message }: InternalError) {
+export function buildError(request: Request, { status, error, message }: InternalError) {
   return {
     statusCode: status,
     error,
     message,
     timestamp: new Date().toISOString(),
-    path: req.url,
+    path: request.url,
   };
 }

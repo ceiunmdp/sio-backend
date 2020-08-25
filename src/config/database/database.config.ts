@@ -13,6 +13,6 @@ export default registerAs('typeorm', () => ({
   synchronize: process.env.TYPEORM_SYNCHRONIZE,
   migrationsRun: process.env.TYPEORM_MIGRATIONS_RUN,
   migrations: process.env.TYPEORM_MIGRATIONS,
-  migrationDir: process.env.TYPEORM_MIGRATIONS_DIR,
+  migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
   connectionLimit: process.env.TYPEORM_CONNECTION_LIMIT,
 }));

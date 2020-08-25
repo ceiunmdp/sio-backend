@@ -25,14 +25,14 @@ export class MulterConfigService implements MulterOptionsFactory {
     return this.configService.get<number>('multer.limitFileSize');
   }
 
-  getDestination(req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
+  getDestination(request: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
     // TODO: If we decide to store each file in it's correponding folder according to role, here we have to retrieve the appropiate destination
     // TODO: Check if __dirname should be used
     cb(null, this.destination);
   }
 
   // TODO: Should this function be inside Files Module, in order to create and save metadata about the file prior to save it on disk?
-  getFilename(req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
+  getFilename(request: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
     // TODO: Logic to determine filename. Could be "UUID.extension"
     const filename = file.filename + '-' + Date.now();
     cb(null, filename);
@@ -49,7 +49,7 @@ export class MulterConfigService implements MulterOptionsFactory {
     return { fileSize: this.limitFileSize };
   }
 
-  fileFilter(req: Request, file: Express.Multer.File, cb: (error: Error | null, acceptFile: boolean) => void) {
+  fileFilter(request: Request, file: Express.Multer.File, cb: (error: Error | null, acceptFile: boolean) => void) {
     // The function should call `cb` with a boolean
     // to indicate if the file should be accepted
     // To reject this file pass `false`, like so:

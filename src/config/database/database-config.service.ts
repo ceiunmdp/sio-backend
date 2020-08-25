@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import { join } from 'path';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 import { LoggerOptions } from 'typeorm/logger/LoggerOptions';
 
@@ -96,9 +97,9 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
       maxQueryExecutionTime: this.maxQueryExecutionTime, // Log long-running queries
       synchronize: this.synchronize,
       migrationsRun: this.migrationsRun,
-      migrations: [__dirname + this.migrations],
+      migrations: [join(__dirname, this.migrations)],
       cli: {
-        migrationsDir: __dirname + this.migrationsDir,
+        migrationsDir: join(__dirname, this.migrationsDir),
       },
       // dropSchema: true,
       // cache: {
