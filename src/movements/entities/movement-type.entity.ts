@@ -8,7 +8,7 @@ export class MovementType extends BaseEntity {
   readonly name!: string;
 
   constructor(partial: Partial<MovementType>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

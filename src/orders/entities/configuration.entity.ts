@@ -16,7 +16,7 @@ export class Configuration extends BaseEntity {
   readonly colour!: boolean;
 
   constructor(partial: Partial<Configuration>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

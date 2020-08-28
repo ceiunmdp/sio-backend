@@ -1,7 +1,7 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { CareerCourseRelation } from 'src/faculty-entities/relations/entities/career-course-relation.entity';
-import { Professorship } from 'src/users/entities/professorship.entity';
+import { Professorship } from 'src/users/professorships/entities/professorship.entity';
 import { Column, Entity, OneToMany, OneToOne, Unique } from 'typeorm';
 
 @Entity('courses')
@@ -19,7 +19,7 @@ export class Course extends BaseEntity {
   readonly professorship!: Professorship;
 
   constructor(partial: Partial<Course>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

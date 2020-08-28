@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { CareersRepository } from './careers.repository';
 import { CreateCareerDto } from './dto/create-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
@@ -9,7 +9,7 @@ import { Career } from './entities/career.entity';
 export class CareersService {
   constructor(private readonly careersRepository: CareersRepository) {}
 
-  async findAll(options: IPaginationOptions): Promise<Pagination<Career>> {
+  async findAll(options: IPaginationOptions) {
     return paginate<Career>(this.careersRepository, options, {
       relations: ['careerCourseRelations', 'careerCourseRelations.course'],
     });

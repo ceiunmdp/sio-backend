@@ -10,7 +10,7 @@ export class BindingGroup extends BaseEntity {
   readonly price!: number;
 
   constructor(partial: Partial<BindingGroup>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

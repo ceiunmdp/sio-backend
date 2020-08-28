@@ -14,7 +14,7 @@ export class Career extends BaseEntity {
   careerCourseRelations!: CareerCourseRelation[];
 
   constructor(partial: Partial<Career>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

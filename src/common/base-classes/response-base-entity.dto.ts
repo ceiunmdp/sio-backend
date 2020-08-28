@@ -8,4 +8,8 @@ export class ResponseBaseEntity {
   @Expose({ groups: UserRole.ALL.split(',') })
   @ApiProperty({ description: 'UUID' })
   id!: string;
+
+  constructor(partial: Partial<ResponseBaseEntity>) {
+    Object.assign(this, partial);
+  }
 }

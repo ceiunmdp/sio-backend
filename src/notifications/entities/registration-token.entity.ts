@@ -1,5 +1,5 @@
 import { AutoMap } from 'nestjsx-automapper';
-import { User } from 'src/users/entities/user.entity';
+import { User } from 'src/users/firebase-users/entities/user.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity('registration_tokens')

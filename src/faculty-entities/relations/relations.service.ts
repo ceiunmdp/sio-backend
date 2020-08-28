@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 import { CreateRelationDto } from './dto/create-relation.dto';
 import { UpdateRelationDto } from './dto/update-relation.dto';
@@ -10,7 +10,7 @@ import { Relation } from './entities/relation.entity';
 export class RelationsService {
   constructor(@InjectRepository(Relation) private readonly relationsRepository: Repository<Relation>) {}
 
-  async findAll(options: IPaginationOptions): Promise<Pagination<Relation>> {
+  async findAll(options: IPaginationOptions) {
     return paginate<Relation>(this.relationsRepository, options);
   }
 

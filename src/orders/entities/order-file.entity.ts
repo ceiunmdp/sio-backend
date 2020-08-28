@@ -41,7 +41,7 @@ export class OrderFile extends BaseEntity {
   readonly total!: number;
 
   constructor(partial: Partial<OrderFile>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

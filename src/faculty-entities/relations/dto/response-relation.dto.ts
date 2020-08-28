@@ -10,7 +10,7 @@ export class ResponseRelationDto extends ResponseBaseEntity {
   name!: string;
 
   constructor(partial: Partial<ResponseRelationDto>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

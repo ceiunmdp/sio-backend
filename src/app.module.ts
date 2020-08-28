@@ -17,7 +17,7 @@ import { MenuModule } from './menu/menu.module';
 import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
-import { SharedModule } from './shared/shared.module';
+import { UserModule } from './user/user.module';
 import { UsersModule } from './users/users.module';
 
 // export const ENV = process.env.NODE_ENV;
@@ -33,7 +33,7 @@ import { UsersModule } from './users/users.module';
     MovementsModule,
     NotificationsModule,
     OrdersModule,
-    SharedModule,
+    UserModule,
     UsersModule,
   ],
   providers: [

@@ -20,6 +20,7 @@ import '../common/base-classes/base-entity.profile';
     AppConfigModule,
     ApiConfigModule,
     AutomapperModule.withMapper({
+      // useUndefined: true,
       // destinationNamingConvention: SnakeCaseNamingConvention,
       throwError: process.env.NODE_ENV === Environment.PRODUCTION,
     }),

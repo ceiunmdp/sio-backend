@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/users/entities/role.entity';
+import { Role } from 'src/users/firebase-users/entities/role.entity';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
 import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
 import { Functionality } from './entities/functionality.entity';
@@ -8,8 +8,8 @@ import { Functionality } from './entities/functionality.entity';
 @Injectable()
 export class MenuService {
   constructor(
-    @InjectRepository(Functionality) private readonly menuRepository: TreeRepository<Functionality>,
     @InjectConnection() private readonly connection: Connection,
+    @InjectRepository(Functionality) private readonly menuRepository: TreeRepository<Functionality>,
   ) {}
 
   async find(userRole: string) {
@@ -82,16 +82,16 @@ export class MenuService {
     const admin = new Role({ name: 'admin' });
     const campus = new Role({ name: 'campus' });
 
-    home.roles = [admin, campus];
-    // home.roles = Promise.resolve([admin, campus]);
-    newOrder.roles = [admin];
-    // newOrder.roles = Promise.resolve([admin]);
-    myOrders.roles = [admin, campus];
-    // myOrders.roles = Promise.resolve([admin, campus]);
-    depositMoney.roles = [admin];
-    // depositMoney.roles = Promise.resolve([admin]);
-    transferMoney.roles = [campus];
-    // transferMoney.roles = Promise.resolve([campus]);
+    // home.roles = [admin, campus];
+    home.roles = Promise.resolve([admin, campus]);
+    // newOrder.roles = [admin];
+    newOrder.roles = Promise.resolve([admin]);
+    // myOrders.roles = [admin, campus];
+    myOrders.roles = Promise.resolve([admin, campus]);
+    // depositMoney.roles = [admin];
+    depositMoney.roles = Promise.resolve([admin]);
+    // transferMoney.roles = [campus];
+    transferMoney.roles = Promise.resolve([campus]);
 
     menu = await this.menuRepository.save(menu);
     await this.menuRepository.save(home);

@@ -8,7 +8,7 @@ export class Relation extends BaseEntity {
   name!: string;
 
   constructor(partial: Partial<Relation>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

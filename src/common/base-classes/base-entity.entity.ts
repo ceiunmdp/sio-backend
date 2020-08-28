@@ -17,4 +17,8 @@ export class BaseEntity {
 
   @VersionColumn()
   readonly version!: number;
+
+  constructor(partial: Partial<BaseEntity>) {
+    Object.assign(this, partial);
+  }
 }

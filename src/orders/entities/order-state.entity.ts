@@ -8,7 +8,7 @@ export class OrderState extends BaseEntity {
   readonly name!: string;
 
   constructor(partial: Partial<OrderState>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

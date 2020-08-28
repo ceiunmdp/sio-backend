@@ -1,6 +1,6 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { Student } from 'src/users/entities/student.entity';
+import { Student } from 'src/users/students/entities/student.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { MovementType } from './movement-type.entity';
 
@@ -27,7 +27,7 @@ export class Movement extends BaseEntity {
   //* Timestamp is already stored in BaseEntity
 
   constructor(partial: Partial<Movement>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

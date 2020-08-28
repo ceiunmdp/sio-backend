@@ -17,7 +17,7 @@ export class ResponseCareerDto extends ResponseBaseEntity {
   courses: ResponseCourseDto[];
 
   constructor(partial: Partial<ResponseCareerDto>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

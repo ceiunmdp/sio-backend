@@ -10,7 +10,7 @@ export class ResponseCourseDto extends ResponseBaseEntity {
   name!: string;
 
   constructor(partial: Partial<ResponseCourseDto>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

@@ -20,7 +20,7 @@ export class NotificationType extends BaseEntity {
   readonly dataTemplate!: string; //* Could be an embedded entity
 
   constructor(partial: Partial<NotificationType>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

@@ -1,7 +1,7 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
-import { Student } from 'src/users/entities/student.entity';
+import { Student } from 'src/users/students/entities/student.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { OrderFile } from './order-file.entity';
 import { OrderToOrderState } from './order-to-order-state.entity';
@@ -33,7 +33,7 @@ export class Order extends BaseEntity {
   readonly total!: number;
 
   constructor(partial: Partial<Order>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

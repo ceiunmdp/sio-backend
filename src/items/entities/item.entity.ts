@@ -13,7 +13,7 @@ export class Item extends BaseEntity {
   price!: number;
 
   constructor(partial: Partial<Item>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

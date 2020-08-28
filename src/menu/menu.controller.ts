@@ -3,13 +3,12 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { User } from 'src/common/decorators/user.decorator';
-import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { ResponseFunctionalityDto } from './dto/response-functionality.dto';
 import { MenuService } from './menu.service';
 
 @ApiTags('Menu')
-@Controller(Path.MENU)
+@Controller()
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 

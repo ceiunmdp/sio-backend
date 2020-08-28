@@ -8,7 +8,7 @@ export class FileState extends BaseEntity {
   readonly name!: string;
 
   constructor(partial: Partial<FileState>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

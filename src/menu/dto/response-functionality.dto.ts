@@ -11,13 +11,17 @@ export class ResponseFunctionalityDto extends ResponseBaseEntity {
   @ApiProperty({ description: 'Name of functionality' })
   name!: string;
 
-  @Expose({ groups: UserRole.ALL.split(',') })
+  @Expose({ name: 'sub_functionalities', groups: UserRole.ALL.split(',') })
   @AutoMap(() => ResponseFunctionalityCircularDto)
-  @ApiProperty({ description: 'List of subFunctionalities', type: () => [ResponseFunctionalityCircularDto] })
+  @ApiProperty({
+    name: 'sub_functionalities',
+    description: 'List of subFunctionalities',
+    type: () => [ResponseFunctionalityCircularDto],
+  })
   subFunctionalities!: ResponseFunctionalityCircularDto[];
 
   constructor(partial: Partial<ResponseFunctionalityDto>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }

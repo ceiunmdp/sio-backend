@@ -13,7 +13,7 @@ import { ResponseCareerDto } from './dto/response-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
 
 @ApiTags('Careers')
-@Controller(Path.CAREERS)
+@Controller()
 export class CareersController {
   constructor(private readonly appConfigService: AppConfigService, private readonly careersService: CareersService) {}
 
@@ -21,10 +21,10 @@ export class CareersController {
   @Auth(UserRole.ADMIN)
   @Mapper(ResponseCareerDto)
   @ApiOkResponse({ description: 'List of careers.', type: [ResponseCareerDto] })
-  async findAll(@Page() page: number, @Limit() limit: number) {
+  async findAll(@Limit() limit: number, @Page() page: number) {
     return this.careersService.findAll({
-      page,
       limit,
+      page,
       route: `${this.appConfigService.basePath}${Path.CAREERS}`,
     });
   }

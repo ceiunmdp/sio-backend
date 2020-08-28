@@ -1,6 +1,6 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { Role } from 'src/users/entities/role.entity';
+import { Role } from 'src/users/firebase-users/entities/role.entity';
 import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent, Unique } from 'typeorm';
 
 @Entity('functionalities')
@@ -25,10 +25,10 @@ export class Functionality extends BaseEntity {
     joinColumn: { name: 'functionality_id' },
     inverseJoinColumn: { name: 'role_id' },
   })
-  roles!: Role[];
+  roles!: Promise<Role[]>;
 
   constructor(partial: Partial<Functionality>) {
-    super();
+    super(partial);
     Object.assign(this, partial);
   }
 }
