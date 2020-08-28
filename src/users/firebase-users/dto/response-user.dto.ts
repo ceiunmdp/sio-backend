@@ -27,6 +27,11 @@ export class ResponseUserDto extends ResponseBaseEntity {
   @ApiProperty({ name: 'photo_url', description: `User photo url` })
   photoURL!: string;
 
+  @AutoMap()
+  @Expose({ name: 'dark_theme', groups: [UserRole.ADMIN] })
+  @ApiProperty({ name: 'dark_theme', description: `User's theme` })
+  darkTheme!: boolean;
+
   @AutoMap(() => String)
   @Expose({ groups: [UserRole.ADMIN] })
   @ApiProperty({ description: `User's type` })

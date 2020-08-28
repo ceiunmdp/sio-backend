@@ -145,7 +145,7 @@ export class FirebaseUsersService {
     const user = await manager.getRepository(User).findOne({ id: userRecord.uid });
 
     if (user) {
-      return new User({ ...userRecord, id: userRecord.uid, type: user.type });
+      return new User({ ...user, ...userRecord });
     } else {
       throw new NotFoundException(`Usuario ${userRecord.uid} no encontrado en base local.`);
     }

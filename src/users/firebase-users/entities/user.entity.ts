@@ -26,6 +26,10 @@ export class User extends BaseEntity {
   //! Firebase (only in case of developing multi-tenant application)
   // readonly tenantId!: string | number
 
+  @AutoMap()
+  @Column({ name: 'dark_theme', default: false })
+  darkTheme!: boolean;
+
   @AutoMap(() => String)
   @Column({ type: 'enum', enum: UserType, update: false })
   readonly type!: UserType;
