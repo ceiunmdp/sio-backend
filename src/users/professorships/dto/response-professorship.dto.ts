@@ -5,13 +5,13 @@ import { ResponseUserDto } from '../../users/dto/response-user.dto';
 
 @Exclude()
 export class ResponseProfessorshipDto extends ResponseUserDto {
-  @Expose({ name: 'available_size', groups: [UserRole.ADMIN] })
-  @ApiProperty({ name: 'available_size', description: 'Available size in bytes to store files' })
-  availableSize!: number;
+  @Expose({ name: 'available_storage', groups: [UserRole.ADMIN] })
+  @ApiProperty({ name: 'available_storage', description: 'Available storage [bytes]' })
+  availableStorage!: number;
 
-  @Expose({ name: 'remaining_size', groups: [UserRole.ADMIN] })
-  @ApiProperty({ name: 'remaining_size', description: 'Remaining size in bytes to store files' })
-  remainingSize!: number;
+  @Expose({ name: 'storage_used', groups: [UserRole.ADMIN] })
+  @ApiProperty({ name: 'storage_used', description: 'Storage already used [bytes]' })
+  storageUsed!: number;
 
   constructor(partial: Partial<ResponseProfessorshipDto>) {
     super(partial);

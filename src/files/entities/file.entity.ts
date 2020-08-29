@@ -20,9 +20,9 @@ export class File extends BaseEntity {
   readonly size!: number; //* Bytes (max 2 GB due to INT representation)
 
   @AutoMap(() => User)
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'owner_id' })
-  readonly owner!: User;
+  owner?: User;
 
   @AutoMap(() => Course)
   @ManyToOne(() => Course) //* Could be null for temporary files

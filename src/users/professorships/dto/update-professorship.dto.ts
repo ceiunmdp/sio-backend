@@ -7,6 +7,6 @@ export class UpdateProfessorshipDto extends UpdateUserDto {
   @IsNumber()
   @Min(bytes('200MB'))
   @Max(bytes('2GB'))
-  @ApiProperty({ name: 'available_size', description: `Professorships's available size in bytes to store files` })
-  availableSize!: number;
+  @ApiProperty({ name: 'available_storage', description: `Professorships's available storage [bytes]` })
+  availableStorage!: number;
 }

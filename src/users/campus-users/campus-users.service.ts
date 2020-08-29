@@ -1,4 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { EmailAlreadyExistsException } from 'src/common/exceptions/email-already-exists.exception';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { EntityManager } from 'typeorm';
 import { UsersService } from '../users/users.service';
@@ -17,7 +18,7 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
   async create(createCampusUserDto: Partial<CreateCampusUserDto>, manager: EntityManager) {
     const campusUsersRepository = manager.getCustomRepository(CampusUsersRepository);
 
-    const campusUser = await campusUsersRepository.findOne({
+    let campusUser = await campusUsersRepository.findOne({
       where: { campus: { id: createCampusUserDto.campusId } },
       withDeleted: true,
     });
@@ -28,10 +29,19 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
         campus: new Campus({ id: createCampusUserDto.campusId }),
       });
 
-      const user = await this.usersService.create(newCampusUser.id, createCampusUserDto, manager);
-      return this.userMerger.mergeSubUser(user, newCampusUser);
+      try {
+        const user = await this.usersService.create(newCampusUser.id, createCampusUserDto, manager);
+        return this.userMerger.mergeSubUser(user, newCampusUser);
+      } catch (error) {
+        if (error instanceof EmailAlreadyExistsException) {
+          throw new ConflictException(`Ya existe un usuario con el email elegido.`);
+        } else {
+          throw error;
+        }
+      }
     } else if (campusUser.deleteDate) {
-      return campusUsersRepository.recover(campusUser);
+      campusUser = await campusUsersRepository.recover(campusUser);
+      return this.userMerger.findAndMergeSubUser(campusUser, manager);
     } else {
       throw new ConflictException(`Ya existe un usuario con la sede elegida.`);
     }

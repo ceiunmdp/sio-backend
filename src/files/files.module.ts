@@ -5,6 +5,7 @@ import { MulterConfigModule } from 'src/config/multer/multer-config.module';
 import { MulterConfigService } from 'src/config/multer/multer-config.service';
 import { SharedModule } from 'src/shared/shared.module';
 import { File } from './entities/file.entity';
+import { FilesService } from './files.service';
 
 @Module({
   imports: [
@@ -15,5 +16,7 @@ import { File } from './entities/file.entity';
     }),
     TypeOrmModule.forFeature([File]),
   ],
+  providers: [FilesService],
+  exports: [FilesService],
 })
 export class FilesModule {}
