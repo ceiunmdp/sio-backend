@@ -1,8 +1,5 @@
 import { DeepPartial, ObjectID, ObjectLiteral, Repository, SaveOptions } from 'typeorm';
-
-interface IId {
-  id?: string | number;
-}
+import { IId } from '../interfaces/id.interface';
 
 export abstract class BaseRepository<Entity extends ObjectLiteral> extends Repository<Entity> {
   async saveAndReload<T extends DeepPartial<Entity> & IId>(entity: T, options?: SaveOptions) {

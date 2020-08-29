@@ -1,6 +1,6 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { User } from 'src/users/firebase-users/entities/user.entity';
+import { User } from 'src/users/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { NotificationType } from './notification-type.entity';
 

@@ -11,14 +11,14 @@ import { ResponseAdminDto } from '../users/admins/dto/response-admin.dto';
 import { Admin } from '../users/admins/entities/admin.entity';
 import { ResponseCampusUserDto } from '../users/campus-users/dto/response-campus-user.dto';
 import { CampusUser } from '../users/campus-users/entities/campus-user.entity';
-import { ResponseUserDto } from '../users/firebase-users/dto/response-user.dto';
-import { UserType } from '../users/firebase-users/enums/user-type.enum';
 import { ResponseProfessorshipDto } from '../users/professorships/dto/response-professorship.dto';
 import { Professorship } from '../users/professorships/entities/professorship.entity';
 import { ResponseScholarshipDto } from '../users/scholarships/dto/response-scholarship.dto';
 import { Scholarship } from '../users/scholarships/entities/scholarship.entity';
 import { ResponseStudentDto } from '../users/students/dto/response-student.dto';
 import { Student } from '../users/students/entities/student.entity';
+import { ResponseUserDto } from '../users/users/dto/response-user.dto';
+import { UserType } from '../users/users/enums/user-type.enum';
 import { UserService } from './user.service';
 
 @ApiTags('User')

@@ -3,7 +3,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { ResponseCampusDto } from 'src/faculty-entities/campus/dto/response-campus.dto';
-import { ResponseUserDto } from 'src/users/firebase-users/dto/response-user.dto';
+import { ResponseUserDto } from 'src/users/users/dto/response-user.dto';
 
 @Exclude()
 export class ResponseCampusUserDto extends ResponseUserDto {

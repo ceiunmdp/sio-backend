@@ -4,19 +4,19 @@ import { AdminsService } from '../users/admins/admins.service';
 import { Admin } from '../users/admins/entities/admin.entity';
 import { CampusUsersService } from '../users/campus-users/campus-users.service';
 import { CampusUser } from '../users/campus-users/entities/campus-user.entity';
-import { UserType } from '../users/firebase-users/enums/user-type.enum';
-import { FirebaseUsersService } from '../users/firebase-users/firebase-users.service';
 import { Professorship } from '../users/professorships/entities/professorship.entity';
 import { ProfessorshipsService } from '../users/professorships/professorships.service';
 import { Scholarship } from '../users/scholarships/entities/scholarship.entity';
 import { ScholarshipsService } from '../users/scholarships/scholarships.service';
 import { Student } from '../users/students/entities/student.entity';
 import { StudentsService } from '../users/students/students.service';
+import { UserType } from '../users/users/enums/user-type.enum';
+import { UsersService } from '../users/users/users.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly usersService: FirebaseUsersService,
+    private readonly usersService: UsersService,
     private readonly adminsService: AdminsService,
     private readonly campusUsersService: CampusUsersService,
     private readonly professorshipsService: ProfessorshipsService,

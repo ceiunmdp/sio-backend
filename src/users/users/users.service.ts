@@ -2,26 +2,25 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import * as admin from 'firebase-admin';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { FirebaseError } from 'src/common/enums/firebase-error';
-import { FirebaseConfigService } from 'src/config/firebase/firebase-config.service';
+import { EmailAlreadyExistsException } from 'src/common/exceptions/email-already-exists.exception';
+import { UserNotFoundException } from 'src/common/exceptions/user-not-found.exception';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
-import { EntityManager } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
+import { DeepPartial, EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
 
-interface PaginationOptions {
+export interface PaginationOptions {
   limit: number;
   pageToken?: string;
   route: string;
 }
 
 @Injectable()
-export class FirebaseUsersService {
-  constructor(
-    private readonly logger: CustomLoggerService,
-    private readonly firebaseConfigService: FirebaseConfigService,
-  ) {
-    this.logger.context = FirebaseUsersService.name;
+export class UsersService {
+  // TODO: Implement interface
+  // implements CrudService<User> {
+  constructor(private readonly logger: CustomLoggerService) {
+    this.logger.context = UsersService.name;
   }
 
   async findAll({ limit, pageToken, route }: PaginationOptions, manager: EntityManager) {
@@ -64,9 +63,12 @@ export class FirebaseUsersService {
       const userRecord = await admin.auth().getUser(id);
       return this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
-      this.handleFirebaseError(error, () => {
+      const exception = this.handleFirebaseError(error);
+      if (exception instanceof UserNotFoundException) {
         throw new NotFoundException(`Usuario ${id} no encontrado.`);
-      });
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -75,9 +77,12 @@ export class FirebaseUsersService {
       const userRecord = await admin.auth().getUserByEmail(email);
       return this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
-      this.handleFirebaseError(error, () => {
+      const exception = this.handleFirebaseError(error);
+      if (exception instanceof UserNotFoundException) {
         throw new NotFoundException(`Usuario con email ${email} no encontrado.`);
-      });
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -85,32 +90,43 @@ export class FirebaseUsersService {
     try {
       return !!(await admin.auth().getUserByEmail(email));
     } catch (error) {
-      this.handleFirebaseError(error, () => false);
+      const exception = this.handleFirebaseError(error);
+      if (exception instanceof UserNotFoundException) {
+        return false;
+      } else {
+        throw error;
+      }
     }
   }
 
-  async create(id: string, createUserDto: CreateUserDto, manager: EntityManager) {
+  async create<T extends DeepPartial<User>>(id: string, createDto: T, manager: EntityManager) {
     try {
       // TODO: Decide what flow to follow: https://docs.google.com/document/d/14WzggVxA0yN99J1KxEfkE87qmjFrYFE2wLh9_jQH4I4/edit?disco=AAAAKKrQorA
-      const userRecord = await admin.auth().createUser({ ...createUserDto, uid: id });
+      const userRecord = await admin.auth().createUser({ ...createDto, uid: id });
       // const userRecord = await admin.auth().createUser({ ...createUserDto, uid: id, emailVerified: true });
-      return this.transformUserRecordToUser(userRecord, manager);
+
+      const user = await this.transformUserRecordToUser(userRecord, manager);
+      await this.setCustomUserClaims(user);
+      return user;
     } catch (error) {
-      this.handleFirebaseError(error);
+      throw this.handleFirebaseError(error);
     }
   }
 
-  async update(id: string, updateUserDto: PartialUpdateUserDto, manager: EntityManager) {
+  async update<T extends DeepPartial<User>>(id: string, updateDto: T, manager: EntityManager) {
     try {
       const userRecord = await admin
         .auth()
-        .updateUser(id, { ...updateUserDto, ...(!!updateUserDto.email && { emailVerified: false }) });
+        .updateUser(id, { ...updateDto, ...(!!updateDto.email && { emailVerified: false }) });
       return this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
       // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
-      this.handleFirebaseError(error, () => {
+      const exception = this.handleFirebaseError(error);
+      if (exception instanceof UserNotFoundException) {
         throw new NotFoundException(`Usuario ${id} no encontrado.`);
-      });
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -120,20 +136,26 @@ export class FirebaseUsersService {
       return admin.auth().deleteUser(id);
     } catch (error) {
       // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
-      this.handleFirebaseError(error, () => {
+      const exception = this.handleFirebaseError(error);
+      if (exception instanceof UserNotFoundException) {
         throw new NotFoundException(`Usuario ${id} no encontrado.`);
-      });
+      } else {
+        throw error;
+      }
     }
   }
 
-  handleFirebaseError(error: admin.FirebaseError, callback?: () => void) {
-    if (error.code === FirebaseError.USER_NOT_FOUND) {
-      callback();
-    } else {
-      this.logFirebaseError(error);
-      throw new InternalServerErrorException(
-        'Problema con proveedor externo. Consulte con el administrador del sistema.',
-      );
+  handleFirebaseError(error: admin.FirebaseError) {
+    switch (error.code) {
+      case FirebaseError.USER_NOT_FOUND:
+        return new UserNotFoundException();
+      case FirebaseError.EMAIL_ALREADY_EXISTS:
+        return new EmailAlreadyExistsException();
+      default:
+        this.logFirebaseError(error);
+        return new InternalServerErrorException(
+          'Problema con proveedor externo. Consulte con el administrador del sistema.',
+        );
     }
   }
 
@@ -153,6 +175,15 @@ export class FirebaseUsersService {
 
   transformUserRecordsToUsers(userRecords: admin.auth.UserRecord[], manager: EntityManager) {
     return userRecords.map((userResult) => this.transformUserRecordToUser(userResult, manager));
+  }
+
+  async setCustomUserClaims({ id, type }: User) {
+    const payload: UserIdentity = {
+      id,
+      role: type,
+    };
+
+    return admin.auth().setCustomUserClaims(id, payload);
   }
 
   // async sendEmailVerification(id: string) {

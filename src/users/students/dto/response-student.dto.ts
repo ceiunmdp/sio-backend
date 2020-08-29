@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { ResponseUserDto } from 'src/users/firebase-users/dto/response-user.dto';
+import { ResponseUserDto } from 'src/users/users/dto/response-user.dto';
 
 @Exclude()
 export class ResponseStudentDto extends ResponseUserDto {

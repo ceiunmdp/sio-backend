@@ -1,9 +1,9 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import * as bytes from 'bytes';
 import { MulterConfigService } from './multer-config.service';
 import multerConfig from './multer.config';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -13,9 +13,9 @@ import multerConfig from './multer.config';
       validationSchema: Joi.object({
         MULTER_DEST: Joi.string().default('./files'),
         MULTER_LIMIT_FILE_SIZE: Joi.number() // [bytes]
-          .min(1024)
-          .max(209715200)
-          .default(100 * 1024 ** 2), // Range = [1KB, 200MB], Default = 100 MB
+          .min(bytes('1KB'))
+          .max(bytes('200MB'))
+          .default(bytes('100MB')),
       }),
       validationOptions: {
         allowUnknown: true,

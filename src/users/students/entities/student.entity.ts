@@ -1,7 +1,7 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { Movement } from 'src/movements/entities/movement.entity';
 import { ChildEntity, Column, OneToMany } from 'typeorm';
-import { User } from '../../firebase-users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 @ChildEntity()
 export class Student extends User {

@@ -1,6 +1,6 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { Role } from 'src/users/firebase-users/entities/role.entity';
+import { Role } from 'src/users/users/entities/role.entity';
 import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent, Unique } from 'typeorm';
 
 @Entity('functionalities')

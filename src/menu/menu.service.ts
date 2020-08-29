@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/users/firebase-users/entities/role.entity';
+import { Role } from 'src/users/users/entities/role.entity';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
 import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
 import { Functionality } from './entities/functionality.entity';

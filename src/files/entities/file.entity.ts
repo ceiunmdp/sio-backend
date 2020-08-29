@@ -1,7 +1,7 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
-import { User } from 'src/users/firebase-users/entities/user.entity';
+import { User } from 'src/users/users/entities/user.entity';
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { FileType } from '../enums/file-type.enum';
 

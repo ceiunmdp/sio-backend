@@ -20,6 +20,9 @@ export class User extends BaseEntity {
   emailVerified!: boolean;
 
   //* Firebase
+  password!: string;
+
+  //* Firebase
   @AutoMap()
   photoURL!: string;
 

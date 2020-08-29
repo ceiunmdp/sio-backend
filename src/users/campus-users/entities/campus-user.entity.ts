@@ -1,7 +1,7 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { ChildEntity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
-import { User } from '../../firebase-users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 @ChildEntity()
 export class CampusUser extends User {

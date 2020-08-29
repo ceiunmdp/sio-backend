@@ -5,16 +5,16 @@ import { FirebaseConfigModule } from 'src/config/firebase/firebase-config.module
 import { SharedModule } from 'src/shared/shared.module';
 import { Role } from './entities/role.entity';
 import { User } from './entities/user.entity';
-import { FirebaseUsersController } from './firebase-users.controller';
-import { FirebaseUsersService } from './firebase-users.service';
 //! Profiles
 import './profiles/role.profile';
 import './profiles/user.profile';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
 @Module({
   imports: [SharedModule, AppConfigModule, FirebaseConfigModule, TypeOrmModule.forFeature([User, Role])],
-  controllers: [FirebaseUsersController],
-  providers: [FirebaseUsersService],
-  exports: [FirebaseUsersService],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
 })
-export class FirebaseUsersModule {}
+export class UsersModule {}

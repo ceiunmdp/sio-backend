@@ -1,14 +1,15 @@
+import * as bytes from 'bytes';
 import { AutoMap } from 'nestjsx-automapper';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { ChildEntity, Column, JoinColumn, OneToOne } from 'typeorm';
-import { User } from '../../firebase-users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 @ChildEntity()
 export class Professorship extends User {
-  @Column({ name: 'available_size', type: 'bigint' })
+  @Column({ name: 'available_size', type: 'bigint', default: bytes('1GB') })
   availableSize!: number; //* Bytes
 
-  @Column({ name: 'remaining_size', type: 'bigint' })
+  @Column({ name: 'remaining_size', type: 'bigint', default: bytes('1GB') })
   remainingSize!: number; //* Bytes
 
   @AutoMap(() => Course)

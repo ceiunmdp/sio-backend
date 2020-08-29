@@ -41,7 +41,7 @@ export class AuthNGuard implements CanActivate {
       // return false;
 
       // request.user = { id: '[UUID]', role: 'admin' };
-      request.user = { id: '4bd4c8c4-1935-4e3a-8f89-fcb85a94a0c6', role: 'admin' };
+      request.user = { id: '4cef4120-d3f6-45e6-ab50-8a49c5b0a044', role: 'admin' };
       return true;
     }
   }

@@ -18,7 +18,7 @@ import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
 import { UserModule } from './user/user.module';
-import { UsersModule } from './users/users.module';
+import { GeneralUsersModule } from './users/general-users.module';
 
 // export const ENV = process.env.NODE_ENV;
 
@@ -27,6 +27,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     CoreModule,
     FacultyEntitiesModule,
+    GeneralUsersModule,
     FilesModule,
     ItemsModule,
     MenuModule,
@@ -34,7 +35,6 @@ import { UsersModule } from './users/users.module';
     NotificationsModule,
     OrdersModule,
     UserModule,
-    UsersModule,
   ],
   providers: [
     // Request -> Middlewares -> Guards -> Interceptors -> Pipes -> Request Handler -> Interceptors -> Filters -> Middlewares -> Response

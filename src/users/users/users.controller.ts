@@ -14,15 +14,15 @@ import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
 import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FirebaseUsersService } from './firebase-users.service';
+import { UsersService } from './users.service';
 
 @ApiTags('Users')
 @Controller()
-export class FirebaseUsersController {
+export class UsersController {
   constructor(
     @InjectConnection() private readonly connection: Connection,
     private readonly appConfigService: AppConfigService,
-    private readonly firebaseUsersService: FirebaseUsersService,
+    private readonly usersService: UsersService,
   ) {}
 
   @Get()
@@ -31,7 +31,7 @@ export class FirebaseUsersController {
   @ApiOkResponse({ description: 'List of users.', type: ResponseUserDto })
   async findAll(@Limit() limit: number, @PageToken() pageToken: string) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.firebaseUsersService.findAll(
+      return this.usersService.findAll(
         {
           limit,
           pageToken,
@@ -48,7 +48,7 @@ export class FirebaseUsersController {
   @ApiOkResponse({ description: 'User', type: ResponseUserDto })
   async findById(@Id() id: string) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.firebaseUsersService.findById(id, manager);
+      return this.usersService.findById(id, manager);
     });
   }
 
@@ -58,7 +58,7 @@ export class FirebaseUsersController {
   @ApiOkResponse({ description: 'The user has been successfully updated.', type: ResponseUserDto })
   async update(@Id() id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.firebaseUsersService.update(id, updateUserDto, manager);
+      return this.usersService.update(id, updateUserDto, manager);
     });
   }
 
@@ -71,7 +71,7 @@ export class FirebaseUsersController {
   })
   async partialUpdate(@Id() id: string, @Body() partialUpdateUserDto: PartialUpdateUserDto) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.firebaseUsersService.update(id, partialUpdateUserDto, manager);
+      return this.usersService.update(id, partialUpdateUserDto, manager);
     });
   }
 }

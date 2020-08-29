@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { UserRole } from 'src/common/enums/user-role.enum';
-import { ResponseUserDto } from '../../firebase-users/dto/response-user.dto';
+import { ResponseUserDto } from '../../users/dto/response-user.dto';
 
 @Exclude()
 export class ResponseProfessorshipDto extends ResponseUserDto {
