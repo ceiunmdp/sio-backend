@@ -5,10 +5,10 @@ services:
     container_name: nestjs
     build:
       context: .
-      target: development
+      target: build
       # target: production
-    image: nestjs:1.0.0
-    # image: nestjs-prod
+    image: nestjs:1.0.0-dev
+    # image: nestjs:1.0.0-prod
     command: npm run start:dev
     env_file:
       - .env
