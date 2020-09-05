@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
@@ -17,7 +17,7 @@ export class StudentsService extends GenericSubUserService<Student> {
   //* This is a special method because the user is already created in Firebase
   //* The only purpose of this function is create the student entity in the database
   async create(createStudentDto: Partial<CreateStudentDto>, manager: EntityManager) {
-    const studentsRepository = manager.getCustomRepository(StudentsRepository);
+    const studentsRepository = this.getStudentsRepository(manager);
 
     const student = await studentsRepository.saveAndReload(createStudentDto);
 
@@ -31,19 +31,31 @@ export class StudentsService extends GenericSubUserService<Student> {
   }
 
   async update(id: string, updateStudentDto: Partial<UpdateStudentDto>, manager: EntityManager) {
-    const studentsRepository = manager.getCustomRepository(StudentsRepository);
+    const studentsRepository = this.getStudentsRepository(manager);
 
-    const student = await studentsRepository.findOne(id);
+    await this.checkPreconditions(id, updateStudentDto, manager);
+
+    const updatedStudent = await studentsRepository.saveAndReload({ ...updateStudentDto, id });
+
+    if (!!updateStudentDto.type) {
+      //* Promotion from student to scholarship
+      await this.scholarshipsService.promoteStudentToScholarship(id, manager);
+    }
+
+    const user = await this.usersService.update(id, updateStudentDto, manager);
+    return this.userMerger.mergeSubUser(user, updatedStudent);
+  }
+
+  private async checkPreconditions(id: string, updateStudentDto: Partial<UpdateStudentDto>, manager: EntityManager) {
+    const student = await this.getStudentsRepository(manager).findOne(id);
     if (student) {
-      const updatedStudent = await studentsRepository.saveAndReload({ ...updateStudentDto, id });
-
-      if (!!updateStudentDto.type) {
-        //* Promotion from student to scholarship
-        await this.scholarshipsService.promoteStudentToScholarship(id, manager);
+      if (
+        !!updateStudentDto.dni &&
+        (await this.usersService.isDniRepeated(updateStudentDto.dni, this.usersService.getUsersRepository(manager)))
+      ) {
+        throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
       }
-
-      const user = await this.usersService.update(id, updateStudentDto, manager);
-      return this.userMerger.mergeSubUser(user, updatedStudent);
+      return;
     } else {
       throw new NotFoundException(`Usuario estudiante ${id} no encontrado.`);
     }
@@ -52,5 +64,9 @@ export class StudentsService extends GenericSubUserService<Student> {
   //! Implemented to avoid deletion of students by error by other developers
   async delete(): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  getStudentsRepository(manager: EntityManager) {
+    return manager.getCustomRepository(StudentsRepository);
   }
 }

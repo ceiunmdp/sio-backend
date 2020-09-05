@@ -15,14 +15,9 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
 
   //! Override specific method
   async create(createCampusUserDto: Partial<CreateCampusUserDto>, manager: EntityManager) {
-    const campusUsersRepository = manager.getCustomRepository(CampusUsersRepository);
+    const campusUsersRepository = this.getCampusUsersRepository(manager);
 
-    let campusUser = await campusUsersRepository.findOne({
-      where: { campus: { id: createCampusUserDto.campusId } },
-      withDeleted: true,
-    });
-
-    if (!campusUser) {
+    if (!(await this.isCampusIdRepeated(createCampusUserDto.campusId, campusUsersRepository))) {
       const newCampusUser = await campusUsersRepository.saveAndReload({
         ...createCampusUserDto,
         campus: new Campus({ id: createCampusUserDto.campusId }),
@@ -33,11 +28,16 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
 
       const user = await this.usersService.create({ ...createCampusUserDto, uid: newCampusUser.id }, manager);
       return this.userMerger.mergeSubUser(user, newCampusUser);
-    } else if (campusUser.deleteDate) {
-      campusUser = await campusUsersRepository.recover(campusUser);
-      return this.userMerger.findAndMergeSubUser(campusUser, manager);
     } else {
       throw new ConflictException(`Ya existe un usuario con la sede elegida.`);
     }
+  }
+
+  private async isCampusIdRepeated(campusId: string, campusUsersRepository: CampusUsersRepository) {
+    return !!(await campusUsersRepository.findOne({ where: { campus: { id: campusId } } }));
+  }
+
+  getCampusUsersRepository(manager: EntityManager) {
+    return manager.getCustomRepository(CampusUsersRepository);
   }
 }

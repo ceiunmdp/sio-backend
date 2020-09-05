@@ -7,7 +7,7 @@ import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.i
 import { CustomUserClaims } from 'src/common/interfaces/user-identity.interface';
 import { handleFirebaseError } from 'src/common/utils/firebase-handler';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
-import { DeepPartial, EntityManager, In } from 'typeorm';
+import { DeepPartial, EntityManager, In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 
 export interface PaginationOptions {
@@ -171,6 +171,10 @@ export class UsersService implements TypeOrmCrudService<User> {
     }
   }
 
+  async isDniRepeated(dni: string, usersRepository: Repository<User>) {
+    return !!(await usersRepository.findOne({ where: { dni } }));
+  }
+
   async setCustomUserClaims({ id, uid, type }: User) {
     const payload: CustomUserClaims = {
       id,
@@ -190,5 +194,9 @@ export class UsersService implements TypeOrmCrudService<User> {
     } catch (error) {
       throw handleFirebaseError(error);
     }
+  }
+
+  getUsersRepository(manager: EntityManager) {
+    return manager.getRepository(User);
   }
 }

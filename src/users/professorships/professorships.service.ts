@@ -13,14 +13,9 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
   }
 
   async create(createProfessorshipDto: Partial<CreateProfessorshipDto>, manager: EntityManager) {
-    const professorshipsRepository = manager.getCustomRepository(ProfessorshipsRepository);
+    const professorshipsRepository = this.getProfessorshipsRepository(manager);
 
-    let professorship = await professorshipsRepository.findOne({
-      where: { course: { id: createProfessorshipDto.courseId } },
-      withDeleted: true,
-    });
-
-    if (!professorship) {
+    if (!(await this.isCourseIdRepeated(createProfessorshipDto.courseId, professorshipsRepository))) {
       const newProfessorship = await professorshipsRepository.saveAndReload({
         ...createProfessorshipDto,
         course: new Course({ id: createProfessorshipDto.courseId }),
@@ -31,11 +26,16 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
 
       const user = await this.usersService.create({ ...createProfessorshipDto, uid: newProfessorship.id }, manager);
       return this.userMerger.mergeSubUser(user, newProfessorship);
-    } else if (professorship.deleteDate) {
-      professorship = await professorshipsRepository.recover(professorship);
-      return this.userMerger.findAndMergeSubUser(professorship, manager);
     } else {
       throw new ConflictException(`Ya existe un usuario con la materia elegida.`);
     }
+  }
+
+  private async isCourseIdRepeated(courseId: string, professorshipsRepository: ProfessorshipsRepository) {
+    return !!(await professorshipsRepository.findOne({ where: { course: { id: courseId } } }));
+  }
+
+  getProfessorshipsRepository(manager: EntityManager) {
+    return manager.getCustomRepository(ProfessorshipsRepository);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { StudentsRepository } from '../students/students.repository';
 import { UserType } from '../users/enums/user-type.enum';
@@ -20,22 +20,38 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   async update(id: string, updateScholarshipDto: Partial<UpdateScholarshipDto>, manager: EntityManager) {
-    const scholarshipsRepository = manager.getCustomRepository(ScholarshipsRepository);
+    const scholarshipsRepository = this.getScholarshipsRepository(manager);
 
-    const scholarship = await scholarshipsRepository.findOne(id);
+    await this.checkPreconditions(id, updateScholarshipDto, manager);
+
+    let updatedScholarship = await scholarshipsRepository.saveAndReload({ ...updateScholarshipDto, id });
+
+    if (!!updateScholarshipDto.type) {
+      //* Degradation from scholarship to student
+      await this.degradeScholarshipToStudent(id, manager);
+
+      //? Should this line be here or, instead, make the previous method return the updated scholarship?
+      updatedScholarship = { ...updatedScholarship, availableCopies: null, remainingCopies: null };
+    }
+
+    const user = await this.usersService.update(id, updateScholarshipDto, manager);
+    return this.userMerger.mergeSubUser(user, updatedScholarship);
+  }
+
+  private async checkPreconditions(
+    id: string,
+    updateScholarshipDto: Partial<UpdateScholarshipDto>,
+    manager: EntityManager,
+  ) {
+    const scholarship = await this.getScholarshipsRepository(manager).findOne(id);
     if (scholarship) {
-      let updatedScholarship = await scholarshipsRepository.saveAndReload({ ...updateScholarshipDto, id });
-
-      if (!!updateScholarshipDto.type) {
-        //* Degradation from scholarship to student
-        await this.degradeScholarshipToStudent(id, manager);
-
-        //? Should this line be here or, instead, make the previous method return the updated scholarship?
-        updatedScholarship = { ...updatedScholarship, availableCopies: null, remainingCopies: null };
+      if (
+        !!updateScholarshipDto.dni &&
+        (await this.usersService.isDniRepeated(updateScholarshipDto.dni, this.usersService.getUsersRepository(manager)))
+      ) {
+        throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
       }
-
-      const user = await this.usersService.update(id, updateScholarshipDto, manager);
-      return this.userMerger.mergeSubUser(user, updatedScholarship);
+      return;
     } else {
       throw new NotFoundException(`Usuario becado ${id} no encontrado.`);
     }
@@ -43,7 +59,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
 
   async promoteStudentToScholarship(studentId: string, manager: EntityManager) {
     const studentsRepository: StudentsRepository = manager.getCustomRepository(StudentsRepository);
-    const scholarshipsRepository: ScholarshipsRepository = manager.getCustomRepository(ScholarshipsRepository);
+    const scholarshipsRepository: ScholarshipsRepository = this.getScholarshipsRepository(manager);
 
     const student = await studentsRepository.findOne(studentId);
 
@@ -57,9 +73,11 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   private async degradeScholarshipToStudent(scholarshipId: string, manager: EntityManager) {
-    await manager
-      .getCustomRepository(ScholarshipsRepository)
-      .save({ id: scholarshipId, availableCopies: null, remainingCopies: null });
+    await this.getScholarshipsRepository(manager).save({
+      id: scholarshipId,
+      availableCopies: null,
+      remainingCopies: null,
+    });
 
     //! Raw query executed. Didn't found any other workaround
     await manager.query(`UPDATE users SET type = '${UserType.STUDENT}' WHERE id = ?`, [scholarshipId]);
@@ -70,5 +88,9 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   //! Implemented to avoid deletion of scholarships by error by other developers
   async delete(): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  getScholarshipsRepository(manager: EntityManager) {
+    return manager.getCustomRepository(ScholarshipsRepository);
   }
 }
