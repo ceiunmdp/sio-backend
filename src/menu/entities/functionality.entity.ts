@@ -7,7 +7,7 @@ import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent, 
 @Tree('closure-table')
 @Unique(['name'])
 export class Functionality extends BaseEntity {
-  @Column()
+  @Column({ update: false })
   readonly name!: string;
 
   @AutoMap(() => Functionality)

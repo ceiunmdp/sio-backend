@@ -1,33 +1,34 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
-import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
+import { InjectConnection } from '@nestjs/typeorm';
+import { Group } from 'src/common/classes/group.class';
 import { Role } from 'src/users/users/entities/role.entity';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
 import { Functionality } from './entities/functionality.entity';
 
 @Injectable()
 export class MenuService {
-  constructor(
-    @InjectConnection() private readonly connection: Connection,
-    @InjectRepository(Functionality) private readonly menuRepository: TreeRepository<Functionality>,
-  ) {}
+  constructor(@InjectConnection() connection: Connection) {
+    this.create(connection.manager);
+  }
 
-  async find(userRole: string) {
-    const rootFunctionalities = await this.menuRepository.findRoots();
+  async find(userRole: string, manager: EntityManager) {
+    const menuRepository = manager.getTreeRepository(Functionality);
+
+    const rootFunctionalities = await menuRepository.findRoots();
     if (rootFunctionalities.length !== 1) {
       throw new InternalServerErrorException('Menú mal configurado. Contáctese con el administrador del sistema.');
     } else {
-      const menu = await this.menuRepository.findDescendantsTree(rootFunctionalities[0]);
+      const menu = await menuRepository.findDescendantsTree(rootFunctionalities[0]);
       return this.cloneDeepWithFunctionalitiesAllowed(menu, userRole);
     }
   }
 
-  async isFunctionalityAllowed(functionality: Functionality, userRole: string) {
+  private async isFunctionalityAllowed(functionality: Functionality, userRole: string) {
     const roles = await functionality.roles;
     return !!roles.find((role) => role.name === userRole);
   }
 
-  async cloneDeepWithFunctionalitiesAllowed(functionality: Functionality, userRole: string) {
+  private async cloneDeepWithFunctionalitiesAllowed(functionality: Functionality, userRole: string) {
     if (!functionality.subFunctionalities?.length) {
       // Leaf
       return (await this.isFunctionalityAllowed(functionality, userRole)) ? functionality : null;
@@ -36,13 +37,13 @@ export class MenuService {
       const subFunctionalities = functionality.subFunctionalities;
 
       const sortedSubFunctionalities = subFunctionalities
-        .slice()
+        .slice() // Copy array
         .sort((f1, f2) => f1.createDate.getTime() - f2.createDate.getTime());
 
       const clonedSubFunctionalities = await Promise.all(
         sortedSubFunctionalities.map((f) => this.cloneDeepWithFunctionalitiesAllowed(f, userRole)),
       );
-      const filteredSubfunctionalities = clonedSubFunctionalities.filter((f) => f != null);
+      const filteredSubfunctionalities = clonedSubFunctionalities.filter((f) => f !== null);
 
       if (filteredSubfunctionalities.length) {
         functionality.subFunctionalities = filteredSubfunctionalities;
@@ -53,90 +54,75 @@ export class MenuService {
     }
   }
 
-  async create() {
-    // First level
-    let menu = new Functionality({ name: 'Menu' });
+  private async create(manager: EntityManager) {
+    const menuRepository = manager.getTreeRepository(Functionality);
 
-    // Second level
-    const home = new Functionality({ name: 'Inicio', supraFunctionality: menu });
-    // const home = new Functionality({ name: 'Inicio', supraFunctionality: Promise.resolve(menu) });
-    const orders = new Functionality({ name: 'Pedidos', supraFunctionality: menu });
-    // const orders = new Functionality({ name: 'Pedidos', supraFunctionality: Promise.resolve(menu) });
-    const operations = new Functionality({ name: 'Operaciones', supraFunctionality: menu });
-    // const operations = new Functionality({ name: 'Operaciones', supraFunctionality: Promise.resolve(menu) });
+    const roots = await menuRepository.findRoots();
+    if (!roots.length) {
+      // First level
+      let menu = new Functionality({ name: 'Menu' });
 
-    // Third level
-    const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: orders });
-    // const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: Promise.resolve(orders) });
-    const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: orders });
-    // const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: Promise.resolve(orders) });
-    const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: operations });
-    // const depositMoney = new Functionality({ name: 'Cargar saldo', supraFunctionality: Promise.resolve(operations) });
-    const transferMoney = new Functionality({
-      name: 'Transferir dinero',
-      supraFunctionality: operations,
-      // supraFunctionality: Promise.resolve(operations),
-    });
+      // Second level
+      const home = new Functionality({ name: 'Inicio', supraFunctionality: menu });
+      const orders = new Functionality({ name: 'Pedidos', supraFunctionality: menu });
+      const movements = new Functionality({ name: 'Movimientos', supraFunctionality: menu });
+      const operations = new Functionality({ name: 'Operaciones', supraFunctionality: menu });
 
-    // Roles
-    const admin = new Role({ name: 'admin' });
-    const campus = new Role({ name: 'campus' });
+      // Third level
+      const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: orders });
+      const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: orders });
+      const myMovements = new Functionality({ name: 'Mis movimientos', supraFunctionality: movements });
+      const topUp = new Functionality({ name: 'Cargar saldo', supraFunctionality: operations });
+      const transferMoney = new Functionality({ name: 'Transferir dinero', supraFunctionality: operations });
 
-    // home.roles = [admin, campus];
-    home.roles = Promise.resolve([admin, campus]);
-    // newOrder.roles = [admin];
-    newOrder.roles = Promise.resolve([admin]);
-    // myOrders.roles = [admin, campus];
-    myOrders.roles = Promise.resolve([admin, campus]);
-    // depositMoney.roles = [admin];
-    depositMoney.roles = Promise.resolve([admin]);
-    // transferMoney.roles = [campus];
-    transferMoney.roles = Promise.resolve([campus]);
+      // Roles
+      const admin = new Role({ name: Group.ADMIN });
+      const campus = new Role({ name: Group.CAMPUS });
+      const professorship = new Role({ name: Group.PROFESSORSHIP });
+      const scholarship = new Role({ name: Group.SCHOLARSHIP });
+      const student = new Role({ name: Group.STUDENT });
 
-    menu = await this.menuRepository.save(menu);
-    await this.menuRepository.save(home);
-    await this.menuRepository.save(orders);
-    await this.menuRepository.save(operations);
-    await this.menuRepository.save(newOrder);
-    await this.menuRepository.save(myOrders);
-    await this.menuRepository.save(depositMoney);
-    await this.menuRepository.save(transferMoney);
-    return this.menuRepository.findDescendantsTree(menu);
-  }
+      home.roles = Promise.resolve([admin, campus, professorship, scholarship, student]);
+      newOrder.roles = Promise.resolve([student, scholarship]);
+      myOrders.roles = Promise.resolve([campus, student, scholarship]);
+      myMovements.roles = Promise.resolve([student, scholarship]);
+      topUp.roles = Promise.resolve([campus]);
+      transferMoney.roles = Promise.resolve([student, scholarship]);
 
-  async delete() {
-    const roots = await Promise.all(
-      (await this.menuRepository.findRoots()).map((root) => this.menuRepository.findDescendantsTree(root)),
-    );
+      menu = await menuRepository.save(menu);
+      await menuRepository.save(home);
+      await menuRepository.save(orders);
+      await menuRepository.save(movements);
+      await menuRepository.save(operations);
+      await menuRepository.save(newOrder);
+      await menuRepository.save(myOrders);
+      await menuRepository.save(myMovements);
+      await menuRepository.save(topUp);
+      await menuRepository.save(transferMoney);
 
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      const menuRepository = manager.getTreeRepository(Functionality);
-      await menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
-      await Promise.all(roots.map((tree) => this.removeTree2(menuRepository, tree)));
-      return;
-    });
-  }
-
-  async removeTree(functionality: Functionality) {
-    if (!functionality.subFunctionalities?.length) {
-      //! Only "delete" works with @Transactional
-      return await this.menuRepository.delete(functionality.id);
-      // return await this.menuRepository.remove(functionality);
+      return menuRepository.findDescendantsTree(menu);
     } else {
-      await Promise.all(functionality.subFunctionalities.map((f) => this.removeTree(f)));
-      return await this.menuRepository.delete(functionality.id);
-      // return await this.menuRepository.remove(functionality);
+      return menuRepository.findDescendantsTree(roots[0]);
     }
   }
 
-  async removeTree2(menuRepository: TreeRepository<Functionality>, functionality: Functionality) {
+  private async delete(manager: EntityManager) {
+    const menuRepository = manager.getTreeRepository(Functionality);
+
+    const roots = await Promise.all(
+      (await menuRepository.findRoots()).map((root) => menuRepository.findDescendantsTree(root)),
+    );
+    await menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
+    await Promise.all(roots.map((tree) => this.removeTree(tree, menuRepository)));
+    return;
+  }
+
+  private async removeTree(functionality: Functionality, menuRepository: TreeRepository<Functionality>) {
     if (!functionality.subFunctionalities.length) {
-      // return await menuRepository.delete(functionality.id);
       //! "remove" works when the native connection.transaction() is used
       return await menuRepository.remove(functionality);
     } else {
-      await Promise.all(functionality.subFunctionalities.map((f) => this.removeTree2(menuRepository, f)));
-      // return await menuRepository.delete(functionality.id);
+      await Promise.all(functionality.subFunctionalities.map((f) => this.removeTree(f, menuRepository)));
       return await menuRepository.remove(functionality);
     }
   }
