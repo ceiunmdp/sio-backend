@@ -15,6 +15,8 @@ export class ProfessorshipSubscriber implements EntitySubscriberInterface<Profes
 
   async afterInsert({ entity, manager }: InsertEvent<Professorship>) {
     this.filesService.linkFilesToProfessorship(entity, manager);
+    // TODO: Update storageUsed according to the files linked.
+    // TODO: If storageUsed where greater than availableStorage, make availableStorage equal to storageUsed
   }
 
   async beforeUpdate({ updatedColumns, entity, databaseEntity }: UpdateEvent<Professorship>) {

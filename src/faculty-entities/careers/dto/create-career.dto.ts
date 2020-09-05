@@ -3,6 +3,6 @@ import { IsString } from 'class-validator';
 
 export class CreateCareerDto {
   @IsString()
-  @ApiProperty({ description: 'Name of career' })
+  @ApiProperty({ description: `Career's name`, example: 'Software Engineering' })
   name!: string;
 }

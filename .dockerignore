@@ -4,9 +4,11 @@
 **/README.md
 **/LICENSE
 **/.vscode
+**/*.code-workspace
 **/npm-debug.log
 **/coverage
 **/.env
+**/icei-d3c94-firebase-adminsdk-t8m9s-dd78a3384a.json
 **/.editorconfig
 **/.aws
 **/dist

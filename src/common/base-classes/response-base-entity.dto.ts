@@ -1,12 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
-import { UserRole } from '../enums/user-role.enum';
-
+import { ALL_ROLES } from '../constants/all-roles';
 export class ResponseBaseEntity {
   @AutoMap()
-  @Expose({ groups: UserRole.ALL.split(',') })
-  @ApiProperty({ description: 'UUID' })
+  @Expose({ groups: ALL_ROLES })
+  @ApiProperty({ description: 'UUID', example: '0de63cc8-d62d-4ea1-aa37-1846b6cf429d' })
   id!: string;
 
   constructor(partial: Partial<ResponseBaseEntity>) {

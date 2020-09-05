@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 
-export class EmailAlreadyExistsException extends HttpException {
+export class EmailAlreadyExistsException extends ConflictException {
   constructor() {
-    super('Email Already Exists', HttpStatus.CONFLICT);
+    super('El email elegido ya se encuentra en uso por otro usuario.');
   }
 }

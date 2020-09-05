@@ -1,96 +1,83 @@
-import { Body, Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller } from '@nestjs/common';
+import { ApiConflictResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
+import { CustomError } from 'src/common/classes/custom-error.class';
+import { Group } from 'src/common/classes/group.class';
+import { ProxyTypeOrmCrudService } from 'src/common/classes/proxy-typeorm-crud.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
-import { Mapper } from 'src/common/decorators/mapper.decorator';
+import { DeleteById } from 'src/common/decorators/methods/delete-by-id.decorator';
+import { GetAll } from 'src/common/decorators/methods/get-all.decorator';
+import { GetById } from 'src/common/decorators/methods/get-by-id.decorator';
+import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
+import { PostAll } from 'src/common/decorators/methods/post-all.decorator';
+import { PutById } from 'src/common/decorators/methods/put-by-id.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { Connection, EntityManager } from 'typeorm';
-import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
+import { Connection } from 'typeorm';
 import { CampusUsersService } from './campus-users.service';
 import { CreateCampusUserDto } from './dto/create-campus-user.dto';
 import { PartialUpdateCampusUserDto } from './dto/partial-update-campus-user.dto';
 import { ResponseCampusUserDto } from './dto/response-campus-user.dto';
 import { UpdateCampusUserDto } from './dto/update-campus-user.dto';
+import { CampusUser } from './entities/campus-user.entity';
 
 @ApiTags('Campus Users')
 @Controller()
 export class CampusUsersController {
+  private readonly campusUsersService: TypeOrmCrudService<CampusUser>;
+
   constructor(
-    @InjectConnection() private readonly connection: Connection,
+    @InjectConnection() connection: Connection,
+    campusUsersService: CampusUsersService,
     private readonly appConfigService: AppConfigService,
-    private readonly campusUsersService: CampusUsersService,
-  ) {}
+  ) {
+    this.campusUsersService = new ProxyTypeOrmCrudService(connection, campusUsersService);
+  }
 
-  @Get()
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseCampusUserDto)
-  @ApiOkResponse({ description: 'List of campus users.', type: ResponseCampusUserDto })
+  @GetAll(Collection.CAMPUS_USERS, ResponseCampusUserDto)
+  @Auth(Group.ADMIN)
   async findAll(@Limit() limit: number, @Page() page: number) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.campusUsersService.findAll(
-        {
-          limit,
-          page,
-          route: `${this.appConfigService.basePath}${Path.USERS}${Path.CAMPUS_USERS}`,
-        },
-        manager,
-      );
+    return this.campusUsersService.findAll({
+      limit,
+      page,
+      route: `${this.appConfigService.basePath}${Path.USERS}${Path.CAMPUS_USERS}`,
     });
   }
 
-  @Get(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseCampusUserDto)
-  @ApiOkResponse({ description: 'Campus user', type: ResponseCampusUserDto })
+  @GetById(Collection.CAMPUS_USERS, ResponseCampusUserDto)
+  @Auth(Group.ADMIN)
   async findById(@Id() id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.campusUsersService.findById(id, manager);
-    });
+    return this.campusUsersService.findById(id);
   }
 
-  @Post()
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseCampusUserDto)
-  @ApiCreatedResponse({ description: 'The campus user has been successfully created.', type: ResponseCampusUserDto })
+  @PostAll(Collection.CAMPUS_USERS, ResponseCampusUserDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async create(@Body() createCampusUserDto: CreateCampusUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.campusUsersService.create(createCampusUserDto, manager);
-    });
+    return this.campusUsersService.create(createCampusUserDto);
   }
 
-  @Put(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseCampusUserDto)
-  @ApiOkResponse({ description: 'The campus user has been successfully updated.', type: ResponseCampusUserDto })
+  @PutById(Collection.CAMPUS_USERS, ResponseCampusUserDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async update(@Id() id: string, @Body() updateCampusUserDto: UpdateCampusUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.campusUsersService.update(id, updateCampusUserDto, manager);
-    });
+    return this.campusUsersService.update(id, updateCampusUserDto);
   }
 
-  @Patch(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseCampusUserDto)
-  @ApiOkResponse({
-    description: 'The campus user has been successfully partially updated.',
-    type: ResponseCampusUserDto,
-  })
+  @PatchById(Collection.CAMPUS_USERS, ResponseCampusUserDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async partialUpdate(@Id() id: string, @Body() partialUpdateCampusUserDto: PartialUpdateCampusUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.campusUsersService.update(id, partialUpdateCampusUserDto, manager);
-    });
+    return this.campusUsersService.update(id, partialUpdateCampusUserDto);
   }
 
-  @Delete(':id')
-  @Auth(UserRole.ADMIN)
-  @ApiOkResponse({ description: 'The campus user has been successfully deleted.' })
+  @DeleteById(Collection.CAMPUS_USERS)
+  @Auth(Group.ADMIN)
   async delete(@Id() id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.campusUsersService.delete(id, manager);
-    });
+    return this.campusUsersService.delete(id);
   }
 }

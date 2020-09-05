@@ -1,77 +1,68 @@
-import { Body, Controller, Get, Patch, Put } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller } from '@nestjs/common';
+import { ApiConflictResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
+import { CustomError } from 'src/common/classes/custom-error.class';
+import { Group } from 'src/common/classes/group.class';
+import { ProxyTypeOrmCrudService } from 'src/common/classes/proxy-typeorm-crud.service';
 import { UUID_V4 } from 'src/common/constants/regular-expressions';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
-import { Mapper } from 'src/common/decorators/mapper.decorator';
+import { GetAll } from 'src/common/decorators/methods/get-all.decorator';
+import { GetById } from 'src/common/decorators/methods/get-by-id.decorator';
+import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
+import { PutById } from 'src/common/decorators/methods/put-by-id.decorator';
 import { Limit, PageToken } from 'src/common/decorators/pagination.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { Connection, EntityManager } from 'typeorm';
-import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
+import { Connection } from 'typeorm';
 import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 @ApiTags('Users')
 @Controller()
 export class UsersController {
+  private readonly usersService: TypeOrmCrudService<User>;
+
   constructor(
-    @InjectConnection() private readonly connection: Connection,
+    @InjectConnection() connection: Connection,
     private readonly appConfigService: AppConfigService,
-    private readonly usersService: UsersService,
-  ) {}
+    usersService: UsersService,
+  ) {
+    this.usersService = new ProxyTypeOrmCrudService(connection, usersService);
+  }
 
-  @Get()
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseUserDto)
-  @ApiOkResponse({ description: 'List of users.', type: ResponseUserDto })
+  @GetAll(Collection.USERS, ResponseUserDto)
+  @Auth(Group.ADMIN)
   async findAll(@Limit() limit: number, @PageToken() pageToken: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.usersService.findAll(
-        {
-          limit,
-          pageToken,
-          route: `${this.appConfigService.basePath}${Path.USERS}`,
-        },
-        manager,
-      );
+    return this.usersService.findAll({
+      limit,
+      pageToken,
+      route: `${this.appConfigService.basePath}${Path.USERS}`,
     });
   }
 
-  @Get(`:id(${UUID_V4})`)
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseUserDto)
-  @ApiOkResponse({ description: 'User', type: ResponseUserDto })
+  @GetById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)
+  @Auth(Group.ADMIN)
   async findById(@Id() id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.usersService.findById(id, manager);
-    });
+    return this.usersService.findById(id);
   }
 
-  @Put(`:id(${UUID_V4})`)
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseUserDto)
-  @ApiOkResponse({ description: 'The user has been successfully updated.', type: ResponseUserDto })
+  @PutById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async update(@Id() id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.usersService.update(id, updateUserDto, manager);
-    });
+    return this.usersService.update(id, updateUserDto);
   }
 
-  @Patch(`:id(${UUID_V4})`)
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseUserDto)
-  @ApiOkResponse({
-    description: 'The user has been successfully partially updated.',
-    type: ResponseUserDto,
-  })
+  @PatchById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async partialUpdate(@Id() id: string, @Body() partialUpdateUserDto: PartialUpdateUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.usersService.update(id, partialUpdateUserDto, manager);
-    });
+    return this.usersService.update(id, partialUpdateUserDto);
   }
 }

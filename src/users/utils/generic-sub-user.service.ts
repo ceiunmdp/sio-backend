@@ -1,14 +1,13 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { EmailAlreadyExistsException } from 'src/common/exceptions/email-already-exists.exception';
-import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { DeepPartial, EntityManager } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { UserMerger } from './merger.class';
 
 @Injectable()
-export abstract class GenericSubUserService<T extends User> implements CrudService<T> {
+export abstract class GenericSubUserService<T extends User> implements TypeOrmCrudService<T> {
   protected userMerger: UserMerger<T>;
 
   constructor(protected readonly usersService: UsersService, private readonly type: new (partial: Partial<T>) => T) {
@@ -33,17 +32,15 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
   async create<U extends DeepPartial<T>>(createDto: U, manager: EntityManager) {
     const subUserRepository = manager.getRepository<T>(this.type);
 
-    try {
-      const subUser = await subUserRepository.save(createDto);
-      const user = await this.usersService.create(subUser.id, createDto, manager);
-      return this.userMerger.mergeSubUser(user, subUser);
-    } catch (error) {
-      if (error instanceof EmailAlreadyExistsException) {
-        throw new ConflictException(`Ya existe un usuario con el email elegido.`);
-      } else {
-        throw error;
-      }
-    }
+    const newSubUser = await subUserRepository.save(createDto);
+
+    // TODO: Copy 'id' to 'uid' after saving entity
+    await subUserRepository.save({ ...newSubUser, uid: newSubUser.id });
+
+    createDto.uid = newSubUser.id;
+    const user = await this.usersService.create(createDto, manager);
+
+    return this.userMerger.mergeSubUser(user, newSubUser);
   }
 
   async update<U extends DeepPartial<T>>(id: string, updateDto: U, manager: EntityManager) {
@@ -51,17 +48,9 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
 
     const subUser = await subUsersRepository.findOne(id);
     if (subUser) {
-      try {
-        const updatedSubUser = await subUsersRepository.save({ ...updateDto, id });
-        const user = await this.usersService.update(id, updateDto, manager);
-        return this.userMerger.mergeSubUser(user, updatedSubUser);
-      } catch (error) {
-        if (error instanceof EmailAlreadyExistsException) {
-          throw new BadRequestException('El email elegido ya se encuentra en uso por otro usuario.');
-        } else {
-          throw error;
-        }
-      }
+      const updatedSubUser = await subUsersRepository.save({ ...updateDto, id });
+      const user = await this.usersService.update(id, updateDto, manager);
+      return this.userMerger.mergeSubUser(user, updatedSubUser);
     } else {
       throw new NotFoundException(`Usuario ${this.type.name} ${id} no encontrado.`);
     }
@@ -74,7 +63,7 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
     if (subUser) {
       const id = subUser.id; //* "remove" method erases 'id' property from object
       await subUsersRepository.remove(subUser);
-      await this.usersService.delete(id);
+      await this.usersService.delete(id, manager);
       return;
     } else {
       throw new NotFoundException(`Usuario ${this.type.name} ${id} no encontrado.`);

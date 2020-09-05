@@ -1,16 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { Group } from 'src/common/classes/group.class';
 import { ResponseUserDto } from '../../users/dto/response-user.dto';
 
 @Exclude()
 export class ResponseProfessorshipDto extends ResponseUserDto {
-  @Expose({ name: 'available_storage', groups: [UserRole.ADMIN] })
-  @ApiProperty({ name: 'available_storage', description: 'Available storage [bytes]' })
+  @Expose({ name: 'available_storage', groups: [Group.ADMIN] })
+  @ApiProperty({ name: 'available_storage', description: 'Available storage [bytes]', example: 1073741824 })
   availableStorage!: number;
 
-  @Expose({ name: 'storage_used', groups: [UserRole.ADMIN] })
-  @ApiProperty({ name: 'storage_used', description: 'Storage already used [bytes]' })
+  @Expose({ name: 'storage_used', groups: [Group.ADMIN] })
+  @ApiProperty({ name: 'storage_used', description: 'Storage already used [bytes]', example: 75122 })
   storageUsed!: number;
 
   constructor(partial: Partial<ResponseProfessorshipDto>) {

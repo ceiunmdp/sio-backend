@@ -26,10 +26,10 @@ export class HealthController {
   healthcheck() {
     return this.health.check([
       // DNS Healthcheck
-      () => this.dns.pingCheck('google', 'https://google.com'),
+      () => this.dns.pingCheck('google', 'https://google.com', { timeout: 300 }),
 
       // Database Healthcheck
-      () => this.typeOrm.pingCheck('database'),
+      () => this.typeOrm.pingCheck('database', { timeout: 300 }),
 
       // The process should not use more than 500MB memory
       () => this.memory.checkHeap('memory_heap', bytes('500MB')),

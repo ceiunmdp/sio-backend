@@ -40,11 +40,6 @@ async function bootstrap() {
   // The fallback option is to spare our selfs from importing all the class-validator modules to NestJS
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  //! Alternative 1
-  // initializeTransactionalContext(); // Initialize cls-hooked
-  // patchTypeORMRepositoryWithBaseRepository(); // Patch Repository with BaseRepository
-  // patchTypeORMTreeRepositoryWithBaseTreeRepository(); // Patch TreeRepository with BaseTreeRepository
-
   enableSwaggerUI(app);
   setupFirebaseAdminSDK(logger);
 

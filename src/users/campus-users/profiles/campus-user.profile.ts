@@ -16,9 +16,7 @@ export class CampusUserProfile extends ProfileBase {
       (responseCampusUserDto) => responseCampusUserDto.campus,
       mapDefer((campusUser) => {
         if (!campusUser.campus) {
-          return mapFrom((campusUser) => {
-            return { id: campusUser.campusId };
-          });
+          return mapFrom((campusUser) => ({ id: campusUser.campusId }));
         }
         return mapFrom((campusUser) => campusUser.campus);
       }),

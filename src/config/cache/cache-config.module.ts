@@ -1,6 +1,6 @@
-import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
 import { CacheConfigService } from './cache-config.service';
 import cacheConfig from './cache.config';
 

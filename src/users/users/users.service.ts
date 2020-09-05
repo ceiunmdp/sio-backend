@@ -1,12 +1,13 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { FirebaseError } from 'src/common/enums/firebase-error';
-import { EmailAlreadyExistsException } from 'src/common/exceptions/email-already-exists.exception';
-import { UserNotFoundException } from 'src/common/exceptions/user-not-found.exception';
-import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
+import { UserNotFoundInDatabaseException } from 'src/common/exceptions/user-not-found-in-database.exception';
+import { UserNotFoundInFirebaseException } from 'src/common/exceptions/user-not-found-in-firebase.exception';
+import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
+import { CustomUserClaims } from 'src/common/interfaces/user-identity.interface';
+import { handleFirebaseError } from 'src/common/utils/firebase-handler';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
-import { DeepPartial, EntityManager } from 'typeorm';
+import { DeepPartial, EntityManager, In } from 'typeorm';
 import { User } from './entities/user.entity';
 
 export interface PaginationOptions {
@@ -16,9 +17,7 @@ export interface PaginationOptions {
 }
 
 @Injectable()
-export class UsersService {
-  // TODO: Implement interface
-  // implements CrudService<User> {
+export class UsersService implements TypeOrmCrudService<User> {
   constructor(private readonly logger: CustomLoggerService) {
     this.logger.context = UsersService.name;
   }
@@ -29,7 +28,7 @@ export class UsersService {
     const numberOfUsers = await manager.getRepository(User).count();
 
     return new Pagination<User>(
-      await Promise.all(this.transformUserRecordsToUsers(userList.users, manager)),
+      await this.transformUserRecordsToUsers(userList.users, manager),
       {
         totalItems: numberOfUsers,
         itemCount: userList.users.length,
@@ -47,28 +46,19 @@ export class UsersService {
   }
 
   async findAllById(ids: string[], manager: EntityManager) {
-    const userIdentifiers = ids.map((id) => {
-      return {
-        uid: id,
-      };
-    });
+    const userIdentifiers = (await this.findUids(ids, manager)).map((uid) => ({ uid }));
 
     // TODO: Check if a try/catch is required here
     const getUsersResult = await admin.auth().getUsers(userIdentifiers);
-    return Promise.all(this.transformUserRecordsToUsers(getUsersResult.users, manager));
+    return this.transformUserRecordsToUsers(getUsersResult.users, manager);
   }
 
   async findById(id: string, manager: EntityManager) {
     try {
-      const userRecord = await admin.auth().getUser(id);
+      const userRecord = await admin.auth().getUser(await this.findUid(id, manager));
       return this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
-      const exception = this.handleFirebaseError(error);
-      if (exception instanceof UserNotFoundException) {
-        throw new NotFoundException(`Usuario ${id} no encontrado.`);
-      } else {
-        throw error;
-      }
+      throw handleFirebaseError(error);
     }
   }
 
@@ -77,12 +67,7 @@ export class UsersService {
       const userRecord = await admin.auth().getUserByEmail(email);
       return this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
-      const exception = this.handleFirebaseError(error);
-      if (exception instanceof UserNotFoundException) {
-        throw new NotFoundException(`Usuario con email ${email} no encontrado.`);
-      } else {
-        throw error;
-      }
+      throw handleFirebaseError(error);
     }
   }
 
@@ -90,8 +75,8 @@ export class UsersService {
     try {
       return !!(await admin.auth().getUserByEmail(email));
     } catch (error) {
-      const exception = this.handleFirebaseError(error);
-      if (exception instanceof UserNotFoundException) {
+      const exception = handleFirebaseError(error);
+      if (exception instanceof UserNotFoundInFirebaseException) {
         return false;
       } else {
         throw error;
@@ -99,107 +84,111 @@ export class UsersService {
     }
   }
 
-  async create<T extends DeepPartial<User>>(id: string, createDto: T, manager: EntityManager) {
+  async create<T extends DeepPartial<User>>(createDto: T, manager: EntityManager) {
     try {
       // TODO: Decide what flow to follow: https://docs.google.com/document/d/14WzggVxA0yN99J1KxEfkE87qmjFrYFE2wLh9_jQH4I4/edit?disco=AAAAKKrQorA
-      const userRecord = await admin.auth().createUser({ ...createDto, uid: id });
-      // const userRecord = await admin.auth().createUser({ ...createUserDto, uid: id, emailVerified: true });
-
+      const userRecord = await admin.auth().createUser(createDto);
       const user = await this.transformUserRecordToUser(userRecord, manager);
       await this.setCustomUserClaims(user);
       return user;
     } catch (error) {
-      throw this.handleFirebaseError(error);
+      throw handleFirebaseError(error);
     }
   }
 
   async update<T extends DeepPartial<User>>(id: string, updateDto: T, manager: EntityManager) {
     try {
+      const uid = await this.findUid(id, manager);
       const userRecord = await admin
         .auth()
-        .updateUser(id, { ...updateDto, ...(!!updateDto.email && { emailVerified: false }) });
+        .updateUser(uid, { ...updateDto, ...(!!updateDto.email && { emailVerified: false }) });
       return this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
       // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
-      const exception = this.handleFirebaseError(error);
-      if (exception instanceof UserNotFoundException) {
-        throw new NotFoundException(`Usuario ${id} no encontrado.`);
-      } else {
-        throw error;
-      }
+      throw handleFirebaseError(error);
     }
   }
 
   //! This method does not delete the user from the local database, this responsibility is from the appropiate service
-  async delete(id: string) {
+  async delete(id: string, manager: EntityManager) {
     try {
-      return admin.auth().deleteUser(id);
+      return admin.auth().deleteUser(await this.findUid(id, manager));
     } catch (error) {
       // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
-      const exception = this.handleFirebaseError(error);
-      if (exception instanceof UserNotFoundException) {
-        throw new NotFoundException(`Usuario ${id} no encontrado.`);
-      } else {
-        throw error;
-      }
+      throw handleFirebaseError(error);
     }
   }
 
-  handleFirebaseError(error: admin.FirebaseError) {
-    switch (error.code) {
-      case FirebaseError.USER_NOT_FOUND:
-        return new UserNotFoundException();
-      case FirebaseError.EMAIL_ALREADY_EXISTS:
-        return new EmailAlreadyExistsException();
-      default:
-        this.logFirebaseError(error);
-        return new InternalServerErrorException(
-          'Problema con proveedor externo. Consulte con el administrador del sistema.',
-        );
+  private async findUid(id: string, manager: EntityManager) {
+    const user = await manager.getRepository(User).findOne({ id });
+
+    if (user) {
+      return user.uid;
+    } else {
+      throw new UserNotFoundInDatabaseException(id);
     }
   }
 
-  logFirebaseError(error: admin.FirebaseError) {
-    this.logger.error(`Firebase Error.\nCode: ${error.code}\nMessage: ${error.message}`);
+  private async findUids(ids: string[], manager: EntityManager) {
+    const users = await manager.getRepository(User).findByIds(ids);
+
+    if (ids.length === users.length) {
+      return users.map((user) => user.uid);
+    } else {
+      const userMap = new Map(users.map((user) => [user.id, user.uid]));
+      ids.forEach((id) => {
+        if (!userMap.has(id)) throw new UserNotFoundInDatabaseException(id);
+      });
+    }
   }
 
-  async transformUserRecordToUser(userRecord: admin.auth.UserRecord, manager: EntityManager) {
-    const user = await manager.getRepository(User).findOne({ id: userRecord.uid });
+  private async transformUserRecordToUser(userRecord: admin.auth.UserRecord, manager: EntityManager) {
+    const user = await manager.getRepository(User).findOne({ uid: userRecord.uid });
 
     if (user) {
       return new User({ ...user, ...userRecord });
     } else {
-      throw new NotFoundException(`Usuario ${userRecord.uid} no encontrado en base local.`);
+      throw new UserNotFoundInDatabaseException(userRecord.uid);
     }
   }
 
-  transformUserRecordsToUsers(userRecords: admin.auth.UserRecord[], manager: EntityManager) {
-    return userRecords.map((userResult) => this.transformUserRecordToUser(userResult, manager));
+  private async transformUserRecordsToUsers(userRecords: admin.auth.UserRecord[], manager: EntityManager) {
+    const uids = userRecords.map((userRecord) => userRecord.uid);
+
+    if (uids.length) {
+      const users = await manager.getRepository(User).find({ where: { uid: In(uids) } });
+      const userMap = new Map(users.map((user) => [user.uid, user]));
+
+      if (userRecords.length === users.length) {
+        return userRecords.map((userRecord) => new User({ ...userMap.get(userRecord.uid), ...userRecord }));
+      } else {
+        userRecords.forEach((userRecord) => {
+          if (!userMap.has(userRecord.uid)) throw new UserNotFoundInDatabaseException(userRecord.uid);
+        });
+      }
+    } else {
+      return [];
+    }
   }
 
-  async setCustomUserClaims({ id, type }: User) {
-    const payload: UserIdentity = {
+  async setCustomUserClaims({ id, uid, type }: User) {
+    const payload: CustomUserClaims = {
       id,
       role: type,
     };
 
-    return admin.auth().setCustomUserClaims(id, payload);
+    try {
+      return admin.auth().setCustomUserClaims(uid, payload);
+    } catch (error) {
+      throw handleFirebaseError(error);
+    }
   }
 
-  // async sendEmailVerification(id: string) {
-  //   const idToken = await admin.auth().createCustomToken(id);
-  //   const { body } = await got.post(
-  //     `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${this.firebaseConfigService.apiKey}`,
-  //     {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       json: {
-  //         requestType: 'VERIFY_EMAIL',
-  //         idToken: idToken,
-  //       },
-  //     },
-  //   );
-  //   return body;
-  // }
+  async revokeRefreshToken(uid: string) {
+    try {
+      return admin.auth().revokeRefreshTokens(uid);
+    } catch (error) {
+      throw handleFirebaseError(error);
+    }
+  }
 }

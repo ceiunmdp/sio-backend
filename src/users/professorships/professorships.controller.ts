@@ -1,102 +1,83 @@
-import { Body, Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller } from '@nestjs/common';
+import { ApiConflictResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
+import { CustomError } from 'src/common/classes/custom-error.class';
+import { Group } from 'src/common/classes/group.class';
+import { ProxyTypeOrmCrudService } from 'src/common/classes/proxy-typeorm-crud.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
-import { Mapper } from 'src/common/decorators/mapper.decorator';
+import { DeleteById } from 'src/common/decorators/methods/delete-by-id.decorator';
+import { GetAll } from 'src/common/decorators/methods/get-all.decorator';
+import { GetById } from 'src/common/decorators/methods/get-by-id.decorator';
+import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
+import { PostAll } from 'src/common/decorators/methods/post-all.decorator';
+import { PutById } from 'src/common/decorators/methods/put-by-id.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { Connection, EntityManager } from 'typeorm';
-import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
+import { Connection } from 'typeorm';
 import { CreateProfessorshipDto } from './dto/create-professorship.dto';
 import { PartialUpdateProfessorshipDto } from './dto/partial-update-professorship.dto';
 import { ResponseProfessorshipDto } from './dto/response-professorship.dto';
 import { UpdateProfessorshipDto } from './dto/update-professorship.dto';
+import { Professorship } from './entities/professorship.entity';
 import { ProfessorshipsService } from './professorships.service';
 
 @ApiTags('Professorships')
 @Controller()
 export class ProfessorshipsController {
+  private readonly professorshipsService: TypeOrmCrudService<Professorship>;
+
   constructor(
-    @InjectConnection() private readonly connection: Connection,
+    @InjectConnection() connection: Connection,
+    professorshipsService: ProfessorshipsService,
     private readonly appConfigService: AppConfigService,
-    private readonly professorshipsService: ProfessorshipsService,
-  ) {}
+  ) {
+    this.professorshipsService = new ProxyTypeOrmCrudService(connection, professorshipsService);
+  }
 
-  @Get()
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseProfessorshipDto)
-  @ApiOkResponse({ description: 'List of professorship users.', type: ResponseProfessorshipDto })
+  @GetAll(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
+  @Auth(Group.ADMIN)
   async findAll(@Limit() limit: number, @Page() page: number) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.professorshipsService.findAll(
-        {
-          limit,
-          page,
-          route: `${this.appConfigService.basePath}${Path.USERS}${Path.PROFESSORSHIPS}`,
-        },
-        manager,
-      );
+    return this.professorshipsService.findAll({
+      limit,
+      page,
+      route: `${this.appConfigService.basePath}${Path.USERS}${Path.PROFESSORSHIPS}`,
     });
   }
 
-  @Get(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseProfessorshipDto)
-  @ApiOkResponse({ description: 'Professorship user', type: ResponseProfessorshipDto })
+  @GetById(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
+  @Auth(Group.ADMIN)
   async findById(@Id() id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.professorshipsService.findById(id, manager);
-    });
+    return this.professorshipsService.findById(id);
   }
 
-  @Post()
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseProfessorshipDto)
-  @ApiCreatedResponse({
-    description: 'The professorship user has been successfully created.',
-    type: ResponseProfessorshipDto,
-  })
+  @PostAll(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async create(@Body() createProfessorshipDto: CreateProfessorshipDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.professorshipsService.create(createProfessorshipDto, manager);
-    });
+    return this.professorshipsService.create(createProfessorshipDto);
   }
 
-  @Put(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseProfessorshipDto)
-  @ApiOkResponse({
-    description: 'The professorship user has been successfully updated.',
-    type: ResponseProfessorshipDto,
-  })
+  @PutById(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async update(@Id() id: string, @Body() updateProfessorshipDto: UpdateProfessorshipDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.professorshipsService.update(id, updateProfessorshipDto, manager);
-    });
+    return this.professorshipsService.update(id, updateProfessorshipDto);
   }
 
-  @Patch(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseProfessorshipDto)
-  @ApiOkResponse({
-    description: 'The professorship user has been successfully partially updated.',
-    type: ResponseProfessorshipDto,
-  })
+  @PatchById(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async partialUpdate(@Id() id: string, @Body() partialUpdateProfessorshipDto: PartialUpdateProfessorshipDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.professorshipsService.update(id, partialUpdateProfessorshipDto, manager);
-    });
+    return this.professorshipsService.update(id, partialUpdateProfessorshipDto);
   }
 
-  @Delete(':id')
-  @Auth(UserRole.ADMIN)
-  @ApiOkResponse({ description: 'The professorship user has been successfully deleted.' })
+  @DeleteById(Collection.PROFESSORSHIPS)
+  @Auth(Group.ADMIN)
   async delete(@Id() id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.professorshipsService.delete(id, manager);
-    });
+    return this.professorshipsService.delete(id);
   }
 }

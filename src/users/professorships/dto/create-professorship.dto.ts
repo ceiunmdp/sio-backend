@@ -5,6 +5,10 @@ import { CreateUserDto } from 'src/users/users/dto/create-user.dto';
 
 export class CreateProfessorshipDto extends CreateUserDto {
   @IsEntityExist(Course)
-  @ApiProperty({ name: 'course_id', description: `Course's UUID related to user` })
+  @ApiProperty({
+    name: 'course_id',
+    description: `Course's UUID related to user`,
+    example: 'be279206-4fef-458a-bc11-4caded8cbc3e',
+  })
   courseId!: string;
 }

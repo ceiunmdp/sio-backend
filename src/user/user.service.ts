@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UserNotFoundInDatabaseException } from 'src/common/exceptions/user-not-found-in-database.exception';
 import { EntityManager } from 'typeorm';
 import { AdminsService } from '../users/admins/admins.service';
 import { Admin } from '../users/admins/entities/admin.entity';
@@ -25,11 +26,21 @@ export class UserService {
   ) {}
 
   async findById(id: string, manager: EntityManager) {
-    const user = await this.usersService.findById(id, manager);
-    return this.findByIdAndType(user.id, user.type, manager);
+    try {
+      const user = await this.usersService.findById(id, manager);
+      return this.findByIdAndType(user.id, user.type, manager);
+    } catch (error) {
+      if (error instanceof UserNotFoundInDatabaseException) {
+        //* User found in Firebase but not in database
+        //* First login of student
+        return this.studentsService.create({ uid: id }, manager);
+      } else {
+        throw error;
+      }
+    }
   }
 
-  findByIdAndType(
+  private findByIdAndType(
     id: string,
     type: UserType,
     manager: EntityManager,

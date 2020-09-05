@@ -1,8 +1,9 @@
+import { UserType } from 'src/users/users/enums/user-type.enum';
+
 export enum UserRole {
-  ALL = 'admin,campus,professorship,scholarship,student', // All roles
-  ADMIN = 'admin', // Administrador
-  CAMPUS = 'campus', // Sede (central o anexo)
-  PROFESSORSHIP = 'professorship', // Cátedra universitaria
-  SCHOLARSHIP = 'scholarship', // Usuario becado
-  STUDENT = 'student', // Usuario estudiante
+  ADMIN = UserType.ADMIN, // Administrador
+  CAMPUS = UserType.CAMPUS, // Sede (central o anexo)
+  PROFESSORSHIP = UserType.PROFESSORSHIP, // Cátedra universitaria
+  SCHOLARSHIP = UserType.SCHOLARSHIP, // Usuario becado
+  STUDENT = UserType.STUDENT, // Usuario estudiante
 }

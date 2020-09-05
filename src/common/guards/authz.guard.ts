@@ -11,13 +11,15 @@ export class AuthZGuard implements CanActivate {
   }
 
   canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.get('roles', context.getHandler()) as string[];
-    if (!roles) {
+    const authorizedRoles = this.reflector.get('roles', context.getHandler()) as string[];
+
+    if (!authorizedRoles) {
       return true;
     }
     const request: Request = context.switchToHttp().getRequest();
     const user = request.user as UserIdentity;
-    const authorized = this.matchRoles(roles, user.role);
+
+    const authorized = this.checkIfRoleIsAuthorized(authorizedRoles, user.role);
 
     if (!authorized) {
       this.logger.warn(`User ${user.id} tried to access ${request.method} ${request.url}`);
@@ -25,7 +27,7 @@ export class AuthZGuard implements CanActivate {
     return authorized;
   }
 
-  matchRoles(roles: string[], role: string) {
-    return roles.includes(role);
+  checkIfRoleIsAuthorized(authorizedRoles: string[], role: string) {
+    return authorizedRoles.includes(role);
   }
 }

@@ -1,9 +1,10 @@
 import { Controller, Delete, Get, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Group } from 'src/common/classes/group.class';
+import { ALL_ROLES } from 'src/common/constants/all-roles';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { User } from 'src/common/decorators/user.decorator';
-import { UserRole } from 'src/common/enums/user-role.enum';
 import { ResponseFunctionalityDto } from './dto/response-functionality.dto';
 import { MenuService } from './menu.service';
 
@@ -13,7 +14,7 @@ export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
   @Get()
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP, UserRole.SCHOLARSHIP, UserRole.STUDENT)
+  @Auth(...ALL_ROLES)
   @Mapper(ResponseFunctionalityDto)
   @ApiOkResponse({ description: 'Menu.', type: ResponseFunctionalityDto })
   async find(@User('role') userRole: string) {
@@ -21,7 +22,7 @@ export class MenuController {
   }
 
   @Post()
-  @Auth(UserRole.ADMIN)
+  @Auth(Group.ADMIN)
   @Mapper(ResponseFunctionalityDto)
   @ApiOkResponse({ description: 'The menu has been successfully created.', type: ResponseFunctionalityDto })
   async create() {
@@ -29,7 +30,7 @@ export class MenuController {
   }
 
   @Delete()
-  @Auth(UserRole.ADMIN)
+  @Auth(Group.ADMIN)
   @ApiOkResponse({ description: 'The menu has been successfully deleted.' })
   async delete() {
     return this.menuService.delete();

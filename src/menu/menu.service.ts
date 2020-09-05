@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { Role } from 'src/users/users/entities/role.entity';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
-import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
 import { Functionality } from './entities/functionality.entity';
 
 @Injectable()
@@ -104,33 +104,17 @@ export class MenuService {
     return this.menuRepository.findDescendantsTree(menu);
   }
 
-  //! Alternative 1
-  // @Transactional({ propagation: Propagation.REQUIRED, isolationLevel: IsolationLevel.REPEATABLE_READ }) //! Defaults
   async delete() {
     const roots = await Promise.all(
       (await this.menuRepository.findRoots()).map((root) => this.menuRepository.findDescendantsTree(root)),
     );
 
-    //! Alternative 1
-    // await this.menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
-    // await Promise.all(roots.map((tree) => this.removeTree(tree)));
-    // return;
-
-    //! Alternative 2
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
       const menuRepository = manager.getTreeRepository(Functionality);
       await menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
       await Promise.all(roots.map((tree) => this.removeTree2(menuRepository, tree)));
       return;
     });
-
-    //! Alternative 3 (recommended by NestJS)
-    // return await TransactionUtil.execute(this.connection, async (manager: EntityManager) => {
-    //   const menuRepository = manager.getTreeRepository(Functionality);
-    //   await menuRepository.createQueryBuilder().delete().from('functionalities_closure').execute();
-    //   await Promise.all(roots.map((tree) => this.removeTree2(menuRepository, tree)));
-    //   return;
-    // });
   }
 
   async removeTree(functionality: Functionality) {

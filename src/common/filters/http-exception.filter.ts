@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { CustomError } from '../classes/custom-error.class';
 
 interface InternalError {
   status: number;
@@ -41,11 +42,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
 }
 
 export function buildError(request: Request, { status, error, message }: InternalError) {
-  return {
-    statusCode: status,
+  return new CustomError({
+    status_code: status,
     error,
     message,
     timestamp: new Date().toISOString(),
     path: request.url,
-  };
+  });
 }

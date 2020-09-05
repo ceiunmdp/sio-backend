@@ -2,11 +2,11 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { AutoMapper, InjectMapper } from 'nestjsx-automapper';
+import { ALL_ROLES } from 'src/common/constants/all-roles';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { User } from 'src/common/decorators/user.decorator';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { Connection, EntityManager } from 'typeorm';
-import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
 import { ResponseAdminDto } from '../users/admins/dto/response-admin.dto';
 import { Admin } from '../users/admins/entities/admin.entity';
 import { ResponseCampusUserDto } from '../users/campus-users/dto/response-campus-user.dto';
@@ -31,7 +31,7 @@ export class UserController {
   ) {}
 
   @Get()
-  @Auth(...UserRole.ALL.split(','))
+  @Auth(...ALL_ROLES)
   @ApiOkResponse({
     description: 'Information of currently logged in Admin/CampusUser/Professorship/Scholarship/Student',
     type: ResponseUserDto,
@@ -43,7 +43,7 @@ export class UserController {
     });
   }
 
-  mapUserByType(user: Admin | CampusUser | Professorship | Scholarship | Student) {
+  private mapUserByType(user: Admin | CampusUser | Professorship | Scholarship | Student) {
     switch (user.type) {
       case UserType.ADMIN:
         return this.mapper.map(user, ResponseAdminDto);

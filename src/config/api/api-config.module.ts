@@ -1,6 +1,6 @@
-import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
 import { ApiConfigService } from './api-config.service';
 import apiRateConfig from './api-rate.config';
 import apiSpeedConfig from './api-speed.config';

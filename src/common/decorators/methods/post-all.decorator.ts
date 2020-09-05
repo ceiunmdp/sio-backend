@@ -1,0 +1,11 @@
+import { applyDecorators, Post } from '@nestjs/common';
+import { Mapper } from '../mapper.decorator';
+import { BaseResponses } from './responses/base-responses.decorator';
+import { ApiPostOkResponseCustom } from './responses/custom-responses.decorator';
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const PostAll = (collection: string, type: Function) => {
+  const item = collection.slice(0, -1);
+
+  return applyDecorators(Post(), Mapper(type), BaseResponses(), ApiPostOkResponseCustom(item, type));
+};

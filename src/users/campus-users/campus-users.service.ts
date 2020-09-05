@@ -1,5 +1,4 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { EmailAlreadyExistsException } from 'src/common/exceptions/email-already-exists.exception';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { EntityManager } from 'typeorm';
 import { UsersService } from '../users/users.service';
@@ -29,16 +28,11 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
         campus: new Campus({ id: createCampusUserDto.campusId }),
       });
 
-      try {
-        const user = await this.usersService.create(newCampusUser.id, createCampusUserDto, manager);
-        return this.userMerger.mergeSubUser(user, newCampusUser);
-      } catch (error) {
-        if (error instanceof EmailAlreadyExistsException) {
-          throw new ConflictException(`Ya existe un usuario con el email elegido.`);
-        } else {
-          throw error;
-        }
-      }
+      // TODO: Copy 'id' to 'uid' after saving entity
+      await campusUsersRepository.save({ ...newCampusUser, uid: newCampusUser.id });
+
+      const user = await this.usersService.create({ ...createCampusUserDto, uid: newCampusUser.id }, manager);
+      return this.userMerger.mergeSubUser(user, newCampusUser);
     } else if (campusUser.deleteDate) {
       campusUser = await campusUsersRepository.recover(campusUser);
       return this.userMerger.findAndMergeSubUser(campusUser, manager);

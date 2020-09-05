@@ -1,14 +1,17 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { Movement } from 'src/movements/entities/movement.entity';
-import { ChildEntity, Column, OneToMany } from 'typeorm';
+import { ChildEntity, Column, OneToMany, Unique } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @ChildEntity()
+@Unique(['dni'])
 export class Student extends User {
-  @Column({ default: 0 })
+  @AutoMap()
+  @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
   balance!: number;
 
-  @Column()
+  @AutoMap()
+  @Column({ default: null })
   dni!: string;
 
   @AutoMap(() => Movement)

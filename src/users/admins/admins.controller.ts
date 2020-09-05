@@ -1,101 +1,88 @@
-import { BadRequestException, Body, Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller } from '@nestjs/common';
+import { ApiConflictResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
+import { CustomError } from 'src/common/classes/custom-error.class';
+import { Group } from 'src/common/classes/group.class';
+import { ProxyTypeOrmCrudService } from 'src/common/classes/proxy-typeorm-crud.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
-import { Mapper } from 'src/common/decorators/mapper.decorator';
+import { DeleteById } from 'src/common/decorators/methods/delete-by-id.decorator';
+import { GetAll } from 'src/common/decorators/methods/get-all.decorator';
+import { GetById } from 'src/common/decorators/methods/get-by-id.decorator';
+import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
+import { PostAll } from 'src/common/decorators/methods/post-all.decorator';
+import { PutById } from 'src/common/decorators/methods/put-by-id.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
 import { User } from 'src/common/decorators/user.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { Connection, EntityManager } from 'typeorm';
-import { IsolationLevel } from 'typeorm-transactional-cls-hooked';
+import { Connection } from 'typeorm';
 import { AdminsService } from './admins.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { PartialUpdateAdminDto } from './dto/partial-update-admin.dto';
 import { ResponseAdminDto } from './dto/response-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { Admin } from './entities/admin.entity';
 
 @ApiTags('Admins')
 @Controller()
 export class AdminsController {
+  private readonly adminsService: TypeOrmCrudService<Admin>;
+
   constructor(
-    @InjectConnection() private readonly connection: Connection,
+    @InjectConnection() connection: Connection,
+    adminsService: AdminsService,
     private readonly appConfigService: AppConfigService,
-    private readonly adminsService: AdminsService,
-  ) {}
+  ) {
+    this.adminsService = new ProxyTypeOrmCrudService(connection, adminsService);
+  }
 
-  @Get()
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseAdminDto)
-  @ApiOkResponse({ description: 'List of admin users.', type: ResponseAdminDto })
+  @GetAll(Collection.ADMINS, ResponseAdminDto)
+  @Auth(Group.ADMIN)
   async findAll(@Limit() limit: number, @Page() page: number) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.adminsService.findAll(
-        {
-          limit,
-          page,
-          route: `${this.appConfigService.basePath}${Path.USERS}${Path.ADMINS}`,
-        },
-        manager,
-      );
+    return this.adminsService.findAll({
+      limit,
+      page,
+      route: `${this.appConfigService.basePath}${Path.USERS}${Path.ADMINS}`,
     });
   }
 
-  @Get(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseAdminDto)
-  @ApiOkResponse({ description: 'Admin user', type: ResponseAdminDto })
+  @GetById(Collection.ADMINS, ResponseAdminDto)
+  @Auth(Group.ADMIN)
   async findById(@Id() id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.adminsService.findById(id, manager);
-    });
+    return this.adminsService.findById(id);
   }
 
-  @Post()
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseAdminDto)
-  @ApiCreatedResponse({ description: 'The admin user has been successfully created.', type: ResponseAdminDto })
+  @PostAll(Collection.ADMINS, ResponseAdminDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async create(@Body() createAdminDto: CreateAdminDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.adminsService.create(createAdminDto, manager);
-    });
+    return this.adminsService.create(createAdminDto);
   }
 
-  @Put(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseAdminDto)
-  @ApiOkResponse({ description: 'The admin user has been successfully updated.', type: ResponseAdminDto })
+  @PutById(Collection.ADMINS, ResponseAdminDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async update(@Id() id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.adminsService.update(id, updateAdminDto, manager);
-    });
+    return this.adminsService.update(id, updateAdminDto);
   }
 
-  @Patch(':id')
-  @Auth(UserRole.ADMIN)
-  @Mapper(ResponseAdminDto)
-  @ApiOkResponse({
-    description: 'The admin user has been successfully partially updated.',
-    type: ResponseAdminDto,
-  })
+  @PatchById(Collection.ADMINS, ResponseAdminDto)
+  @Auth(Group.ADMIN)
+  @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async partialUpdate(@Id() id: string, @Body() partialUpdateAdminDto: PartialUpdateAdminDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.adminsService.update(id, partialUpdateAdminDto, manager);
-    });
+    return this.adminsService.update(id, partialUpdateAdminDto);
   }
 
-  @Delete(':id')
-  @Auth(UserRole.ADMIN)
-  @ApiOkResponse({ description: 'The admin user has been successfully deleted.' })
+  @DeleteById(Collection.ADMINS)
+  @Auth(Group.ADMIN)
   async delete(@User('id') userId: string, @Id() id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      if (userId !== id) {
-        return this.adminsService.delete(id, manager);
-      } else {
-        throw new BadRequestException('No es posible eliminarse a sí mismo como administrador.');
-      }
-    });
+    if (userId !== id) {
+      return this.adminsService.delete(id);
+    } else {
+      throw new BadRequestException('No es posible eliminarse a sí mismo como administrador.');
+    }
   }
 }

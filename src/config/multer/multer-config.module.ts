@@ -1,7 +1,7 @@
-import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as bytes from 'bytes';
+import * as Joi from 'joi';
 import { MulterConfigService } from './multer-config.service';
 import multerConfig from './multer.config';
 @Module({
