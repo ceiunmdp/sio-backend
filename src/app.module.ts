@@ -1,6 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
+//! Profiles
+import './common/base-classes/base-entity.profile';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ErrorsInterceptor } from './common/interceptors/errors.interceptor';
 import { HttpCacheInterceptor } from './common/interceptors/http-cache.interceptor';

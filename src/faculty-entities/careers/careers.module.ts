@@ -6,6 +6,8 @@ import { CareersController } from './careers.controller';
 import { CareersRepository } from './careers.repository';
 import { CareersService } from './careers.service';
 import { Career } from './entities/career.entity';
+//! Profiles
+import './profiles/career.profile';
 
 @Module({
   imports: [SharedModule, AppConfigModule, TypeOrmModule.forFeature([Career, CareersRepository])],

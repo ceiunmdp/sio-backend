@@ -6,6 +6,8 @@ import { CoursesController } from './courses.controller';
 import { CoursesRepository } from './courses.repository';
 import { CoursesService } from './courses.service';
 import { Course } from './entities/course.entity';
+//! Profiles
+import './profiles/course.profile';
 
 @Module({
   imports: [SharedModule, AppConfigModule, TypeOrmModule.forFeature([Course, CoursesRepository])],

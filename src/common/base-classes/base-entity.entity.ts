@@ -1,8 +1,6 @@
-import { AutoMap } from 'nestjsx-automapper';
 import { CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 
 export class BaseEntity {
-  @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   readonly id!: string;
 

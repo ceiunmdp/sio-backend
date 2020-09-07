@@ -6,11 +6,9 @@ import { User } from '../../users/entities/user.entity';
 @ChildEntity()
 @Unique(['dni'])
 export class Student extends User {
-  @AutoMap()
   @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
   balance!: number;
 
-  @AutoMap()
   @Column({ default: null })
   dni!: string;
 

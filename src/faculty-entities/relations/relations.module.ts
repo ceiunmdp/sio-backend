@@ -4,6 +4,8 @@ import { AppConfigModule } from 'src/config/app/app-config.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { CareerCourseRelation } from './entities/career-course-relation.entity';
 import { Relation } from './entities/relation.entity';
+//! Profiles
+import './profiles/relation.profile';
 import { RelationsController } from './relations.controller';
 import { RelationsRepository } from './relations.repository';
 import { RelationsService } from './relations.service';

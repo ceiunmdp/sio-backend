@@ -12,8 +12,6 @@ import { CacheConfigService } from 'src/config/cache/cache-config.service';
 import { DatabaseModule } from 'src/database/database.module';
 import { HealthModule } from 'src/health/health.module';
 import { LoggerModule } from 'src/logger/logger.module';
-//! Profiles
-import '../common/base-classes/base-entity.profile';
 
 @Module({
   imports: [

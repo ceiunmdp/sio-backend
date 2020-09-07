@@ -8,38 +8,31 @@ import { Role } from './role.entity';
 @TableInheritance({ column: { type: 'enum', enum: UserType, name: 'type' } })
 export class User extends BaseEntity {
   //* Firebase
-  @AutoMap()
   @Index()
   @Column({ type: 'varchar', length: 36, default: null })
   uid!: string;
 
   //* Firebase
-  @AutoMap()
   displayName!: string;
 
   //* Firebase
-  @AutoMap()
   email!: string;
 
   //* Firebase
-  @AutoMap()
   emailVerified!: boolean;
 
   //* Firebase
   password!: string;
 
   //* Firebase
-  @AutoMap()
   photoURL!: string;
 
   //* Firebase
-  @AutoMap()
   disabled!: boolean;
 
   //! Firebase (only in case of developing multi-tenant application)
   // readonly tenantId!: string | number
 
-  @AutoMap()
   @Column({ name: 'dark_theme', default: false })
   darkTheme!: boolean;
 
