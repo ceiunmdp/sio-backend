@@ -6,6 +6,8 @@ import { CampusController } from './campus.controller';
 import { CampusRepository } from './campus.repository';
 import { CampusService } from './campus.service';
 import { Campus } from './entities/campus.entity';
+//! Profiles
+import './profiles/campus.profile';
 
 @Module({
   imports: [SharedModule, AppConfigModule, TypeOrmModule.forFeature([Campus, CampusRepository])],

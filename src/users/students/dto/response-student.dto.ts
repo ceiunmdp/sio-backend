@@ -7,12 +7,12 @@ import { ResponseUserDto } from 'src/users/users/dto/response-user.dto';
 @Exclude()
 export class ResponseStudentDto extends ResponseUserDto {
   @AutoMap()
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT] })
+  @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })
   @ApiProperty({ description: `Student's balance`, example: 151.5 })
   balance!: number;
 
   @AutoMap()
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT] })
+  @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })
   @ApiProperty({ description: `Student's DNI`, example: '40123456' })
   dni!: string;
 

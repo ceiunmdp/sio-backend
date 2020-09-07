@@ -22,9 +22,9 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   async update(id: string, updateScholarshipDto: Partial<UpdateScholarshipDto>, manager: EntityManager) {
     const scholarshipsRepository = this.getScholarshipsRepository(manager);
 
-    await this.checkPreconditions(id, updateScholarshipDto, manager);
+    await this.checkUpdatePreconditions(id, updateScholarshipDto, manager);
 
-    let updatedScholarship = await scholarshipsRepository.saveAndReload({ ...updateScholarshipDto, id });
+    let updatedScholarship = await scholarshipsRepository.updateAndReload(id, updateScholarshipDto);
 
     if (!!updateScholarshipDto.type) {
       //* Degradation from scholarship to student
@@ -38,7 +38,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     return this.userMerger.mergeSubUser(user, updatedScholarship);
   }
 
-  private async checkPreconditions(
+  private async checkUpdatePreconditions(
     id: string,
     updateScholarshipDto: Partial<UpdateScholarshipDto>,
     manager: EntityManager,
@@ -69,7 +69,11 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     // TODO: Decide if a 'defaults' table should be implemented
     // TODO: This way, the values wouldn't be harcoded in the database nor the environment variables
     // TODO: Ergo, no need to restart the app nor access the database records, everything is updated through UI
-    return scholarshipsRepository.saveAndReload({ ...student, availableCopies: 500, remainingCopies: 500 });
+    return scholarshipsRepository.updateAndReload(studentId, {
+      ...student,
+      availableCopies: 500,
+      remainingCopies: 500,
+    });
   }
 
   private async degradeScholarshipToStudent(scholarshipId: string, manager: EntityManager) {

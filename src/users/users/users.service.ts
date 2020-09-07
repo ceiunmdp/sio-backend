@@ -172,7 +172,7 @@ export class UsersService implements TypeOrmCrudService<User> {
   }
 
   async isDniRepeated(dni: string, usersRepository: Repository<User>) {
-    return !!(await usersRepository.findOne({ where: { dni } }));
+    return !!(await usersRepository.findOne({ where: { dni }, withDeleted: true }));
   }
 
   async setCustomUserClaims({ id, uid, type }: User) {

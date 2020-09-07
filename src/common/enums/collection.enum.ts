@@ -5,4 +5,6 @@ export enum Collection {
   PROFESSORSHIPS = 'Professorship users',
   SCHOLARSHIPS = 'Scholarship users',
   STUDENTS = 'Student users',
+
+  CAMPUS = 'Campus',
 }

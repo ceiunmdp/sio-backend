@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Professorship } from 'src/users/professorships/entities/professorship.entity';
-import { EntityManager } from 'typeorm';
+import { DeepPartial, EntityManager } from 'typeorm';
 import { File } from './entities/file.entity';
 import { FilesRepository } from './files.repository';
 
@@ -14,10 +14,10 @@ export class FilesService implements CrudService<File> {
   findById(id: string, manager: EntityManager): Promise<File> {
     throw new Error('Method not implemented.');
   }
-  create(createDto: Required<File>, manager: EntityManager): Promise<File> {
+  create(createDto: DeepPartial<File>, manager: EntityManager): Promise<File> {
     throw new Error('Method not implemented.');
   }
-  update(id: string, updateDto: Required<File>, manager: EntityManager): Promise<File> {
+  update(id: string, updateDto: DeepPartial<File>, manager: EntityManager): Promise<File> {
     throw new Error('Method not implemented.');
   }
   delete(id: string, manager: EntityManager): Promise<void> {
@@ -38,7 +38,7 @@ export class FilesService implements CrudService<File> {
 
     const files = await filesRepository.find({ where: { owner: { id: professorship.id } } });
 
-    await Promise.all(files.map((file) => filesRepository.saveAndReload({ ...file, owner: null })));
+    await Promise.all(files.map((file) => filesRepository.updateAndReload(file.id, { ...file, owner: null })));
     await filesRepository.softRemove(files);
   }
 }

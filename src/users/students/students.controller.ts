@@ -54,6 +54,7 @@ export class StudentsController {
   @PutById(Collection.STUDENTS, ResponseStudentDto)
   @Auth(Group.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user.', type: CustomError })
+  @ApiConflictResponse({ description: 'DNI already assigned to another user.', type: CustomError })
   async update(@Id() id: string, @Body() updateStudentDto: UpdateStudentDto) {
     return this.studentsService.update(id, updateStudentDto);
   }
@@ -61,6 +62,7 @@ export class StudentsController {
   @PatchById(Collection.STUDENTS, ResponseStudentDto)
   @Auth(Group.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user.', type: CustomError })
+  @ApiConflictResponse({ description: 'DNI already assigned to another user.', type: CustomError })
   async partialUpdate(@Id() id: string, @Body() partialUpdateStudentDto: PartialUpdateStudentDto) {
     return this.studentsService.update(id, partialUpdateStudentDto);
   }

@@ -3,17 +3,18 @@ import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
 import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
+import { ALL_ROLES } from 'src/common/constants/all-roles';
 import { UserType } from '../enums/user-type.enum';
 
 @Exclude()
 export class ResponseUserDto extends ResponseBaseEntity {
   @AutoMap()
-  @Expose({ name: 'display_name', groups: [Group.ADMIN, Group.STUDENT] })
+  @Expose({ name: 'display_name', groups: ALL_ROLES })
   @ApiProperty({ name: 'display_name', description: `User's name`, example: 'John Doe' })
   displayName!: string;
 
   @AutoMap()
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT] })
+  @Expose({ groups: ALL_ROLES })
   @ApiProperty({ description: `User's email`, example: 'example@gmail.com' })
   email!: string;
 
@@ -23,7 +24,7 @@ export class ResponseUserDto extends ResponseBaseEntity {
   emailVerified!: boolean;
 
   @AutoMap()
-  @Expose({ name: 'photo_url', groups: [Group.ADMIN, Group.STUDENT] })
+  @Expose({ name: 'photo_url', groups: ALL_ROLES })
   @ApiProperty({
     name: 'photo_url',
     description: `User photo url`,
@@ -37,12 +38,12 @@ export class ResponseUserDto extends ResponseBaseEntity {
   disabled!: boolean;
 
   @AutoMap()
-  @Expose({ name: 'dark_theme', groups: [Group.ADMIN, Group.STUDENT] })
+  @Expose({ name: 'dark_theme', groups: ALL_ROLES })
   @ApiProperty({ name: 'dark_theme', description: `User's theme`, example: true })
   darkTheme!: boolean;
 
   @AutoMap(() => String)
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT] })
+  @Expose({ groups: ALL_ROLES })
   @ApiProperty({ description: `User's type`, example: UserType.PROFESSORSHIP })
   type!: UserType;
 

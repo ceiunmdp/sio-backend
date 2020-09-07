@@ -54,6 +54,7 @@ export class ScholarshipsController {
   @PutById(Collection.STUDENTS, ResponseScholarshipDto)
   @Auth(Group.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user.', type: CustomError })
+  @ApiConflictResponse({ description: 'DNI already assigned to another user.', type: CustomError })
   async update(@Id() id: string, @Body() updateScholarshipDto: UpdateScholarshipDto) {
     return this.scholarshipsService.update(id, updateScholarshipDto);
   }
@@ -61,6 +62,7 @@ export class ScholarshipsController {
   @PatchById(Collection.STUDENTS, ResponseScholarshipDto)
   @Auth(Group.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user.', type: CustomError })
+  @ApiConflictResponse({ description: 'DNI already assigned to another user.', type: CustomError })
   async partialUpdate(@Id() id: string, @Body() partialUpdateScholarshipDto: PartialUpdateScholarshipDto) {
     return this.scholarshipsService.update(id, partialUpdateScholarshipDto);
   }

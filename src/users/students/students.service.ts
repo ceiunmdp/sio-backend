@@ -33,9 +33,9 @@ export class StudentsService extends GenericSubUserService<Student> {
   async update(id: string, updateStudentDto: Partial<UpdateStudentDto>, manager: EntityManager) {
     const studentsRepository = this.getStudentsRepository(manager);
 
-    await this.checkPreconditions(id, updateStudentDto, manager);
+    await this.checkUpdatePreconditions(id, updateStudentDto, manager);
 
-    const updatedStudent = await studentsRepository.saveAndReload({ ...updateStudentDto, id });
+    const updatedStudent = await studentsRepository.updateAndReload(id, updateStudentDto);
 
     if (!!updateStudentDto.type) {
       //* Promotion from student to scholarship
@@ -46,7 +46,11 @@ export class StudentsService extends GenericSubUserService<Student> {
     return this.userMerger.mergeSubUser(user, updatedStudent);
   }
 
-  private async checkPreconditions(id: string, updateStudentDto: Partial<UpdateStudentDto>, manager: EntityManager) {
+  private async checkUpdatePreconditions(
+    id: string,
+    updateStudentDto: Partial<UpdateStudentDto>,
+    manager: EntityManager,
+  ) {
     const student = await this.getStudentsRepository(manager).findOne(id);
     if (student) {
       if (
