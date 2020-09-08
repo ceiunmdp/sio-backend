@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
 import { Professorship } from 'src/users/professorships/entities/professorship.entity';
 import { DeepPartial, EntityManager } from 'typeorm';
 import { File } from './entities/file.entity';
@@ -8,19 +9,19 @@ import { FilesRepository } from './files.repository';
 
 @Injectable()
 export class FilesService implements CrudService<File> {
-  findAll(options: IPaginationOptions, manager: EntityManager): Promise<Pagination<File>> {
+  findAll(options: IPaginationOptions, manager?: EntityManager): Promise<Pagination<File>> {
     throw new Error('Method not implemented.');
   }
-  findById(id: string, manager: EntityManager): Promise<File> {
+  findById(id: string, manager?: EntityManager): Promise<File> {
     throw new Error('Method not implemented.');
   }
-  create(createDto: DeepPartial<File>, manager: EntityManager): Promise<File> {
+  create(createDto: DeepPartial<File>, manager?: EntityManager): Promise<File> {
     throw new Error('Method not implemented.');
   }
-  update(id: string, updateDto: DeepPartial<File>, manager: EntityManager): Promise<File> {
+  update(id: string, updateDto: DeepPartial<File>, manager?: EntityManager): Promise<File> {
     throw new Error('Method not implemented.');
   }
-  delete(id: string, manager: EntityManager): Promise<void> {
+  delete(id: string, options?: RemoveOptions, manager?: EntityManager): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

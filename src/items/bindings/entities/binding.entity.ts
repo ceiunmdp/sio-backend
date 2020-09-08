@@ -1,11 +1,9 @@
-import { Min } from 'class-validator';
 import { ChildEntity, Column } from 'typeorm';
-import { Item } from './item.entity';
+import { Item } from '../../items/entities/item.entity';
 
 @ChildEntity()
 export class Binding extends Item {
   @Column({ name: 'sheets_limit' })
-  @Min(1)
   sheetsLimit: number;
 
   constructor(partial: Partial<Binding>) {

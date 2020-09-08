@@ -19,10 +19,10 @@ import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.i
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
 import { CampusUsersService } from './campus-users.service';
-import { CreateCampusUserDto } from './dto/create-campus-user.dto';
-import { PartialUpdateCampusUserDto } from './dto/partial-update-campus-user.dto';
-import { ResponseCampusUserDto } from './dto/response-campus-user.dto';
-import { UpdateCampusUserDto } from './dto/update-campus-user.dto';
+import { CreateCampusUserDto } from './dtos/create-campus-user.dto';
+import { PartialUpdateCampusUserDto } from './dtos/partial-update-campus-user.dto';
+import { ResponseCampusUserDto } from './dtos/response-campus-user.dto';
+import { UpdateCampusUserDto } from './dtos/update-campus-user.dto';
 import { CampusUser } from './entities/campus-user.entity';
 
 @ApiTags('Campus Users')

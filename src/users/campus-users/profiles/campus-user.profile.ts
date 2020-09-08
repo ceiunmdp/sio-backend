@@ -1,7 +1,7 @@
 import { AutoMapper, mapDefer, mapFrom, Profile, ProfileBase } from 'nestjsx-automapper';
-import { ResponseUserDto } from 'src/users/users/dto/response-user.dto';
+import { ResponseUserDto } from 'src/users/users/dtos/response-user.dto';
 import { User } from 'src/users/users/entities/user.entity';
-import { ResponseCampusUserDto } from '../dto/response-campus-user.dto';
+import { ResponseCampusUserDto } from '../dtos/response-campus-user.dto';
 import { CampusUser } from '../entities/campus-user.entity';
 
 @Profile()

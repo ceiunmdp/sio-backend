@@ -3,7 +3,7 @@ import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { EntityManager } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
-import { CreateProfessorshipDto } from './dto/create-professorship.dto';
+import { CreateProfessorshipDto } from './dtos/create-professorship.dto';
 import { Professorship } from './entities/professorship.entity';
 import { ProfessorshipsRepository } from './professorships.repository';
 @Injectable()

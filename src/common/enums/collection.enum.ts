@@ -7,4 +7,7 @@ export enum Collection {
   STUDENTS = 'Student users',
 
   CAMPUS = 'Campus',
+
+  ITEMS = 'Items',
+  BINDINGS = 'Bindings',
 }

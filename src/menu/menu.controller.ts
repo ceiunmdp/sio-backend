@@ -8,7 +8,7 @@ import { BaseResponses } from 'src/common/decorators/methods/responses/base-resp
 import { User } from 'src/common/decorators/user.decorator';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { Connection, EntityManager } from 'typeorm';
-import { ResponseFunctionalityDto } from './dto/response-functionality.dto';
+import { ResponseFunctionalityDto } from './dtos/response-functionality.dto';
 import { MenuService } from './menu.service';
 
 @ApiTags('Menu')

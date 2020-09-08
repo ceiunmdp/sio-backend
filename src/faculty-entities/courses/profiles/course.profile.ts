@@ -1,7 +1,7 @@
 import { AutoMapper, Profile, ProfileBase } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
-import { ResponseCourseDto } from '../dto/response-course.dto';
+import { ResponseCourseDto } from '../dtos/response-course.dto';
 import { Course } from '../entities/course.entity';
 
 @Profile()

@@ -1,19 +1,14 @@
-import { DeepPartial, ObjectLiteral, Repository, SaveOptions } from 'typeorm';
-import { IId } from '../interfaces/id.interface';
+import { DeepPartial, Repository, SaveOptions } from 'typeorm';
+import { BaseEntity } from './base-entity.entity';
 
-export abstract class BaseRepository<Entity extends ObjectLiteral> extends Repository<Entity> {
-  async saveAndReload<T extends DeepPartial<Entity> & IId>(entity: T, options?: SaveOptions) {
+export abstract class BaseRepository<T extends BaseEntity> extends Repository<T> {
+  async saveAndReload(entity: DeepPartial<T>, options?: SaveOptions) {
     const newEntity = await this.save(entity, options);
     return this.findOne(newEntity.id);
   }
 
-  async updateAndReload(id: string | number, partialEntity: DeepPartial<Entity>) {
+  async updateAndReload(id: string | number, partialEntity: DeepPartial<T>) {
     await this.save({ ...partialEntity, id });
-    return this.findOne(id);
-  }
-
-  async restoreAndReload(id: string | number) {
-    await this.restore(id);
     return this.findOne(id);
   }
 }

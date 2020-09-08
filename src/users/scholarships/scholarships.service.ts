@@ -4,7 +4,7 @@ import { StudentsRepository } from '../students/students.repository';
 import { UserType } from '../users/enums/user-type.enum';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
-import { UpdateScholarshipDto } from './dto/update-scholarship.dto';
+import { PartialUpdateScholarshipDto } from './dtos/partial-update-scholarship.dto';
 import { Scholarship } from './entities/scholarship.entity';
 import { ScholarshipsRepository } from './scholarships.repository';
 
@@ -19,7 +19,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     throw new Error('Method not implemented.');
   }
 
-  async update(id: string, updateScholarshipDto: Partial<UpdateScholarshipDto>, manager: EntityManager) {
+  async update(id: string, updateScholarshipDto: PartialUpdateScholarshipDto, manager: EntityManager) {
     const scholarshipsRepository = this.getScholarshipsRepository(manager);
 
     await this.checkUpdatePreconditions(id, updateScholarshipDto, manager);
@@ -40,7 +40,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
 
   private async checkUpdatePreconditions(
     id: string,
-    updateScholarshipDto: Partial<UpdateScholarshipDto>,
+    updateScholarshipDto: PartialUpdateScholarshipDto,
     manager: EntityManager,
   ) {
     const scholarship = await this.getScholarshipsRepository(manager).findOne(id);

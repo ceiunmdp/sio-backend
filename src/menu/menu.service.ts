@@ -8,7 +8,7 @@ import { Functionality } from './entities/functionality.entity';
 @Injectable()
 export class MenuService {
   constructor(@InjectConnection() connection: Connection) {
-    this.create(connection.manager);
+    this.createMenu(connection.manager);
   }
 
   async find(userRole: string, manager: EntityManager) {
@@ -54,7 +54,8 @@ export class MenuService {
     }
   }
 
-  private async create(manager: EntityManager) {
+  // TODO: Delete this method in production
+  private async createMenu(manager: EntityManager) {
     const menuRepository = manager.getTreeRepository(Functionality);
 
     const roots = await menuRepository.findRoots();
@@ -90,15 +91,17 @@ export class MenuService {
       transferMoney.roles = Promise.resolve([student, scholarship]);
 
       menu = await menuRepository.save(menu);
-      await menuRepository.save(home);
-      await menuRepository.save(orders);
-      await menuRepository.save(movements);
-      await menuRepository.save(operations);
-      await menuRepository.save(newOrder);
-      await menuRepository.save(myOrders);
-      await menuRepository.save(myMovements);
-      await menuRepository.save(topUp);
-      await menuRepository.save(transferMoney);
+      await menuRepository.save([
+        home,
+        orders,
+        movements,
+        operations,
+        newOrder,
+        myOrders,
+        myMovements,
+        topUp,
+        transferMoney,
+      ]);
 
       return menuRepository.findDescendantsTree(menu);
     } else {

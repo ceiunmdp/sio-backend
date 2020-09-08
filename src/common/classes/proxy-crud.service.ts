@@ -1,9 +1,11 @@
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { Connection, DeepPartial, EntityManager } from 'typeorm';
+import { BaseEntity } from '../base-classes/base-entity.entity';
 import { IsolationLevel } from '../enums/isolation-level.enum';
 import { CrudService } from '../interfaces/crud-service.interface';
+import { RemoveOptions } from '../interfaces/remove-options.interface';
 
-export class ProxyCrudService<T> implements CrudService<T> {
+export class ProxyCrudService<T extends BaseEntity> implements CrudService<T> {
   constructor(private readonly connection: Connection, private readonly service: CrudService<T>) {}
 
   findAll(options: IPaginationOptions) {
@@ -30,9 +32,9 @@ export class ProxyCrudService<T> implements CrudService<T> {
     });
   }
 
-  delete(id: string) {
+  delete(id: string, options?: RemoveOptions) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.service.delete(id, manager);
+      return this.service.delete(id, options, manager);
     });
   }
 }

@@ -18,4 +18,7 @@ export enum Path {
   CAREERS = '/careers',
   COURSES = '/courses',
   RELATIONS = '/relations',
+
+  ITEMS = '/items',
+  BINDINGS = '/bindings',
 }

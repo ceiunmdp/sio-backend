@@ -4,7 +4,7 @@ import { EntityManager } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
 import { CampusUsersRepository } from './campus-users.repository';
-import { CreateCampusUserDto } from './dto/create-campus-user.dto';
+import { CreateCampusUserDto } from './dtos/create-campus-user.dto';
 import { CampusUser } from './entities/campus-user.entity';
 
 @Injectable()

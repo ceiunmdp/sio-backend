@@ -16,9 +16,9 @@ import { Path } from 'src/common/enums/path.enum';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
-import { PartialUpdateScholarshipDto } from './dto/partial-update-scholarship.dto';
-import { ResponseScholarshipDto } from './dto/response-scholarship.dto';
-import { UpdateScholarshipDto } from './dto/update-scholarship.dto';
+import { PartialUpdateScholarshipDto } from './dtos/partial-update-scholarship.dto';
+import { ResponseScholarshipDto } from './dtos/response-scholarship.dto';
+import { UpdateScholarshipDto } from './dtos/update-scholarship.dto';
 import { Scholarship } from './entities/scholarship.entity';
 import { ScholarshipsService } from './scholarships.service';
 

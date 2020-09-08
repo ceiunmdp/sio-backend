@@ -8,9 +8,9 @@ import { Limit, Page } from 'src/common/decorators/pagination.decorator';
 import { Path } from 'src/common/enums/path.enum';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { CareersService } from './careers.service';
-import { CreateCareerDto } from './dto/create-career.dto';
-import { ResponseCareerDto } from './dto/response-career.dto';
-import { UpdateCareerDto } from './dto/update-career.dto';
+import { CreateCareerDto } from './dtos/create-career.dto';
+import { ResponseCareerDto } from './dtos/response-career.dto';
+import { UpdateCareerDto } from './dtos/update-career.dto';
 
 @ApiTags('Careers')
 @Controller()

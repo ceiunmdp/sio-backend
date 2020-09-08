@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { Group } from 'src/common/classes/group.class';
-import { ResponseUserDto } from 'src/users/users/dto/response-user.dto';
-
+import { ResponseUserDto } from 'src/users/users/dtos/response-user.dto';
 @Exclude()
 export class ResponseStudentDto extends ResponseUserDto {
   @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })

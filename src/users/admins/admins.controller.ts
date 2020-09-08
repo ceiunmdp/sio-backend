@@ -20,10 +20,10 @@ import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.i
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
 import { AdminsService } from './admins.service';
-import { CreateAdminDto } from './dto/create-admin.dto';
-import { PartialUpdateAdminDto } from './dto/partial-update-admin.dto';
-import { ResponseAdminDto } from './dto/response-admin.dto';
-import { UpdateAdminDto } from './dto/update-admin.dto';
+import { CreateAdminDto } from './dtos/create-admin.dto';
+import { PartialUpdateAdminDto } from './dtos/partial-update-admin.dto';
+import { ResponseAdminDto } from './dtos/response-admin.dto';
+import { UpdateAdminDto } from './dtos/update-admin.dto';
 import { Admin } from './entities/admin.entity';
 
 @ApiTags('Admins')

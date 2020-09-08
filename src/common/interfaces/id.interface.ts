@@ -1,3 +1,3 @@
 export interface IId {
-  id?: string | number;
+  id: string | number;
 }

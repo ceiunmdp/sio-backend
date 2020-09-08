@@ -18,10 +18,10 @@ import { Path } from 'src/common/enums/path.enum';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
-import { CreateProfessorshipDto } from './dto/create-professorship.dto';
-import { PartialUpdateProfessorshipDto } from './dto/partial-update-professorship.dto';
-import { ResponseProfessorshipDto } from './dto/response-professorship.dto';
-import { UpdateProfessorshipDto } from './dto/update-professorship.dto';
+import { CreateProfessorshipDto } from './dtos/create-professorship.dto';
+import { PartialUpdateProfessorshipDto } from './dtos/partial-update-professorship.dto';
+import { ResponseProfessorshipDto } from './dtos/response-professorship.dto';
+import { UpdateProfessorshipDto } from './dtos/update-professorship.dto';
 import { Professorship } from './entities/professorship.entity';
 import { ProfessorshipsService } from './professorships.service';
 

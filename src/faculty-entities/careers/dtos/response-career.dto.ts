@@ -3,7 +3,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
 import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
-import { ResponseCourseDto } from 'src/faculty-entities/courses/dto/response-course.dto';
+import { ResponseCourseDto } from 'src/faculty-entities/courses/dtos/response-course.dto';
 
 @Exclude()
 export class ResponseCareerDto extends ResponseBaseEntity {

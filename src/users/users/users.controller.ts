@@ -17,9 +17,9 @@ import { Path } from 'src/common/enums/path.enum';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
-import { PartialUpdateUserDto } from './dto/partial-update-user.dto';
-import { ResponseUserDto } from './dto/response-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { PartialUpdateUserDto } from './dtos/partial-update-user.dto';
+import { ResponseUserDto } from './dtos/response-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 

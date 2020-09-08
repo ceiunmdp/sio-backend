@@ -9,6 +9,10 @@ export class BindingGroup extends BaseEntity {
   @Column({ type: 'decimal', precision: 6, scale: 2, update: false })
   readonly price!: number;
 
+  //? Should sheets limit be denormalized?
+  @Column({ name: 'sheets_limit', update: false })
+  readonly sheetsLimit: number;
+
   constructor(partial: Partial<BindingGroup>) {
     super(partial);
     Object.assign(this, partial);

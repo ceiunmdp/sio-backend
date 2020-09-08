@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsNumber, IsString, Max, Min } from 'class-validator';
 import { AutoMap } from 'nestjsx-automapper';
-import { UpdateUserDto } from 'src/users/users/dto/update-user.dto';
+import { UpdateUserDto } from 'src/users/users/dtos/update-user.dto';
 import { UserType } from 'src/users/users/enums/user-type.enum';
 
 export class UpdateStudentDto extends UpdateUserDto {

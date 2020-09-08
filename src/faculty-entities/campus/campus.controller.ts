@@ -20,10 +20,10 @@ import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
 import { CampusService } from './campus.service';
-import { CreateCampusDto } from './dto/create-campus.dto';
-import { PartialUpdateCampusDto } from './dto/partial-update-campus.dto';
-import { ResponseCampusDto } from './dto/response-campus.dto';
-import { UpdateCampusDto } from './dto/update-campus.dto';
+import { CreateCampusDto } from './dtos/create-campus.dto';
+import { PartialUpdateCampusDto } from './dtos/partial-update-campus.dto';
+import { ResponseCampusDto } from './dtos/response-campus.dto';
+import { UpdateCampusDto } from './dtos/update-campus.dto';
 import { Campus } from './entities/campus.entity';
 
 @ApiTags('Campus')
@@ -79,6 +79,6 @@ export class CampusController {
   @DeleteById(Collection.CAMPUS)
   @Auth(Group.ADMIN)
   async delete(@Id() id: string) {
-    return this.campusService.delete(id);
+    return this.campusService.delete(id, { softRemove: true });
   }
 }

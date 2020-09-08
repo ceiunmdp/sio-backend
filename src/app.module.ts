@@ -14,7 +14,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { CoreModule } from './core/core.module';
 import { FacultyEntitiesModule } from './faculty-entities/faculty-entities.module';
 import { FilesModule } from './files/files.module';
-import { ItemsModule } from './items/items.module';
+import { GeneralItemsModule } from './items/general-items.module';
 import { MenuModule } from './menu/menu.module';
 import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -31,7 +31,7 @@ import { GeneralUsersModule } from './users/general-users.module';
     FacultyEntitiesModule,
     GeneralUsersModule,
     FilesModule,
-    ItemsModule,
+    GeneralItemsModule,
     MenuModule,
     MovementsModule,
     NotificationsModule,

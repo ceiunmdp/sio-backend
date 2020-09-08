@@ -4,7 +4,7 @@ import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
 import { CreateStudentDto } from './dto/create-student.dto';
-import { UpdateStudentDto } from './dto/update-student.dto';
+import { PartialUpdateStudentDto } from './dto/partial-update-student.dto';
 import { Student } from './entities/student.entity';
 import { StudentsRepository } from './students.repository';
 
@@ -30,7 +30,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     return this.userMerger.mergeSubUser(user, student);
   }
 
-  async update(id: string, updateStudentDto: Partial<UpdateStudentDto>, manager: EntityManager) {
+  async update(id: string, updateStudentDto: PartialUpdateStudentDto, manager: EntityManager) {
     const studentsRepository = this.getStudentsRepository(manager);
 
     await this.checkUpdatePreconditions(id, updateStudentDto, manager);
@@ -48,7 +48,7 @@ export class StudentsService extends GenericSubUserService<Student> {
 
   private async checkUpdatePreconditions(
     id: string,
-    updateStudentDto: Partial<UpdateStudentDto>,
+    updateStudentDto: PartialUpdateStudentDto,
     manager: EntityManager,
   ) {
     const student = await this.getStudentsRepository(manager).findOne(id);

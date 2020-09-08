@@ -1,9 +1,9 @@
 import { AutoMapper, mapFrom, Profile, ProfileBase } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
-import { ResponseCourseDto } from 'src/faculty-entities/courses/dto/response-course.dto';
+import { ResponseCourseDto } from 'src/faculty-entities/courses/dtos/response-course.dto';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
-import { ResponseCareerDto } from '../dto/response-career.dto';
+import { ResponseCareerDto } from '../dtos/response-career.dto';
 import { Career } from '../entities/career.entity';
 
 @Profile()

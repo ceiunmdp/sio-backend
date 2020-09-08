@@ -1,8 +1,8 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { CareersRepository } from './careers.repository';
-import { CreateCareerDto } from './dto/create-career.dto';
-import { UpdateCareerDto } from './dto/update-career.dto';
+import { CreateCareerDto } from './dtos/create-career.dto';
+import { UpdateCareerDto } from './dtos/update-career.dto';
 import { Career } from './entities/career.entity';
 
 @Injectable()

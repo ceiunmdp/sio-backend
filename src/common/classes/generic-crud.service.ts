@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { DeepPartial, EntityManager } from 'typeorm';
+import { BaseEntity } from '../base-classes/base-entity.entity';
 import { CrudService } from '../interfaces/crud-service.interface';
-import { IId } from '../interfaces/id.interface';
+import { RemoveOptions } from '../interfaces/remove-options.interface';
 
 @Injectable()
-export abstract class GenericCrudService<T> implements CrudService<T> {
+export abstract class GenericCrudService<T extends BaseEntity> implements CrudService<T> {
   constructor(private readonly type: new (partial: Partial<T>) => T) {}
 
   async findAll(options: IPaginationOptions, manager: EntityManager) {
@@ -19,18 +20,18 @@ export abstract class GenericCrudService<T> implements CrudService<T> {
     if (entity) {
       return entity;
     } else {
-      throw new NotFoundException(`${this.type.name} ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
-  async create<U extends DeepPartial<T> & IId>(createDto: U, manager: EntityManager) {
+  async create(createDto: DeepPartial<T>, manager: EntityManager) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const newEntity = await entitiesRepository.save(createDto);
     return entitiesRepository.findOne(newEntity.id);
   }
 
-  async update<U extends DeepPartial<T> & IId>(id: string, updateDto: U, manager: EntityManager) {
+  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const entity = await entitiesRepository.findOne(id);
@@ -38,19 +39,24 @@ export abstract class GenericCrudService<T> implements CrudService<T> {
       await entitiesRepository.save({ ...updateDto, id });
       return entitiesRepository.findOne(id);
     } else {
-      throw new NotFoundException(`${this.type.name} ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
-  async delete(id: string, manager: EntityManager) {
+  async delete(id: string, options?: RemoveOptions, manager?: EntityManager) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const entity = await entitiesRepository.findOne(id);
     if (entity) {
-      await entitiesRepository.softRemove(entity);
+      options?.softRemove
+        ? // TODO: Try to remove 'unknown' casting
+          await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
+        : await entitiesRepository.remove(entity);
       return;
     } else {
-      throw new NotFoundException(`${this.type.name} ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
+
+  protected abstract getCustomMessageNotFoundException(id: string): string;
 }

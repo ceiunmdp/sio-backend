@@ -29,7 +29,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     }
   }
 
-  async create<U extends DeepPartial<T>>(createDto: U, manager: EntityManager) {
+  async create(createDto: DeepPartial<T>, manager: EntityManager) {
     const subUserRepository = manager.getRepository<T>(this.type);
 
     const newSubUser = await subUserRepository.save(createDto);
@@ -43,7 +43,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return this.userMerger.mergeSubUser(user, newSubUser);
   }
 
-  async update<U extends DeepPartial<T>>(id: string, updateDto: U, manager: EntityManager) {
+  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager) {
     const subUsersRepository = manager.getRepository<T>(this.type);
 
     const subUser = await subUsersRepository.findOne(id);

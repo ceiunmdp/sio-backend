@@ -1,9 +1,9 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { GenericCrudService } from 'src/common/classes/generic-crud.service';
-import { DeepPartial, EntityManager } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { CampusRepository } from './campus.repository';
-import { CreateCampusDto } from './dto/create-campus.dto';
-import { UpdateCampusDto } from './dto/update-campus.dto';
+import { CreateCampusDto } from './dtos/create-campus.dto';
+import { PartialUpdateCampusDto } from './dtos/partial-update-campus.dto';
 import { Campus } from './entities/campus.entity';
 
 @Injectable()
@@ -12,54 +12,60 @@ export class CampusService extends GenericCrudService<Campus> {
     super(Campus);
   }
 
-  async create(createCampusDto: DeepPartial<CreateCampusDto>, manager: EntityManager) {
+  private async findCampusByName(name: string, campusRepository: CampusRepository) {
+    return campusRepository.findOne({ where: { name }, withDeleted: true });
+  }
+
+  private async isNameRepeated(name: string, campusRepository: CampusRepository) {
+    return !!(await this.findCampusByName(name, campusRepository));
+  }
+
+  async create(createCampusDto: Partial<CreateCampusDto>, manager: EntityManager) {
     const campusRepository = this.getCampusRepository(manager);
 
-    const campus = await this.getCampusByName(createCampusDto.name, campusRepository);
+    const campus = await this.findCampusByName(createCampusDto.name, campusRepository);
     if (!campus) {
       return campusRepository.saveAndReload(createCampusDto);
     } else {
       if (campus.deleteDate) {
-        return campusRepository.restoreAndReload(campus.id);
+        return campusRepository.recover(campus);
       } else {
-        throw new ConflictException(`Ya existe una sede con el nombre elegido.`);
+        throw new ConflictException(this.getCustomMessageConflictException());
       }
     }
   }
 
-  async update(id: string, updateCampusDto: DeepPartial<Campus>, manager: EntityManager) {
+  async update(id: string, updateCampusDto: PartialUpdateCampusDto, manager: EntityManager) {
     const campusRepository = this.getCampusRepository(manager);
-    await this.checkUpdatePreconditions(id, updateCampusDto, manager);
+    await this.checkUpdatePreconditions(id, updateCampusDto, campusRepository);
     return campusRepository.updateAndReload(id, updateCampusDto);
   }
 
   private async checkUpdatePreconditions(
     id: string,
-    updateCampusDto: Partial<UpdateCampusDto>,
-    manager: EntityManager,
+    updateCampusDto: PartialUpdateCampusDto,
+    campusRepository: CampusRepository,
   ) {
-    const campusRepository = this.getCampusRepository(manager);
-
     const campus = await campusRepository.findOne(id);
     if (campus) {
       if (!!updateCampusDto.name && (await this.isNameRepeated(updateCampusDto.name, campusRepository))) {
-        throw new ConflictException(`Ya existe una sede con el nombre elegido.`);
+        throw new ConflictException(this.getCustomMessageConflictException());
       }
       return;
     } else {
-      throw new NotFoundException(`Sede ${id} no encontrada.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
-  getCampusRepository(manager: EntityManager) {
+  private getCampusRepository(manager: EntityManager) {
     return manager.getCustomRepository(CampusRepository);
   }
 
-  private async isNameRepeated(name: string, campusRepository: CampusRepository) {
-    return !!(await this.getCampusByName(name, campusRepository));
+  private getCustomMessageConflictException() {
+    return 'Ya existe una sede con el nombre elegido.';
   }
 
-  private async getCampusByName(name: string, campusRepository: CampusRepository) {
-    return campusRepository.findOne({ where: { name }, withDeleted: true });
+  protected getCustomMessageNotFoundException(id: string) {
+    return `Sede ${id} no encontrada.`;
   }
 }
