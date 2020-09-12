@@ -36,7 +36,6 @@ export class User extends BaseEntity {
   @Column({ name: 'dark_theme', default: false })
   darkTheme!: boolean;
 
-  @AutoMap(() => String)
   @Column({ type: 'enum', enum: UserType, update: false })
   readonly type!: UserType;
 

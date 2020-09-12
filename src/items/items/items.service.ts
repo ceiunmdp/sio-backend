@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { Connection, EntityManager } from 'typeorm';
 import { Item } from './entities/item.entity';
+import { EItem } from './enums/e-item.enum';
 import { ItemsRepository } from './items.repository';
 
 @Injectable()
@@ -34,9 +35,9 @@ export class ItemsService extends GenericCrudService<Item> {
 
     if (!(await itemsRepository.count())) {
       return itemsRepository.save([
-        new Item({ name: 'Simple faz', price: 2 }),
-        new Item({ name: 'Doble faz', price: 3 }),
-        new Item({ name: 'Color', price: 5 }),
+        new Item({ name: 'Simple faz', code: EItem.SIMPLE_SIDED, price: 2 }),
+        new Item({ name: 'Doble faz', code: EItem.DOUBLE_SIDED, price: 3 }),
+        new Item({ name: 'Color', code: EItem.COLOUR, price: 5 }),
       ]);
     }
   }

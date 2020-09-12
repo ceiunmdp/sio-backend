@@ -29,7 +29,6 @@ export class File extends BaseEntity {
   @JoinColumn({ name: 'course_id' })
   readonly course!: Course;
 
-  @AutoMap(() => String)
   @Index('IX_files_type')
   @Column({ type: 'enum', enum: FileType, update: false })
   readonly type!: FileType;

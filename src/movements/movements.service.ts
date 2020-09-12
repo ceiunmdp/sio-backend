@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Order as Sort } from 'src/common/interfaces/order.type';
@@ -10,7 +11,7 @@ import { filterQuery } from 'src/common/utils/query-builder';
 import { Order } from 'src/orders/entities/order.entity';
 import { StudentsService } from 'src/users/students/students.service';
 import { User } from 'src/users/users/entities/user.entity';
-import { Brackets, EntityManager, SelectQueryBuilder } from 'typeorm';
+import { Brackets, Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { CreateMovementDto } from './dtos/create-movement.dto';
 import { MovementType } from './entities/movement-type.entity';
 import { Movement } from './entities/movement.entity';
@@ -19,8 +20,22 @@ import { MovementsRepository } from './movements.repository';
 
 @Injectable()
 export class MovementsService extends GenericCrudService<Movement> {
-  constructor(private readonly studentsService: StudentsService) {
+  constructor(@InjectConnection() connection: Connection, private readonly studentsService: StudentsService) {
     super(Movement);
+    this.createMovementTypes(connection.manager);
+  }
+
+  // TODO: Delete this method in production
+  private async createMovementTypes(manager: EntityManager) {
+    const movementTypesRepository = manager.getRepository(MovementType);
+
+    if (!(await movementTypesRepository.count())) {
+      movementTypesRepository.save([
+        new MovementType({ code: EMovementType.ORDER_PLACED, name: 'Pedido encargado' }),
+        new MovementType({ code: EMovementType.TOP_UP, name: 'Carga de saldo' }),
+        new MovementType({ code: EMovementType.TRANSFER, name: 'Transferencia' }),
+      ]);
+    }
   }
 
   async findAll(
