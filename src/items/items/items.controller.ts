@@ -1,10 +1,9 @@
 import { Body, Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
-import { Group } from 'src/common/classes/group.class';
-import { ProxyCrudService } from 'src/common/classes/proxy-crud.service';
 import { UUID_V4 } from 'src/common/constants/regular-expressions';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { Filter } from 'src/common/decorators/filter.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
 import { GetAll } from 'src/common/decorators/methods/get-all.decorator';
 import { GetById } from 'src/common/decorators/methods/get-by-id.decorator';
@@ -12,7 +11,11 @@ import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
+import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { Order } from 'src/common/interfaces/order.type';
+import { Where } from 'src/common/interfaces/where.type';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
 import { PartialUpdateItemDto } from './dtos/partial-update-item.dto';
@@ -34,23 +37,27 @@ export class ItemsController {
   }
 
   @GetAll(Collection.ITEMS, ResponseItemDto)
-  @Auth(Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP)
-  async findAll(@Limit() limit: number, @Page() page: number) {
-    return this.itemsService.findAll({
-      limit,
-      page,
-      route: `${this.appConfigService.basePath}${Path.ITEMS}`,
-    });
+  @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, order: Order<Item>) {
+    return this.itemsService.findAll(
+      {
+        limit,
+        page,
+        route: `${this.appConfigService.basePath}${Path.ITEMS}`,
+      },
+      where,
+      order,
+    );
   }
 
   @GetById(Collection.ITEMS, ResponseItemDto, `:id(${UUID_V4})`)
-  @Auth(Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
   async findById(@Id() id: string) {
     return this.itemsService.findById(id);
   }
 
   @PatchById(Collection.ITEMS, ResponseItemDto, `:id(${UUID_V4})`)
-  @Auth(Group.ADMIN)
+  @Auth(UserRole.ADMIN)
   async partialUpdate(@Id() id: string, @Body() partialUpdateItemDto: PartialUpdateItemDto) {
     return this.itemsService.update(id, partialUpdateItemDto);
   }

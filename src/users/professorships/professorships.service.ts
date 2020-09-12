@@ -24,7 +24,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
       // TODO: Copy 'id' to 'uid' after saving entity
       await professorshipsRepository.save({ ...newProfessorship, uid: newProfessorship.id });
 
-      const user = await this.usersService.create({ ...createProfessorshipDto, uid: newProfessorship.id }, manager);
+      const user = await this.usersService.create({ ...createProfessorshipDto }, manager);
       return this.userMerger.mergeSubUser(user, newProfessorship);
     } else {
       throw new ConflictException(`Ya existe un usuario con la materia elegida.`);
@@ -37,5 +37,9 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
 
   getProfessorshipsRepository(manager: EntityManager) {
     return manager.getCustomRepository(ProfessorshipsRepository);
+  }
+
+  protected getCustomMessageNotFoundException(id: string): string {
+    return `Usuario cátedra ${id} no encontrado.`;
   }
 }

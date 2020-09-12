@@ -23,7 +23,9 @@ import databaseConfig from './database.config';
         TYPEORM_DATABASE: Joi.string().required(),
         TYPEORM_LOGGING: Joi.alternatives(
           Joi.boolean(),
-          Joi.valid('all'),
+          // Joi.valid('all'),
+          // TODO: Temporal
+          Joi.valid('all', 'query'),
           Joi.array().items('query', 'schema', 'error', 'warn', 'info', 'log', 'migration').default(false),
         ),
         TYPEORM_LOGGER: Joi.when('TYPEORM_LOGGING', {

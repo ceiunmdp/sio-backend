@@ -1,9 +1,10 @@
 import { admin } from 'firebase-admin/lib/auth';
+import { UserRole } from '../enums/user-role.enum';
 
-export type UserIdentity = admin.auth.DecodedIdToken & CustomUserClaims;
+export type DecodedIdToken = admin.auth.DecodedIdToken & UserIdentity;
 
-export interface CustomUserClaims {
+export interface UserIdentity {
   id: string;
-  role: string;
+  role: UserRole;
   tenant_id?: string;
 }

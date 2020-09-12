@@ -10,5 +10,3 @@ export const Page = (property = 'page') => Query(property, new DefaultValuePipe(
 // TODO: Using ParseUUIDPipe could enter in conflict between DB's UUIDs and Firebase UUIDS
 // export const PageToken = (property = 'page') => Query(property, new DefaultValuePipe(undefined), ParseUUIDPipe);
 export const PageToken = (property = 'page') => Query(property, new DefaultValuePipe(undefined));
-
-export const Sort = () => Query('sort');

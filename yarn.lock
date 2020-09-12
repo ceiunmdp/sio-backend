@@ -1051,10 +1051,20 @@
     multer "1.4.2"
     tslib "2.0.1"
 
-"@nestjs/schematics@^7.1.0", "@nestjs/schematics@^7.1.1":
+"@nestjs/schematics@^7.1.0":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@nestjs/schematics/-/schematics-7.1.1.tgz#c0459ce6a22e8b2c9964df6de60363b242e9b5e0"
   integrity sha512-W7FW8GwIwh3bI1BCmr3jF15zEPPd7noHlOWZ9PlSOJMydGynKA3UG1SFohCkeik447N0ZvLEGHJFLRg7SUXfmg==
+  dependencies:
+    "@angular-devkit/core" "9.1.12"
+    "@angular-devkit/schematics" "9.1.12"
+    fs-extra "9.0.1"
+    pluralize "8.0.0"
+
+"@nestjs/schematics@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/schematics/-/schematics-7.1.2.tgz#678058436f578fc1e933da9db327a223b1ab8a73"
+  integrity sha512-iUszxXz5cFEZFKKFQGyjx0+U5Emj7ix1rhXmHw1v63xhazlgTbT6XPxf247CTP0uyVkcflWkiVi+JawWWix16A==
   dependencies:
     "@angular-devkit/core" "9.1.12"
     "@angular-devkit/schematics" "9.1.12"
@@ -1412,6 +1422,11 @@
   dependencies:
     jest-diff "^25.2.1"
     pretty-format "^25.2.1"
+
+"@types/js-base64@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/js-base64/-/js-base64-3.0.0.tgz#b7b4c130facefefd5c57ba82664c41e2995f91be"
+  integrity sha512-BnEyOcDE4H6bkg8m84xhdbkYoAoCg8sYERmAvE4Ff50U8jTfbmOinRdJpauBn1P9XsCCQgCLuSiyz3PM4WHYOA==
 
 "@types/json-schema@^7.0.3", "@types/json-schema@^7.0.4", "@types/json-schema@^7.0.5":
   version "7.0.6"
@@ -4250,15 +4265,10 @@ dotenv-expand@5.1.0:
   resolved "https://registry.yarnpkg.com/dotenv-expand/-/dotenv-expand-5.1.0.tgz#3fbaf020bfd794884072ea26b1e9791d45a629f0"
   integrity sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA==
 
-dotenv@8.2.0, dotenv@^8.0.0:
+dotenv@8.2.0, dotenv@^8.0.0, dotenv@^8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
   integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
-
-dotenv@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
-  integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
 
 dotgitignore@^2.1.0:
   version "2.1.0"
@@ -5748,10 +5758,10 @@ google-p12-pem@^3.0.0:
   dependencies:
     node-forge "^0.9.0"
 
-got@^11.6.0:
-  version "11.6.0"
-  resolved "https://registry.yarnpkg.com/got/-/got-11.6.0.tgz#4978c78f3cbc3a45ee95381f8bb6efd1db1f4638"
-  integrity sha512-ErhWb4IUjQzJ3vGs3+RR12NWlBDDkRciFpAkQ1LPUxi6OnwhGj07gQxjPsyIk69s7qMihwKrKquV6VQq7JNYLA==
+got@^11.6.1:
+  version "11.6.1"
+  resolved "https://registry.yarnpkg.com/got/-/got-11.6.1.tgz#a307122fc136c446f676f7b939d89dbc6ed6b909"
+  integrity sha512-6izGvOsrd/4CsIdQMgweFOTCtS4sAwJTuCzIuVoTbCDzt3+wa3eGIHhSIMgEF6gfCDenslGlMUmAdPap5DkirQ==
   dependencies:
     "@sindresorhus/is" "^3.1.1"
     "@szmarczak/http-timer" "^4.0.5"
@@ -7116,6 +7126,11 @@ joi@^17.2.1:
     "@hapi/pinpoint" "^2.0.0"
     "@hapi/topo" "^5.0.0"
 
+js-base64@^3.4.5:
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.4.5.tgz#6d1921e65a172cfd924604e1416dfaff45752c3e"
+  integrity sha512-Ub/AANierdcT8nm4ndBn3KzpZQ3MdHX4a+bwoVdjgeHCZ0ZEcP+UB4nmR4Z5lR6SH3Y+qAPmgVR0RxKJNHNHEg==
+
 js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -8285,10 +8300,10 @@ nest-router@^1.0.9:
   resolved "https://registry.yarnpkg.com/nest-router/-/nest-router-1.0.9.tgz#cbe814dadf90b765e0a5b77c562479d5d523a485"
   integrity sha512-ZyRdSVs9GczI+39B7tNXsxfBXQOYnEF6l/q2aLYG8wSEvRHRDXAlzZ1SIosDibM02pLahGkDNLFC+nZ8uzJGDQ==
 
-nest-winston@^1.3.6:
-  version "1.3.6"
-  resolved "https://registry.yarnpkg.com/nest-winston/-/nest-winston-1.3.6.tgz#8b80ef387d883b7b2ce4f25a6d43584e76f5ccc4"
-  integrity sha512-KHff4iTEzoWyg5NRFlURbyhGT1gBG8khP1ehY4C0d3YJLHCGCdEQTgHCJq8OhC2IJHqJ60Osr2OI1pzKn6tHww==
+nest-winston@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/nest-winston/-/nest-winston-1.4.0.tgz#fa6e540113703eefab316b7845c9ff8aac2a7d6f"
+  integrity sha512-gPIu+zIfhUKMYUQbeoEQgaI78zgIru47ZTZJQbvN7VUUK9CiAKUhd6u0X/v8jy5YIj9j4yoswARjC5yvkXhw2g==
   dependencies:
     cli-color "^2.0.0"
     fast-safe-stringify "^2.0.7"
@@ -11210,17 +11225,17 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typeorm@^0.2.25:
-  version "0.2.25"
-  resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.2.25.tgz#1a33513b375b78cc7740d2405202208b918d7dde"
-  integrity sha512-yzQ995fyDy5wolSLK9cmjUNcmQdixaeEm2TnXB5HN++uKbs9TiR6Y7eYAHpDlAE8s9J1uniDBgytecCZVFergQ==
+typeorm@^0.2.26:
+  version "0.2.26"
+  resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.2.26.tgz#1027afa13f89ab98bc3d07675fe7268bbefa55a7"
+  integrity sha512-sbKxK6K9sXZPCVF0weEb74UA/z1UW0sRWfI7EoOOtQaRZaLvSEwtgHPqle9t8asxEtD+gzkUdd+NqF7yH7HtIQ==
   dependencies:
     app-root-path "^3.0.0"
     buffer "^5.1.0"
     chalk "^2.4.2"
     cli-highlight "^2.0.0"
     debug "^4.1.1"
-    dotenv "^6.2.0"
+    dotenv "^8.2.0"
     glob "^7.1.2"
     js-yaml "^3.13.1"
     mkdirp "^1.0.3"

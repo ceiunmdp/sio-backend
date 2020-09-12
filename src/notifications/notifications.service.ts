@@ -21,6 +21,8 @@ export class NotificationsService {
   async sendNotification(userId: string, type: ENotificationType) {
     // TODO: Retrieve all user information that would be useful
 
+    // ? Add 'code' property to notification entity, useful to retrieve default title, body and image URL
+
     // TODO: Retrieve registration token
     const registrationToken = 'registration_token';
 
@@ -36,7 +38,7 @@ export class NotificationsService {
       token: registrationToken,
     };
 
-    // Send a message to the device corresponding to the provided registration token.
+    // Send a message to the device corresponding with the provided registration token.
     try {
       const messageId = await admin.messaging().send(message);
       this.logger.log(`Successfully sent message: ${messageId}`);

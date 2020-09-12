@@ -53,7 +53,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
       }
       return;
     } else {
-      throw new NotFoundException(`Usuario becado ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
@@ -96,5 +96,9 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
 
   getScholarshipsRepository(manager: EntityManager) {
     return manager.getCustomRepository(ScholarshipsRepository);
+  }
+
+  protected getCustomMessageNotFoundException(id: string): string {
+    return `Usuario becado ${id} no encontrado.`;
   }
 }

@@ -8,4 +8,8 @@ export class AdminsService extends GenericSubUserService<Admin> {
   constructor(usersService: UsersService) {
     super(usersService, Admin);
   }
+
+  protected getCustomMessageNotFoundException(id: string): string {
+    return `Usuario admin ${id} no encontrado.`;
+  }
 }

@@ -1,4 +1,6 @@
 export enum Path {
+  ME = '/me',
+
   API = '/api/v1',
   HEALTH = '/health',
 
@@ -21,4 +23,6 @@ export enum Path {
 
   ITEMS = '/items',
   BINDINGS = '/bindings',
+
+  MOVEMENTS = '/movements',
 }

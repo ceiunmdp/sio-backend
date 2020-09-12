@@ -10,4 +10,6 @@ export enum Collection {
 
   ITEMS = 'Items',
   BINDINGS = 'Bindings',
+
+  MOVEMENTS = 'Movements',
 }

@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { UserRole } from 'src/common/enums/user-role.enum';
 import { UserNotFoundInDatabaseException } from 'src/common/exceptions/user-not-found-in-database.exception';
 import { UserNotFoundInFirebaseException } from 'src/common/exceptions/user-not-found-in-firebase.exception';
+import { Order } from 'src/common/interfaces/order.type';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
-import { CustomUserClaims } from 'src/common/interfaces/user-identity.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
+import { Where } from 'src/common/interfaces/where.type';
 import { handleFirebaseError } from 'src/common/utils/firebase-handler';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
-import { DeepPartial, EntityManager, In, Repository } from 'typeorm';
+import { DeepPartial, EntityManager, In } from 'typeorm';
 import { User } from './entities/user.entity';
+import { UsersRepository } from './users.repository';
 
 export interface PaginationOptions {
   limit: number;
@@ -22,10 +26,18 @@ export class UsersService implements TypeOrmCrudService<User> {
     this.logger.context = UsersService.name;
   }
 
-  async findAll({ limit, pageToken, route }: PaginationOptions, manager: EntityManager) {
+  async findAll(
+    { limit, pageToken, route }: PaginationOptions,
+    // TODO: Implement filter in this method
+    // TODO: All filtered properties should exist in database
+    where: Where,
+    // TODO: Implement order in this method
+    order: Order<User>,
+    manager: EntityManager,
+  ) {
     const userList = await admin.auth().listUsers(limit, pageToken?.toString());
 
-    const numberOfUsers = await manager.getRepository(User).count();
+    const numberOfUsers = await this.getUsersRepository(manager).count();
 
     return new Pagination<User>(
       await this.transformUserRecordsToUsers(userList.users, manager),
@@ -62,6 +74,14 @@ export class UsersService implements TypeOrmCrudService<User> {
     }
   }
 
+  async findByUid(uid: string) {
+    try {
+      return admin.auth().getUser(uid);
+    } catch (error) {
+      throw handleFirebaseError(error);
+    }
+  }
+
   async findByEmail(email: string, manager: EntityManager) {
     try {
       const userRecord = await admin.auth().getUserByEmail(email);
@@ -84,10 +104,10 @@ export class UsersService implements TypeOrmCrudService<User> {
     }
   }
 
-  async create<T extends DeepPartial<User>>(createDto: T, manager: EntityManager) {
+  async create<T extends DeepPartial<User>>(createUserDto: T, manager: EntityManager) {
     try {
       // TODO: Decide what flow to follow: https://docs.google.com/document/d/14WzggVxA0yN99J1KxEfkE87qmjFrYFE2wLh9_jQH4I4/edit?disco=AAAAKKrQorA
-      const userRecord = await admin.auth().createUser(createDto);
+      const userRecord = await admin.auth().createUser(createUserDto);
       const user = await this.transformUserRecordToUser(userRecord, manager);
       await this.setCustomUserClaims(user);
       return user;
@@ -96,12 +116,13 @@ export class UsersService implements TypeOrmCrudService<User> {
     }
   }
 
-  async update<T extends DeepPartial<User>>(id: string, updateDto: T, manager: EntityManager) {
+  async update<T extends DeepPartial<User>>(id: string, updateUserDto: T, manager: EntityManager) {
     try {
       const uid = await this.findUid(id, manager);
       const userRecord = await admin
         .auth()
-        .updateUser(uid, { ...updateDto, ...(!!updateDto.email && { emailVerified: false }) });
+        .updateUser(uid, { ...updateUserDto, ...(!!updateUserDto.email && { emailVerified: false }) });
+      await this.getUsersRepository(manager).updateAndReload(id, updateUserDto);
       return this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
       // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
@@ -120,7 +141,7 @@ export class UsersService implements TypeOrmCrudService<User> {
   }
 
   private async findUid(id: string, manager: EntityManager) {
-    const user = await manager.getRepository(User).findOne({ id });
+    const user = await this.getUsersRepository(manager).findOne({ id });
 
     if (user) {
       return user.uid;
@@ -130,7 +151,7 @@ export class UsersService implements TypeOrmCrudService<User> {
   }
 
   private async findUids(ids: string[], manager: EntityManager) {
-    const users = await manager.getRepository(User).findByIds(ids);
+    const users = await this.getUsersRepository(manager).findByIds(ids);
 
     if (ids.length === users.length) {
       return users.map((user) => user.uid);
@@ -143,7 +164,7 @@ export class UsersService implements TypeOrmCrudService<User> {
   }
 
   private async transformUserRecordToUser(userRecord: admin.auth.UserRecord, manager: EntityManager) {
-    const user = await manager.getRepository(User).findOne({ uid: userRecord.uid });
+    const user = await this.getUsersRepository(manager).findOne({ uid: userRecord.uid });
 
     if (user) {
       return new User({ ...user, ...userRecord });
@@ -156,7 +177,7 @@ export class UsersService implements TypeOrmCrudService<User> {
     const uids = userRecords.map((userRecord) => userRecord.uid);
 
     if (uids.length) {
-      const users = await manager.getRepository(User).find({ where: { uid: In(uids) } });
+      const users = await this.getUsersRepository(manager).find({ where: { uid: In(uids) } });
       const userMap = new Map(users.map((user) => [user.uid, user]));
 
       if (userRecords.length === users.length) {
@@ -171,14 +192,14 @@ export class UsersService implements TypeOrmCrudService<User> {
     }
   }
 
-  async isDniRepeated(dni: string, usersRepository: Repository<User>) {
+  async isDniRepeated(dni: string, usersRepository: UsersRepository) {
     return !!(await usersRepository.findOne({ where: { dni }, withDeleted: true }));
   }
 
   async setCustomUserClaims({ id, uid, type }: User) {
-    const payload: CustomUserClaims = {
+    const payload: UserIdentity = {
       id,
-      role: type,
+      role: (Object.values(UserRole) as UserRole[]).find((role) => role.toString() === type.toString()),
     };
 
     try {
@@ -197,6 +218,6 @@ export class UsersService implements TypeOrmCrudService<User> {
   }
 
   getUsersRepository(manager: EntityManager) {
-    return manager.getRepository(User);
+    return manager.getCustomRepository(UsersRepository);
   }
 }

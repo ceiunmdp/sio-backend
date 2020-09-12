@@ -9,7 +9,6 @@ import { Student } from '../entities/student.entity';
 export class StudentProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();
-
     mapper.createMap(Student, ResponseStudentDto, { includeBase: [User, ResponseUserDto] });
 
     //! Important: ScholarshipProfile must be imported after the student map has been created

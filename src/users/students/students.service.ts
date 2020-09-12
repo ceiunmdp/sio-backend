@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InsufficientMoneyException } from 'src/common/exceptions/insufficient-money.exception';
 import { EntityManager } from 'typeorm';
 import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
@@ -61,7 +62,7 @@ export class StudentsService extends GenericSubUserService<Student> {
       }
       return;
     } else {
-      throw new NotFoundException(`Usuario estudiante ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
@@ -70,7 +71,37 @@ export class StudentsService extends GenericSubUserService<Student> {
     throw new Error('Method not implemented.');
   }
 
+  async useUpBalance(studentId: string, amount: number, manager: EntityManager) {
+    const studentsRepository = this.getStudentsRepository(manager);
+    const student = await studentsRepository.findOne(studentId);
+
+    if (student) {
+      if (student.balance >= amount) {
+        return studentsRepository.updateAndReload(studentId, { ...student, balance: student.balance - amount });
+      } else {
+        throw new InsufficientMoneyException();
+      }
+    } else {
+      throw new NotFoundException(this.getCustomMessageNotFoundException(studentId));
+    }
+  }
+
+  async topUpBalance(studentId: string, amount: number, manager: EntityManager) {
+    const studentsRepository = this.getStudentsRepository(manager);
+    const student = await studentsRepository.findOne(studentId);
+
+    if (student) {
+      return studentsRepository.updateAndReload(studentId, { ...student, balance: +student.balance + amount });
+    } else {
+      throw new NotFoundException(this.getCustomMessageNotFoundException(studentId));
+    }
+  }
+
   getStudentsRepository(manager: EntityManager) {
     return manager.getCustomRepository(StudentsRepository);
+  }
+
+  protected getCustomMessageNotFoundException(id: string): string {
+    return `Usuario estudiante ${id} no encontrado.`;
   }
 }

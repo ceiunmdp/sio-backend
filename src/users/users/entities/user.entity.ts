@@ -1,18 +1,18 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { Column, Entity, Index, JoinTable, ManyToMany, TableInheritance } from 'typeorm';
+import { Movement } from 'src/movements/entities/movement.entity';
+import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany, TableInheritance } from 'typeorm';
 import { UserType } from '../enums/user-type.enum';
 import { Role } from './role.entity';
 
 @Entity('users')
 @TableInheritance({ column: { type: 'enum', enum: UserType, name: 'type' } })
 export class User extends BaseEntity {
-  //* Firebase
   @Index()
   @Column({ type: 'varchar', length: 36, default: null })
   uid!: string;
 
-  //* Firebase
+  @Column({ name: 'full_name', default: null })
   displayName!: string;
 
   //* Firebase
@@ -44,6 +44,10 @@ export class User extends BaseEntity {
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({ name: 'users_roles', joinColumn: { name: 'user_id' }, inverseJoinColumn: { name: 'role_id' } })
   roles!: Role[];
+
+  @AutoMap(() => Movement)
+  @OneToMany(() => Movement, (movement) => movement.source || movement.target)
+  readonly movements!: Movement[];
 
   constructor(partial: Partial<User>) {
     super(partial);

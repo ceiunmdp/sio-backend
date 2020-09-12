@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { UserRole } from '../enums/user-role.enum';
 import { InvalidIdTokenException } from '../exceptions/invalid-id-token.exception';
-import { UserIdentity } from '../interfaces/user-identity.interface';
+import { DecodedIdToken } from '../interfaces/user-identity.interface';
 import { handleFirebaseError } from '../utils/firebase-handler';
 
 @Injectable()
@@ -50,26 +50,20 @@ export class AuthNGuard implements CanActivate {
   async validateRequest(request: Request, idToken: string) {
     try {
       const decodedIdToken = await this.verifyAndDecodeIdToken(idToken);
-
       if (decodedIdToken.email_verified) {
         request.user = decodedIdToken;
         return true;
       } else {
-        //! Momentarily
         // return false;
 
+        //! Momentarily
         request.user = decodedIdToken;
         return true;
       }
     } catch (error) {
       const exception = handleFirebaseError(error);
       if (exception instanceof InvalidIdTokenException) {
-        //! Momentarily
         return false;
-
-        // request.user = { id: '[UUID]', role: UserRole.ADMIN };
-        // request.user = { id: '4cef4120-d3f6-45e6-ab50-8a49c5b0a044', role: UserRole.ADMIN };
-        // return true;
       } else {
         throw error;
       }
@@ -82,7 +76,7 @@ export class AuthNGuard implements CanActivate {
     const decodedIdToken = await admin.auth().verifyIdToken(idToken, true);
     return {
       ...decodedIdToken,
-      ...(!decodedIdToken.id && { id: decodedIdToken.uid, role: UserRole.STUDENT.toString() }),
-    } as UserIdentity;
+      ...(!decodedIdToken.id && { id: decodedIdToken.uid, role: UserRole.STUDENT }),
+    } as DecodedIdToken;
   }
 }

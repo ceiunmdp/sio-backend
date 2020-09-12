@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
-import { GenericCrudService } from 'src/common/classes/generic-crud.service';
+import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { Connection, EntityManager } from 'typeorm';
 import { Item } from './entities/item.entity';
 import { ItemsRepository } from './items.repository';
@@ -11,6 +11,9 @@ export class ItemsService extends GenericCrudService<Item> {
     super(Item);
     this.createItems(connection.manager);
   }
+
+  // TODO: Add 'code' property to item entity to distinguish which type of item is
+  // TODO: Useful when verifying order price
 
   async findItemByName(name: string, itemsRepository: ItemsRepository) {
     return itemsRepository.findOne({ where: { name }, withDeleted: true });

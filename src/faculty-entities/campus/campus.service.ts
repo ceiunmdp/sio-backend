@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { GenericCrudService } from 'src/common/classes/generic-crud.service';
+import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { EntityManager } from 'typeorm';
 import { CampusRepository } from './campus.repository';
 import { CreateCampusDto } from './dtos/create-campus.dto';

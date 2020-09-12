@@ -25,6 +25,7 @@ export class UserService {
     private readonly studentsService: StudentsService,
   ) {}
 
+  //! 'id' is Firebase's uid in case it's first student login
   async findById(id: string, manager: EntityManager) {
     try {
       const user = await this.usersService.findById(id, manager);
@@ -33,7 +34,10 @@ export class UserService {
       if (error instanceof UserNotFoundInDatabaseException) {
         //* User found in Firebase but not in database
         //* First login of student
-        return this.studentsService.create({ uid: id }, manager);
+
+        // Retrieve displayName to store it in local database
+        const user = await this.usersService.findByUid(id);
+        return this.studentsService.create({ displayName: user.displayName, uid: id }, manager);
       } else {
         throw error;
       }

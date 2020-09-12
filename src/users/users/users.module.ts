@@ -9,10 +9,11 @@ import './profiles/role.profile';
 import './profiles/user.profile';
 import { UserSubscriber } from './subscribers/user.subscriber';
 import { UsersController } from './users.controller';
+import { UsersRepository } from './users.repository';
 import { UsersService } from './users.service';
 
 @Module({
-  imports: [SharedModule, AppConfigModule, TypeOrmModule.forFeature([User, Role])],
+  imports: [SharedModule, AppConfigModule, TypeOrmModule.forFeature([User, UsersRepository, Role])],
   controllers: [UsersController],
   providers: [UsersService, UserSubscriber],
   exports: [UsersService],

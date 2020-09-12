@@ -3,8 +3,9 @@ import { ApiBearerAuth, ApiForbiddenResponse, ApiUnauthorizedResponse } from '@n
 import { AuthNGuard } from 'src/common/guards/authn.guard';
 import { AuthZGuard } from 'src/common/guards/authz.guard';
 import { CustomError } from '../classes/custom-error.class';
+import { UserRole } from '../enums/user-role.enum';
 
-export const Auth = (...roles: string[]) =>
+export const Auth = (...roles: UserRole[]) =>
   applyDecorators(
     SetMetadata('roles', roles),
     UseGuards(AuthNGuard, AuthZGuard),

@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { Order } from 'src/common/interfaces/order.type';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
-import { DeepPartial, EntityManager } from 'typeorm';
+import { Where } from 'src/common/interfaces/where.type';
+import { filterQuery } from 'src/common/utils/query-builder';
+import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { UserMerger } from './merger.class';
@@ -14,9 +17,19 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     this.userMerger = new UserMerger(usersService, type);
   }
 
-  async findAll(options: IPaginationOptions, manager: EntityManager) {
-    const { items, meta, links } = await paginate<T>(manager.getRepository<T>(this.type), options);
+  async findAll(options: IPaginationOptions, where: Where, order: Order<T>, manager: EntityManager) {
+    const entitiesRepository = manager.getRepository<T>(this.type);
+    let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(), where);
+    queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
+    const { items, meta, links } = await paginate<T>(queryBuilder, options);
     return new Pagination<T>(await this.userMerger.findAndMergeSubUsers(items, manager), meta, links);
+  }
+
+  addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
+    Object.keys(order).map((property) => {
+      qb.addOrderBy(property, order[property]);
+    });
+    return qb;
   }
 
   async findById(id: string, manager: EntityManager) {
@@ -25,7 +38,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     if (subUser) {
       return this.userMerger.findAndMergeSubUser(subUser, manager);
     } else {
-      throw new NotFoundException(`Usuario ${this.type.name} ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
@@ -52,7 +65,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
       const user = await this.usersService.update(id, updateDto, manager);
       return this.userMerger.mergeSubUser(user, updatedSubUser);
     } else {
-      throw new NotFoundException(`Usuario ${this.type.name} ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
@@ -66,7 +79,9 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
       await this.usersService.delete(id, manager);
       return;
     } else {
-      throw new NotFoundException(`Usuario ${this.type.name} ${id} no encontrado.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
+
+  protected abstract getCustomMessageNotFoundException(id: string): string;
 }

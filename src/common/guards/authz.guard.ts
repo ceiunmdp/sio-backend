@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { UserRole } from '../enums/user-role.enum';
 import { UserIdentity } from '../interfaces/user-identity.interface';
 
 @Injectable()
@@ -11,7 +12,7 @@ export class AuthZGuard implements CanActivate {
   }
 
   canActivate(context: ExecutionContext): boolean {
-    const authorizedRoles = this.reflector.get('roles', context.getHandler()) as string[];
+    const authorizedRoles = this.reflector.get('roles', context.getHandler()) as UserRole[];
 
     if (!authorizedRoles) {
       return true;
@@ -27,7 +28,7 @@ export class AuthZGuard implements CanActivate {
     return authorized;
   }
 
-  checkIfRoleIsAuthorized(authorizedRoles: string[], role: string) {
+  checkIfRoleIsAuthorized(authorizedRoles: UserRole[], role: UserRole) {
     return authorizedRoles.includes(role);
   }
 }

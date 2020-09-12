@@ -7,7 +7,7 @@ export default registerAs('typeorm', () => ({
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
-  logging: process.env.TYPEORM_LOGGING,
+  logging: getLoggingEnvVariable(process.env.TYPEORM_LOGGING),
   logger: process.env.TYPEORM_LOGGER,
   maxQueryExecutionTime: process.env.TYPEORM_MAX_QUERY_EXECUTION_TIME,
   synchronize: process.env.TYPEORM_SYNCHRONIZE,
@@ -16,3 +16,11 @@ export default registerAs('typeorm', () => ({
   migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
   connectionLimit: process.env.TYPEORM_CONNECTION_LIMIT,
 }));
+
+const getLoggingEnvVariable = (logging: string) => {
+  if (logging === 'false' || logging === 'all') {
+    return logging;
+  } else {
+    return logging.split(',');
+  }
+};

@@ -1,23 +1,29 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { Student } from 'src/users/students/entities/student.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { User } from 'src/users/users/entities/user.entity';
+import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { MovementType } from './movement-type.entity';
 
 @Entity('movements')
 export class Movement extends BaseEntity {
-  @AutoMap(() => Student)
-  @ManyToOne(() => Student, (student) => student.movements, { nullable: false })
-  @JoinColumn({ name: 'source_student_id' })
-  readonly sourceStudent!: Student;
+  @RelationId((movement: Movement) => movement.source)
+  readonly sourceId!: string;
 
-  @AutoMap(() => Student)
-  @ManyToOne(() => Student, (student) => student.movements, { nullable: false })
-  @JoinColumn({ name: 'target_student_id' })
-  readonly targetStudent!: Student;
+  @AutoMap(() => User)
+  @ManyToOne(() => User, (user) => user.movements, { nullable: false })
+  @JoinColumn({ name: 'source_user_id' })
+  readonly source!: User;
+
+  @RelationId((movement: Movement) => movement.target)
+  readonly targetId!: string;
+
+  @AutoMap(() => User)
+  @ManyToOne(() => User, (user) => user.movements, { nullable: false })
+  @JoinColumn({ name: 'target_user_id' })
+  readonly target!: User;
 
   @AutoMap(() => MovementType)
-  @ManyToOne(() => MovementType, { nullable: false })
+  @ManyToOne(() => MovementType, { nullable: false, eager: true })
   @JoinColumn({ name: 'movement_type_id' })
   readonly type!: MovementType;
 

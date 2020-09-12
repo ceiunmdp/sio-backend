@@ -6,6 +6,7 @@ import { RelationsModule } from 'src/faculty-entities/relations/relations.module
 import { BindingsModule } from 'src/items/bindings/bindings.module';
 import { ItemsModule } from 'src/items/items/items.module';
 import { MenuModule } from 'src/menu/menu.module';
+import { MovementsModule } from 'src/movements/movements.module';
 import { UserModule } from 'src/user/user.module';
 import { AdminsModule } from 'src/users/admins/admins.module';
 import { CampusUsersModule } from 'src/users/campus-users/campus-users.module';
@@ -94,5 +95,9 @@ export const routes: Routes = [
         module: BindingsModule,
       },
     ],
+  },
+  {
+    path: Path.MOVEMENTS,
+    module: MovementsModule,
   },
 ];

@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { Order } from 'src/common/interfaces/order.type';
 import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
+import { Where } from 'src/common/interfaces/where.type';
 import { Professorship } from 'src/users/professorships/entities/professorship.entity';
 import { DeepPartial, EntityManager } from 'typeorm';
 import { File } from './entities/file.entity';
@@ -9,7 +11,12 @@ import { FilesRepository } from './files.repository';
 
 @Injectable()
 export class FilesService implements CrudService<File> {
-  findAll(options: IPaginationOptions, manager?: EntityManager): Promise<Pagination<File>> {
+  findAll(
+    options: IPaginationOptions,
+    where: Where,
+    order: Order<File>,
+    manager?: EntityManager,
+  ): Promise<Pagination<File>> {
     throw new Error('Method not implemented.');
   }
   findById(id: string, manager?: EntityManager): Promise<File> {
