@@ -7,6 +7,8 @@ import { BindingsModule } from 'src/items/bindings/bindings.module';
 import { ItemsModule } from 'src/items/items/items.module';
 import { MenuModule } from 'src/menu/menu.module';
 import { MovementsModule } from 'src/movements/movements.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
+import { RegistrationTokensModule } from 'src/notifications/registration-tokens/registration-tokens.module';
 import { UserModule } from 'src/user/user.module';
 import { AdminsModule } from 'src/users/admins/admins.module';
 import { CampusUsersModule } from 'src/users/campus-users/campus-users.module';
@@ -99,5 +101,15 @@ export const routes: Routes = [
   {
     path: Path.MOVEMENTS,
     module: MovementsModule,
+  },
+  {
+    path: '',
+    module: NotificationsModule,
+    children: [
+      {
+        path: Path.REGISTRATION_TOKENS,
+        module: RegistrationTokensModule,
+      },
+    ],
   },
 ];

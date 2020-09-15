@@ -25,4 +25,6 @@ export enum Path {
   BINDINGS = '/bindings',
 
   MOVEMENTS = '/movements',
+
+  REGISTRATION_TOKENS = '/registration-tokens',
 }

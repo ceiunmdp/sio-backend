@@ -1,7 +1,7 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { User } from 'src/users/users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { NotificationType } from './notification-type.entity';
 
 @Entity('notifications')
@@ -31,6 +31,8 @@ export class Notification extends BaseEntity {
   @Column({ update: false, nullable: true })
   readonly data?: string; //* Could be an embedded entity
 
+  //? Add index?
+  @Index()
   @Column({ default: false })
   read!: boolean;
 

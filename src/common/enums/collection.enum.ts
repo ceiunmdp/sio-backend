@@ -12,4 +12,6 @@ export enum Collection {
   BINDINGS = 'Bindings',
 
   MOVEMENTS = 'Movements',
+
+  REGISTRATION_TOKENS = 'Registration Tokens',
 }

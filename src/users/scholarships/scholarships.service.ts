@@ -64,6 +64,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     const student = await studentsRepository.findOne(studentId);
 
     //! Raw query executed. Didn't found any other workaround
+    // TODO: Check declaring 'type' without "update = false"
     await manager.query(`UPDATE users SET type = '${UserType.SCHOLARSHIP}' WHERE id = ?`, [studentId]);
 
     // TODO: Decide if a 'defaults' table should be implemented
@@ -84,6 +85,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     });
 
     //! Raw query executed. Didn't found any other workaround
+    // TODO: Check declaring 'type' without "update = false"
     await manager.query(`UPDATE users SET type = '${UserType.STUDENT}' WHERE id = ?`, [scholarshipId]);
 
     return manager.getCustomRepository(StudentsRepository).findOne(scholarshipId);
