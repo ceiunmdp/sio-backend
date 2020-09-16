@@ -96,7 +96,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     throw new Error('Method not implemented.');
   }
 
-  getScholarshipsRepository(manager: EntityManager) {
+  private getScholarshipsRepository(manager: EntityManager) {
     return manager.getCustomRepository(ScholarshipsRepository);
   }
 

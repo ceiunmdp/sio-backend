@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { Order } from 'src/common/interfaces/order.type';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
+import { isAdmin } from 'src/common/utils/is-role-functions';
 import { filterQuery } from 'src/common/utils/query-builder';
 import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -32,13 +34,17 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return qb;
   }
 
-  async findById(id: string, manager: EntityManager) {
-    const subUser = await manager.getRepository<T>(this.type).findOne(id);
+  async findById(id: string, manager: EntityManager, user: UserIdentity) {
+    if (isAdmin(user) || id === user.id) {
+      const subUser = await manager.getRepository<T>(this.type).findOne(id);
 
-    if (subUser) {
-      return this.userMerger.findAndMergeSubUser(subUser, manager);
+      if (subUser) {
+        return this.userMerger.findAndMergeSubUser(subUser, manager);
+      } else {
+        throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      }
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      throw new ForbiddenException('Prohibido el acceso al recurso.');
     }
   }
 
@@ -47,7 +53,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
 
     const newSubUser = await subUserRepository.save(createDto);
 
-    // TODO: Copy 'id' to 'uid' after saving entity
+    //* Copy 'id' to 'uid' after saving entity
     await subUserRepository.save({ ...newSubUser, uid: newSubUser.id });
 
     createDto.uid = newSubUser.id;
@@ -74,13 +80,18 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
 
     const subUser = await subUsersRepository.findOne(id);
     if (subUser) {
-      const id = subUser.id; //* "remove" method erases 'id' property from object
-      await subUsersRepository.remove(subUser);
+      await this.beforeRemove(subUser, manager);
       await this.usersService.delete(id, manager);
+      await subUsersRepository.remove(subUser);
       return;
     } else {
       throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async beforeRemove(_subUser: T, _manager: EntityManager) {
+    return;
   }
 
   protected abstract getCustomMessageNotFoundException(id: string): string;

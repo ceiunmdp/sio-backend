@@ -33,20 +33,26 @@ export class FilesService implements CrudService<File> {
   }
 
   async linkFilesToProfessorship(professorship: Professorship, manager: EntityManager) {
-    const filesRepository = manager.getCustomRepository(FilesRepository);
+    const filesRepository = this.getFilesRepository(manager);
 
     const files = await filesRepository.find({ where: { course: { id: professorship.courseId } }, withDeleted: true });
+    files.forEach((file) => (file.owner = professorship));
+    await filesRepository.save(files);
 
-    await Promise.all(files.map((file) => filesRepository.save({ ...file, owner: professorship })));
     return filesRepository.recover(files);
   }
 
   async unlinkFilesFromProfessorship(professorship: Professorship, manager: EntityManager) {
-    const filesRepository = manager.getCustomRepository(FilesRepository);
+    const filesRepository = this.getFilesRepository(manager);
 
     const files = await filesRepository.find({ where: { owner: { id: professorship.id } } });
+    files.forEach((file) => (file.owner = null));
+    await filesRepository.save(files);
 
-    await Promise.all(files.map((file) => filesRepository.updateAndReload(file.id, { ...file, owner: null })));
     await filesRepository.softRemove(files);
+  }
+
+  private getFilesRepository(manager: EntityManager) {
+    return manager.getCustomRepository(FilesRepository);
   }
 }

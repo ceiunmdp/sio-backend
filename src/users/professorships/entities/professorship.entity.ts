@@ -24,13 +24,4 @@ export class Professorship extends User {
     super(partial);
     Object.assign(this, partial);
   }
-
-  // @BeforeUpdate()
-  // checkStorageUsedContraint() {
-  //   if (this.availableStorage > this.storageUsed) {
-  //     throw new BadRequestException(
-  //       'No es posible asignar la capacidad de almacenamiento deseada ya que el usuario ha sobrepasado la misma. Intente con un valor superior.',
-  //     );
-  //   }
-  // }
 }

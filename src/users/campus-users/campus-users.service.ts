@@ -23,10 +23,10 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
         campus: new Campus({ id: createCampusUserDto.campusId }),
       });
 
-      // TODO: Copy 'id' to 'uid' after saving entity
+      //* Copy 'id' to 'uid' after saving entity
       await campusUsersRepository.save({ ...newCampusUser, uid: newCampusUser.id });
 
-      const user = await this.usersService.create({ ...createCampusUserDto }, manager);
+      const user = await this.usersService.create({ ...createCampusUserDto, uid: newCampusUser.id }, manager);
       return this.userMerger.mergeSubUser(user, newCampusUser);
     } else {
       throw new ConflictException(`Ya existe un usuario con la sede elegida.`);
@@ -37,7 +37,7 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
     return !!(await campusUsersRepository.findOne({ where: { campus: { id: campusId } } }));
   }
 
-  getCampusUsersRepository(manager: EntityManager) {
+  private getCampusUsersRepository(manager: EntityManager) {
     return manager.getCustomRepository(CampusUsersRepository);
   }
 

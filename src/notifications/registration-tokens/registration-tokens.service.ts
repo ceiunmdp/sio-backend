@@ -36,7 +36,9 @@ export class RegistrationTokensService {
         return this.updateRegistrationToken(userId, updateRegistrationTokenDto, registrationTokensRepository);
       }
     } else {
-      throw new ForbiddenException('Acceso denegado. No es posible alterar el token de registración de otro usuario.');
+      throw new ForbiddenException(
+        'Prohibido el acceso al recurso. No es posible alterar el token de registración de otro usuario.',
+      );
     }
   }
 

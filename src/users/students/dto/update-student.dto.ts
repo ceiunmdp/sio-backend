@@ -8,7 +8,6 @@ export class UpdateStudentDto extends UpdateUserDto {
   @Min(0)
   @Max(9999.99)
   @ApiProperty({ description: `Student's balance`, example: 100 })
-  // TODO: Decide if this endpoint allows to top up user's balance
   balance!: number;
 
   @IsString()

@@ -4,6 +4,7 @@ import { Connection, DeepPartial, EntityManager } from 'typeorm';
 import { IsolationLevel } from '../enums/isolation-level.enum';
 import { Order } from '../interfaces/order.type';
 import { TypeOrmCrudService } from '../interfaces/typeorm-crud-service.interface';
+import { UserIdentity } from '../interfaces/user-identity.interface';
 import { Where } from '../interfaces/where.type';
 
 export class ProxyTypeOrmCrudService<T> implements TypeOrmCrudService<T> {
@@ -15,9 +16,9 @@ export class ProxyTypeOrmCrudService<T> implements TypeOrmCrudService<T> {
     });
   }
 
-  findById(id: string) {
+  findById(id: string, _, user: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.service.findById(id, manager);
+      return this.service.findById(id, manager, user);
     });
   }
 

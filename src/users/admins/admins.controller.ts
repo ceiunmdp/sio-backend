@@ -19,6 +19,7 @@ import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Order } from 'src/common/interfaces/order.type';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { ProxyTypeOrmCrudService } from 'src/common/services/proxy-typeorm-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -59,8 +60,8 @@ export class AdminsController {
 
   @GetById(Collection.ADMINS, ResponseAdminDto)
   @Auth(UserRole.ADMIN)
-  async findById(@Id() id: string) {
-    return this.adminsService.findById(id);
+  async findById(@Id() id: string, @User() user: UserIdentity) {
+    return this.adminsService.findById(id, undefined, user);
   }
 
   @PostAll(Collection.ADMINS, ResponseAdminDto)

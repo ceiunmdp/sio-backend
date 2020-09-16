@@ -25,7 +25,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     //! Do not create user in Firebase, but instead set its custom claims
     await this.usersService.setCustomUserClaims(student);
     await this.usersService.revokeRefreshToken(student.uid);
-    // TODO: Important -> Student must ask for a new ID Token with custom claims updated
+    //! Important: student must ask for a new ID Token with custom claims updated
 
     const user = await this.usersService.findById(student.id, manager);
     return this.userMerger.mergeSubUser(user, student);
@@ -97,7 +97,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     }
   }
 
-  getStudentsRepository(manager: EntityManager) {
+  private getStudentsRepository(manager: EntityManager) {
     return manager.getCustomRepository(StudentsRepository);
   }
 
