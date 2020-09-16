@@ -1,22 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as admin from 'firebase-admin';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
+import { GenericCrudService } from 'src/common/services/generic-crud.service';
+import { isAdmin } from 'src/common/utils/is-role-functions';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { User } from 'src/users/users/entities/user.entity';
-import { Connection, EntityManager } from 'typeorm';
+import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { NotificationType } from './entities/notification-type.entity';
+import { Notification } from './entities/notification.entity';
 import { ENotificationType } from './enums/e-notification-type.enum';
 import { NotificationsRepository } from './notifications.repository';
 import { RegistrationToken } from './registration-tokens/entities/registration-token.entity';
 import { RegistrationTokensService } from './registration-tokens/registration-tokens.service';
 
 @Injectable()
-export class NotificationsService {
+export class NotificationsService extends GenericCrudService<Notification> {
   constructor(
     @InjectConnection() connection: Connection,
     private readonly logger: CustomLoggerService,
     private readonly registrationTokensService: RegistrationTokensService,
   ) {
+    super(Notification);
     this.createNotificationTypes(connection.manager);
   }
 
@@ -110,6 +115,47 @@ export class NotificationsService {
     }
   }
 
+  //* findAll
+  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Notification>, user?: UserIdentity) {
+    queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.type`, 'type');
+
+    if (user) {
+      queryBuilder.andWhere('user_id = :userId', { userId: user.id });
+    }
+
+    return queryBuilder;
+  }
+
+  //* findById
+  protected checkFindByIdConditions(user: UserIdentity, notification: Notification) {
+    this.userCanAccessNotification(user, notification);
+  }
+
+  //! Implemented to avoid creation of notifications by error by other developers
+  async create(): Promise<Notification> {
+    throw new Error('Method not implemented.');
+  }
+
+  //* update
+  protected checkUpdateConditions(user: UserIdentity, notification: Notification) {
+    this.userCanAccessNotification(user, notification);
+  }
+
+  //* delete
+  protected checkDeleteConditions(user: UserIdentity, notification: Notification) {
+    this.userCanAccessNotification(user, notification);
+  }
+
+  private userCanAccessNotification(user: UserIdentity, notification: Notification) {
+    if (!isAdmin(user) && !this.isNotificationFromUser(user.id, notification)) {
+      throw new ForbiddenException('Prohibido el acceso al recurso.');
+    }
+  }
+
+  private isNotificationFromUser(userId: string, notification: Notification) {
+    return userId === notification.userId;
+  }
+
   // TODO: Define if all logic should be in a unique method (general handler) or it's convenient to split
   // TODO: logic in N methods and then channel everything in a final "send" method
   // TODO: The principal problem is the variability of parameters regarding the type of notification in place
@@ -160,5 +206,9 @@ export class NotificationsService {
 
   private getNotificationTypesRepository(manager: EntityManager) {
     return manager.getRepository(NotificationType);
+  }
+
+  protected getCustomMessageNotFoundException(id: string): string {
+    return `Notificación ${id} no encontrada.`;
   }
 }

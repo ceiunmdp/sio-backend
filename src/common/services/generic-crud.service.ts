@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
@@ -28,27 +27,38 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return paginate<T>(queryBuilder, options);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected addExtraClauses(queryBuilder: SelectQueryBuilder<T>, _user: UserIdentity) {
     return queryBuilder;
   }
 
   addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
-    Object.keys(order).map((property) => {
-      qb.addOrderBy(property, order[property]);
-    });
+    if (order) {
+      Object.keys(order).map((property) => {
+        qb.addOrderBy(property, order[property]);
+      });
+    }
+
     return qb;
   }
 
-  async findById(id: string, manager: EntityManager, _user: UserIdentity) {
-    const entity = await manager.getRepository<T>(this.type).findOne(id);
+  async findById(id: string, manager: EntityManager, user: UserIdentity) {
+    const entity = await manager.getRepository<T>(this.type).findOne(id, { loadEagerRelations: true });
 
     if (entity) {
+      this.checkFindByIdConditions(user, entity);
       return entity;
     } else {
       throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected checkFindByIdConditions(_user: UserIdentity, _entity: T) {
+    return;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async create(createDto: DeepPartial<T>, manager: EntityManager, _user: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
@@ -56,11 +66,12 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return entitiesRepository.findOne(newEntity.id);
   }
 
-  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager) {
+  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, user: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const entity = await entitiesRepository.findOne(id);
     if (entity) {
+      this.checkUpdateConditions(user, entity);
       await entitiesRepository.save({ ...updateDto, id });
       return entitiesRepository.findOne(id);
     } else {
@@ -68,11 +79,17 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     }
   }
 
-  async delete(id: string, options?: RemoveOptions, manager?: EntityManager) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected checkUpdateConditions(_user: UserIdentity, _entity: T) {
+    return;
+  }
+
+  async delete(id: string, options?: RemoveOptions, manager?: EntityManager, user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const entity = await entitiesRepository.findOne(id);
     if (entity) {
+      this.checkDeleteConditions(user, entity);
       options?.softRemove
         ? // TODO: Try to remove 'unknown' casting
           await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
@@ -81,6 +98,11 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     } else {
       throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected checkDeleteConditions(_user: UserIdentity, _entity: T) {
+    return;
   }
 
   protected abstract getCustomMessageNotFoundException(id: string): string;

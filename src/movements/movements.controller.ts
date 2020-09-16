@@ -52,7 +52,7 @@ export class MovementsController {
     );
   }
 
-  @GetAll(Collection.MOVEMENTS, ResponseMovementDto, '/me')
+  @GetAll(Collection.MOVEMENTS, ResponseMovementDto, Path.ME)
   @Auth(UserRole.STUDENT, UserRole.SCHOLARSHIP)
   async findAllOwn(
     @Limit() limit: number,

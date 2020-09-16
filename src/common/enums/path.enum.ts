@@ -26,5 +26,6 @@ export enum Path {
 
   MOVEMENTS = '/movements',
 
+  NOTIFICATIONS = '/notifications',
   REGISTRATION_TOKENS = '/registration-tokens',
 }

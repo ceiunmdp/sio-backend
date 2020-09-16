@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
-import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
+import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
 import { ResponseUserDto } from 'src/users/users/dtos/response-user.dto';
 import { ResponseMovementTypeDto } from './response-movement-type.dto';
 
-export class ResponseMovementDto extends ResponseBaseEntity {
+@Exclude()
+export class ResponseMovementDto extends ResponseBaseEntityDto {
   @AutoMap(() => ResponseUserDto)
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
   @ApiProperty({ description: 'Source user', example: 'Structure depends on role' })

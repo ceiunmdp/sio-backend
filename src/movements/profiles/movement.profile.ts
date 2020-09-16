@@ -1,6 +1,6 @@
 import { AutoMapper, convertUsing, mapDefer, mapFrom, mapWith, Profile, ProfileBase } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
-import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
+import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { DateStringConverter } from 'src/common/converters/date-string.converter';
 import { ResponseUserDto } from 'src/users/users/dtos/response-user.dto';
 import { ResponseMovementTypeDto } from '../dtos/response-movement-type.dto';
@@ -13,12 +13,12 @@ export class MovementProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();
     this.createMapFromMovementToResponseMovementDto(mapper);
-    mapper.createMap(MovementType, ResponseMovementTypeDto, { includeBase: [BaseEntity, ResponseBaseEntity] });
+    mapper.createMap(MovementType, ResponseMovementTypeDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] });
   }
 
   createMapFromMovementToResponseMovementDto(mapper: AutoMapper) {
     mapper
-      .createMap(Movement, ResponseMovementDto, { includeBase: [BaseEntity, ResponseBaseEntity] })
+      .createMap(Movement, ResponseMovementDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] })
       .forMember(
         (dest) => dest.date,
         convertUsing(new DateStringConverter(), (src) => src.createDate),

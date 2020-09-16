@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
+import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
 import { ALL_GROUPS } from 'src/common/constants/all-groups';
 import { UserType } from '../enums/user-type.enum';
 
 @Exclude()
-export class ResponseUserDto extends ResponseBaseEntity {
+export class ResponseUserDto extends ResponseBaseEntityDto {
   @Expose({ name: 'display_name', groups: ALL_GROUPS })
   @ApiProperty({ name: 'display_name', description: `User's name`, example: 'John Doe' })
   displayName!: string;

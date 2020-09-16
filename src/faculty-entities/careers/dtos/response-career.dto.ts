@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
-import { ResponseBaseEntity } from 'src/common/base-classes/response-base-entity.dto';
+import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
 import { ResponseCourseDto } from 'src/faculty-entities/courses/dtos/response-course.dto';
 
 @Exclude()
-export class ResponseCareerDto extends ResponseBaseEntity {
+export class ResponseCareerDto extends ResponseBaseEntityDto {
   @Expose({ groups: [Group.ADMIN] })
   @ApiProperty({ description: 'Name of career', example: 'Software Engineering' })
   name!: string;

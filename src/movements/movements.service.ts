@@ -1,7 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { UserRole } from 'src/common/enums/user-role.enum';
 import { Order as Sort } from 'src/common/interfaces/order.type';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
@@ -46,7 +45,7 @@ export class MovementsService extends GenericCrudService<Movement> {
     user?: UserIdentity,
   ) {
     const movementsRepository = this.getMovementsRepository(manager);
-    let queryBuilder = filterQuery(movementsRepository.createQueryBuilder('movements'), where);
+    let queryBuilder = filterQuery(movementsRepository.createQueryBuilder('movement'), where);
     queryBuilder = this.addExtraClauses(queryBuilder, user);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
     const { items, meta, links } = await paginate(queryBuilder, options);
@@ -63,12 +62,12 @@ export class MovementsService extends GenericCrudService<Movement> {
     return new Movement({ ...movement, source: new User(movement.source), target: new User(movement.target) });
   }
 
-  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Movement>, user: UserIdentity) {
-    queryBuilder.innerJoinAndSelect('movements.source', 'source');
-    queryBuilder.innerJoinAndSelect('movements.target', 'target');
-    queryBuilder.innerJoinAndSelect('movements.type', 'type');
+  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Movement>, user?: UserIdentity) {
+    queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.source`, 'source');
+    queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.target`, 'target');
+    queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.type`, 'type');
 
-    if (user && user.role !== UserRole.ADMIN) {
+    if (!isAdmin(user)) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where('source_user_id = :sourceId', { sourceId: user.id }).orWhere('target_user_id = :targetId', {
@@ -77,6 +76,7 @@ export class MovementsService extends GenericCrudService<Movement> {
         }),
       );
     }
+
     return queryBuilder;
   }
 

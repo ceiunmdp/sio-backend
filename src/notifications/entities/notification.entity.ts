@@ -1,7 +1,7 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { User } from 'src/users/users/entities/user.entity';
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { NotificationType } from './notification-type.entity';
 
 @Entity('notifications')
@@ -9,13 +9,16 @@ export class Notification extends BaseEntity {
   @Column({ name: 'message_id', update: false })
   readonly messageId!: string;
 
+  @RelationId((notification: Notification) => notification.user)
+  readonly userId!: string;
+
   @AutoMap(() => User)
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   readonly user!: User;
 
   @AutoMap(() => NotificationType)
-  @ManyToOne(() => NotificationType, { nullable: false })
+  @ManyToOne(() => NotificationType, { nullable: false, eager: true })
   @JoinColumn({ name: 'notification_type_id' })
   readonly type!: NotificationType;
 
@@ -31,8 +34,7 @@ export class Notification extends BaseEntity {
   @Column({ update: false, nullable: true })
   readonly data?: string; //* Could be an embedded entity
 
-  //? Add index?
-  @Index()
+  @Index('IX_notifications_read')
   @Column({ default: false })
   read!: boolean;
 

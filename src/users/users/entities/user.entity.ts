@@ -8,10 +8,11 @@ import { Role } from './role.entity';
 @Entity('users')
 @TableInheritance({ column: { type: 'enum', enum: UserType, name: 'type' } })
 export class User extends BaseEntity {
-  @Index()
+  @Index('IX_users_uid')
   @Column({ type: 'varchar', length: 36, default: null })
   uid!: string;
 
+  // TODO: Consider adding an index here to speed up queries filtered by name
   @Column({ name: 'full_name', default: null })
   displayName!: string;
 

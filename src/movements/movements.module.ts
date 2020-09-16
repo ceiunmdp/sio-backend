@@ -10,6 +10,7 @@ import { MovementsRepository } from './movements.repository';
 import { MovementsService } from './movements.service';
 //! Profiles
 import './profiles/movement.profile';
+
 @Module({
   imports: [
     SharedModule,

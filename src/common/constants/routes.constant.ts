@@ -103,13 +103,11 @@ export const routes: Routes = [
     module: MovementsModule,
   },
   {
-    path: '',
+    path: Path.NOTIFICATIONS,
     module: NotificationsModule,
-    children: [
-      {
-        path: Path.REGISTRATION_TOKENS,
-        module: RegistrationTokensModule,
-      },
-    ],
+  },
+  {
+    path: Path.REGISTRATION_TOKENS,
+    module: RegistrationTokensModule,
   },
 ];
