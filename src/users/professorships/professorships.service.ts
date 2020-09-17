@@ -1,4 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { ParameterType } from 'src/config/parameters/enums/parameter-type.enum';
+import { ParametersService } from 'src/config/parameters/parameters.service';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { FilesService } from 'src/files/files.service';
 import { EntityManager } from 'typeorm';
@@ -9,7 +11,11 @@ import { Professorship } from './entities/professorship.entity';
 import { ProfessorshipsRepository } from './professorships.repository';
 @Injectable()
 export class ProfessorshipsService extends GenericSubUserService<Professorship> {
-  constructor(usersService: UsersService, private readonly filesService: FilesService) {
+  constructor(
+    usersService: UsersService,
+    private readonly filesService: FilesService,
+    private readonly parametersService: ParametersService,
+  ) {
     super(usersService, Professorship);
   }
 
@@ -19,6 +25,8 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     if (!(await this.isCourseIdRepeated(createProfessorshipDto.courseId, professorshipsRepository))) {
       const newProfessorship = await professorshipsRepository.saveAndReload({
         ...createProfessorshipDto,
+        availableStorage: await this.getInitialAvailableStorage(manager),
+        storageUsed: 0,
         course: new Course({ id: createProfessorshipDto.courseId }),
       });
 
@@ -33,6 +41,15 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     } else {
       throw new ConflictException(`Ya existe un usuario con la materia elegida.`);
     }
+  }
+
+  private async getInitialAvailableStorage(manager: EntityManager) {
+    const parameter = await this.parametersService.findByCode(
+      ParameterType.USERS_PROFESSORSHIPS_INITIAL_AVAILABLE_STORAGE,
+      manager,
+    );
+
+    return parameter.value;
   }
 
   private async afterInsert(professorship: Professorship, manager: EntityManager) {

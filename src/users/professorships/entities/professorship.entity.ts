@@ -1,4 +1,3 @@
-import * as bytes from 'bytes';
 import { AutoMap } from 'nestjsx-automapper';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { ChildEntity, Column, JoinColumn, OneToOne, RelationId } from 'typeorm';
@@ -6,10 +5,10 @@ import { User } from '../../users/entities/user.entity';
 
 @ChildEntity()
 export class Professorship extends User {
-  @Column({ name: 'available_storage', type: 'bigint', default: bytes('1GB') })
+  @Column({ name: 'available_storage', type: 'bigint', default: null })
   availableStorage!: number; //* Bytes
 
-  @Column({ name: 'storage_used', type: 'bigint', default: 0 })
+  @Column({ name: 'storage_used', type: 'bigint', default: null })
   storageUsed!: number; //* Bytes
 
   @RelationId((professorship: Professorship) => professorship.course)

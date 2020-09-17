@@ -2,7 +2,10 @@ export enum Path {
   ME = '/me',
 
   API = '/api/v1',
+
   HEALTH = '/health',
+
+  PARAMETERS = '/parameters',
 
   AUTH = '/auth',
 

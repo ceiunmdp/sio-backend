@@ -20,7 +20,7 @@ export class StudentsService extends GenericSubUserService<Student> {
   async create(createStudentDto: Partial<CreateStudentDto>, manager: EntityManager) {
     const studentsRepository = this.getStudentsRepository(manager);
 
-    const student = await studentsRepository.saveAndReload(createStudentDto);
+    const student = await studentsRepository.saveAndReload({ ...createStudentDto, balance: 0 });
 
     //! Do not create user in Firebase, but instead set its custom claims
     await this.usersService.setCustomUserClaims(student);
@@ -77,7 +77,7 @@ export class StudentsService extends GenericSubUserService<Student> {
 
     if (student) {
       if (student.balance >= amount) {
-        return studentsRepository.updateAndReload(studentId, { ...student, balance: student.balance - amount });
+        return studentsRepository.updateAndReload(studentId, { ...student, balance: +student.balance - amount });
       } else {
         throw new InsufficientMoneyException();
       }

@@ -27,7 +27,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
 
   // TODO: Delete this method in production
   private async createNotificationTypes(manager: EntityManager) {
-    const notificationTypesRepository = manager.getRepository(NotificationType);
+    const notificationTypesRepository = this.getNotificationTypesRepository(manager);
 
     if (!(await notificationTypesRepository.count())) {
       notificationTypesRepository.save([

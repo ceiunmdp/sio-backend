@@ -13,7 +13,7 @@ export class User extends BaseEntity {
   uid!: string;
 
   // TODO: Consider adding an index here to speed up queries filtered by name
-  @Column({ name: 'full_name', default: null })
+  @Column({ name: 'full_name' })
   displayName!: string;
 
   //* Firebase

@@ -1,4 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ParameterType } from 'src/config/parameters/enums/parameter-type.enum';
+import { ParametersService } from 'src/config/parameters/parameters.service';
 import { EntityManager } from 'typeorm';
 import { StudentsRepository } from '../students/students.repository';
 import { UserType } from '../users/enums/user-type.enum';
@@ -10,7 +12,7 @@ import { ScholarshipsRepository } from './scholarships.repository';
 
 @Injectable()
 export class ScholarshipsService extends GenericSubUserService<Scholarship> {
-  constructor(usersService: UsersService) {
+  constructor(usersService: UsersService, private readonly parametersService: ParametersService) {
     super(usersService, Scholarship);
   }
 
@@ -67,14 +69,21 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     // TODO: Check declaring 'type' without "update = false"
     await manager.query(`UPDATE users SET type = '${UserType.SCHOLARSHIP}' WHERE id = ?`, [studentId]);
 
-    // TODO: Decide if a 'defaults' table should be implemented
-    // TODO: This way, the values wouldn't be harcoded in the database nor the environment variables
-    // TODO: Ergo, no need to restart the app nor access the database records, everything is updated through UI
+    const initialAvailableCopies = await this.getInitialAvailableCopies(manager);
     return scholarshipsRepository.updateAndReload(studentId, {
       ...student,
-      availableCopies: 500,
-      remainingCopies: 500,
+      availableCopies: initialAvailableCopies,
+      remainingCopies: initialAvailableCopies,
     });
+  }
+
+  private async getInitialAvailableCopies(manager: EntityManager) {
+    const parameter = await this.parametersService.findByCode(
+      ParameterType.USERS_SCHOLARSHIPS_INITIAL_AVAILABLE_COPIES,
+      manager,
+    );
+
+    return parameter.value;
   }
 
   private async degradeScholarshipToStudent(scholarshipId: string, manager: EntityManager) {

@@ -11,6 +11,7 @@ import { SerializerInterceptor } from './common/interceptors/serializer.intercep
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { ParametersModule } from './config/parameters/parameters.module';
 import { CoreModule } from './core/core.module';
 import { FacultyEntitiesModule } from './faculty-entities/faculty-entities.module';
 import { FilesModule } from './files/files.module';
@@ -29,13 +30,14 @@ import { GeneralUsersModule } from './users/general-users.module';
     AuthModule,
     CoreModule,
     FacultyEntitiesModule,
-    GeneralUsersModule,
     FilesModule,
     GeneralItemsModule,
+    GeneralUsersModule,
     MenuModule,
     MovementsModule,
     NotificationsModule,
     OrdersModule,
+    ParametersModule,
     UserModule,
   ],
   providers: [

@@ -4,7 +4,7 @@ import { User } from '../../users/entities/user.entity';
 @ChildEntity()
 @Unique(['dni'])
 export class Student extends User {
-  @Column({ type: 'decimal', precision: 6, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 6, scale: 2, default: null })
   balance!: number;
 
   @Column({ default: null })

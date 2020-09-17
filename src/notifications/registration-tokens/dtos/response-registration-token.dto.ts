@@ -6,6 +6,6 @@ import { ALL_GROUPS } from 'src/common/constants/all-groups';
 @Exclude()
 export class ResponseRegistrationTokenDto extends ResponseBaseEntityDto {
   @Expose({ groups: ALL_GROUPS })
-  @ApiProperty({ description: `Registration token` })
+  @ApiProperty({ description: `Registration token`, example: 'token' })
   token!: string;
 }

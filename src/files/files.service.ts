@@ -1,35 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
-import { CrudService } from 'src/common/interfaces/crud-service.interface';
-import { Order } from 'src/common/interfaces/order.type';
-import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
-import { Where } from 'src/common/interfaces/where.type';
+import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { Professorship } from 'src/users/professorships/entities/professorship.entity';
-import { DeepPartial, EntityManager } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { File } from './entities/file.entity';
 import { FilesRepository } from './files.repository';
 
 @Injectable()
-export class FilesService implements CrudService<File> {
-  findAll(
-    options: IPaginationOptions,
-    where: Where,
-    order: Order<File>,
-    manager?: EntityManager,
-  ): Promise<Pagination<File>> {
-    throw new Error('Method not implemented.');
-  }
-  findById(id: string, manager?: EntityManager): Promise<File> {
-    throw new Error('Method not implemented.');
-  }
-  create(createDto: DeepPartial<File>, manager?: EntityManager): Promise<File> {
-    throw new Error('Method not implemented.');
-  }
-  update(id: string, updateDto: DeepPartial<File>, manager?: EntityManager): Promise<File> {
-    throw new Error('Method not implemented.');
-  }
-  delete(id: string, options?: RemoveOptions, manager?: EntityManager): Promise<void> {
-    throw new Error('Method not implemented.');
+export class FilesService extends GenericCrudService<File> {
+  constructor() {
+    super(File);
   }
 
   async linkFilesToProfessorship(professorship: Professorship, manager: EntityManager) {
@@ -54,5 +33,9 @@ export class FilesService implements CrudService<File> {
 
   private getFilesRepository(manager: EntityManager) {
     return manager.getCustomRepository(FilesRepository);
+  }
+
+  protected getCustomMessageNotFoundException(id: string): string {
+    return `Archivo ${id} no encontrado.`;
   }
 }

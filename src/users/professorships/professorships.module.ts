@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
+import { ParametersModule } from 'src/config/parameters/parameters.module';
 import { FilesModule } from 'src/files/files.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { UsersModule } from '../users/users.module';
@@ -16,6 +17,7 @@ import { ProfessorshipSubscriber } from './subscribers/professorship.subscriber'
   imports: [
     SharedModule,
     AppConfigModule,
+    ParametersModule,
     UsersModule,
     TypeOrmModule.forFeature([Professorship, ProfessorshipsRepository]),
     FilesModule,

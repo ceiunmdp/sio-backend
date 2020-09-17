@@ -1,4 +1,6 @@
 export enum Collection {
+  PARAMETERS = 'Parameters',
+
   USERS = 'Users',
   ADMINS = 'Admin users',
   CAMPUS_USERS = 'Campus users',

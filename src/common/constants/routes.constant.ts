@@ -1,4 +1,5 @@
 import { Routes } from 'nest-router';
+import { ParametersModule } from 'src/config/parameters/parameters.module';
 import { CampusModule } from 'src/faculty-entities/campus/campus.module';
 import { CareersModule } from 'src/faculty-entities/careers/careers.module';
 import { CoursesModule } from 'src/faculty-entities/courses/courses.module';
@@ -37,6 +38,10 @@ export const routes: Routes = [
   {
     path: Path.HEALTH,
     module: HealthModule,
+  },
+  {
+    path: Path.PARAMETERS,
+    module: ParametersModule,
   },
   {
     path: Path.MENU,
