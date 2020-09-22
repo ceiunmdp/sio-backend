@@ -25,7 +25,7 @@ import { UpdateParameterDto } from './dtos/update-parameter.dto';
 import { Parameter } from './entities/parameter.entity';
 import { ParametersService } from './parameters.service';
 
-@ApiTags('Parameters')
+@ApiTags(Collection.PARAMETERS)
 @Controller()
 export class ParametersController {
   private readonly parametersService: CrudService<Parameter>;

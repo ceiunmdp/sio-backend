@@ -16,7 +16,7 @@ import { ResponseRegistrationTokenDto } from './dtos/response-registration-token
 import { UpdateRegistrationTokenDto } from './dtos/update-registration-token.dto';
 import { RegistrationTokensService } from './registration-tokens.service';
 
-@ApiTags('Registration Tokens')
+@ApiTags(Collection.REGISTRATION_TOKENS)
 @Controller()
 export class RegistrationTokensController {
   constructor(

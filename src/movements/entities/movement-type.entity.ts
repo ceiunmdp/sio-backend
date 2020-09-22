@@ -9,7 +9,7 @@ export class MovementType extends BaseEntity {
   @Column({ update: false })
   readonly name!: string;
 
-  @Column({ update: false })
+  @Column({ type: 'enum', enum: EMovementType, update: false })
   readonly code!: EMovementType;
 
   constructor(partial: Partial<MovementType>) {

@@ -5,6 +5,8 @@ export const isAdmin = (user: UserIdentity) => user.role === UserRole.ADMIN;
 
 export const isCampus = (user: UserIdentity) => user.role === UserRole.CAMPUS;
 
+export const isProfessorship = (user: UserIdentity) => user.role === UserRole.PROFESSORSHIP;
+
 export const isStudent = (user: UserIdentity) => user.role === UserRole.STUDENT;
 
 export const isScholarship = (user: UserIdentity) => user.role === UserRole.SCHOLARSHIP;

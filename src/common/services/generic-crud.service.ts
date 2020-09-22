@@ -18,7 +18,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     where: Where,
     order: Order<T>,
     manager: EntityManager,
-    user: UserIdentity,
+    user?: UserIdentity,
   ) {
     const entitiesRepository = manager.getRepository<T>(this.type);
     let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(), where);
@@ -42,7 +42,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return qb;
   }
 
-  async findById(id: string, manager: EntityManager, user: UserIdentity) {
+  async findById(id: string, manager: EntityManager, user?: UserIdentity) {
     const entity = await manager.getRepository<T>(this.type).findOne(id, { loadEagerRelations: true });
 
     if (entity) {
@@ -59,14 +59,14 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create(createDto: DeepPartial<T>, manager: EntityManager, _user: UserIdentity) {
+  async create(createDto: DeepPartial<T>, manager: EntityManager, _user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const newEntity = await entitiesRepository.save(createDto);
     return entitiesRepository.findOne(newEntity.id);
   }
 
-  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, user: UserIdentity) {
+  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const entity = await entitiesRepository.findOne(id);
@@ -90,6 +90,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     const entity = await entitiesRepository.findOne(id);
     if (entity) {
       this.checkDeleteConditions(user, entity);
+      await this.beforeDelete(user, entity, manager);
       options?.softRemove
         ? // TODO: Try to remove 'unknown' casting
           await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
@@ -102,6 +103,11 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected checkDeleteConditions(_user: UserIdentity, _entity: T) {
+    return;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async beforeDelete(_user: UserIdentity, _entity: T, _manager: EntityManager) {
     return;
   }
 

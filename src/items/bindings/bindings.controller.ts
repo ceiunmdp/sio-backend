@@ -28,7 +28,7 @@ import { ResponseBindingDto } from './dtos/response-binding.dto';
 import { UpdateBindingDto } from './dtos/update-binding.dto';
 import { Binding } from './entities/binding.entity';
 
-@ApiTags('Bindings')
+@ApiTags(Collection.BINDINGS)
 @Controller()
 export class BindingsController {
   private readonly bindingsService: CrudService<Binding>;

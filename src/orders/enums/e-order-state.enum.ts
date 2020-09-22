@@ -1,4 +1,4 @@
-export enum OrderState {
+export enum EOrderState {
   REQUESTED = 'requested',
   IN_PROCESS = 'in_process',
   READY = 'ready',

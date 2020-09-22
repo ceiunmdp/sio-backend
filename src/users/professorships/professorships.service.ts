@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ParameterType } from 'src/config/parameters/enums/parameter-type.enum';
 import { ParametersService } from 'src/config/parameters/parameters.service';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
@@ -8,12 +8,13 @@ import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
 import { CreateProfessorshipDto } from './dtos/create-professorship.dto';
 import { Professorship } from './entities/professorship.entity';
+import { ExceededAvailableStorageException } from './exceptions/exceeded-available-storage.exception';
 import { ProfessorshipsRepository } from './professorships.repository';
 @Injectable()
 export class ProfessorshipsService extends GenericSubUserService<Professorship> {
   constructor(
     usersService: UsersService,
-    private readonly filesService: FilesService,
+    @Inject(forwardRef(() => FilesService)) private readonly filesService: FilesService,
     private readonly parametersService: ParametersService,
   ) {
     super(usersService, Professorship);
@@ -67,6 +68,33 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
 
   protected async beforeRemove(professorship: Professorship, manager: EntityManager) {
     await this.filesService.unlinkFilesFromProfessorship(professorship, manager);
+  }
+
+  public async useUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
+    const professorshipsRepository = this.getProfessorshipsRepository(manager);
+    const professorship = await professorshipsRepository.findOne(professorshipId);
+
+    if (professorship) {
+      const newStorageUsed = +professorship.storageUsed + bytes;
+      if (newStorageUsed > +professorship.availableStorage) {
+        throw new ExceededAvailableStorageException();
+      } else {
+        return professorshipsRepository.updateAndReload(professorshipId, { storageUsed: newStorageUsed });
+      }
+    } else {
+      throw new NotFoundException(this.getCustomMessageNotFoundException(professorshipId));
+    }
+  }
+
+  public async topUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
+    const professorship = await this.getProfessorshipsRepository(manager).findOne(professorshipId);
+
+    if (professorship) {
+      const newStorageUsed = +professorship.storageUsed - bytes;
+      return this.update(professorshipId, { storageUsed: newStorageUsed }, manager);
+    } else {
+      throw new NotFoundException(this.getCustomMessageNotFoundException(professorshipId));
+    }
   }
 
   private getProfessorshipsRepository(manager: EntityManager) {

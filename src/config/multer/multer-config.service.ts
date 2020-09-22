@@ -1,75 +1,103 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MulterOptionsFactory } from '@nestjs/platform-express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
+import { InjectConnection } from '@nestjs/typeorm';
+import * as bytes from 'bytes';
+import { isUUID } from 'class-validator';
 import { Request } from 'express';
+import * as fs from 'fs-extra';
+import * as mime from 'mime-types';
 import { diskStorage } from 'multer';
+import { join } from 'path';
+import { CoursesService } from 'src/faculty-entities/courses/courses.service';
+import { buildFilename } from 'src/files/utils/build-filename';
+import { Connection } from 'typeorm';
+import { ParametersService } from '../parameters/parameters.service';
 
 interface MulterEnvironmentVariables {
   'multer.destination': string;
-  'multer.limitFileSize': number;
 }
 
 @Injectable()
 export class MulterConfigService implements MulterOptionsFactory {
-  private readonly ACCEPTED_MIME_TYPES = ['application/pdf'];
+  private readonly ACCEPTED_MIME_TYPES = [mime.lookup('pdf')];
 
-  constructor(private readonly configService: ConfigService<MulterEnvironmentVariables>) {}
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    private readonly configService: ConfigService<MulterEnvironmentVariables>,
+    private readonly coursesService: CoursesService,
+    private readonly parametersService: ParametersService,
+  ) {}
 
-  //? Should be only one common destination or is convenient to split it into one folder per role?
   get destination() {
     return this.configService.get<string>('multer.destination');
   }
 
-  get limitFileSize() {
-    return this.configService.get<number>('multer.limitFileSize');
-  }
+  private async getDestination(
+    request: Request,
+    _file: Express.Multer.File,
+    cb: (error: Error | null, destination: string) => void,
+  ) {
+    const path = join(this.destination, await this.getCourseId(request));
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path);
+    }
 
-  getDestination(request: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
-    // TODO: If we decide to store each file in it's correponding folder according to role, here we have to retrieve the appropiate destination
     // TODO: Check if __dirname should be used
-    cb(null, this.destination);
+    cb(null, path);
   }
 
-  // TODO: Should this function be inside Files Module, in order to create and save metadata about the file prior to save it on disk?
-  getFilename(request: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
-    // TODO: Logic to determine filename. Could be "UUID.extension"
-    const filename = file.filename + '-' + Date.now();
-    cb(null, filename);
+  private async getCourseId(request: Request) {
+    const courseId = request.body.course_id;
+
+    if (!courseId) {
+      throw new UnprocessableEntityException('course_id was not provided');
+    } else if (!isUUID(courseId)) {
+      throw new UnprocessableEntityException('course_id is not a valid UUID');
+    } else if (!(await this.coursesService.findById(courseId, this.connection.manager))) {
+      throw new UnprocessableEntityException('course_id provided does not correspond to any existing Course');
+    } else {
+      return courseId;
+    }
   }
 
-  getStorage() {
+  private getFilename(_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
+    cb(null, buildFilename(file.originalname, file.mimetype));
+  }
+
+  private getStorage() {
     return diskStorage({
-      destination: this.getDestination,
-      filename: this.getFilename,
+      destination: this.getDestination.bind(this),
+      filename: this.getFilename.bind(this),
     });
   }
 
-  getLimits() {
-    return { fileSize: this.limitFileSize };
+  private async getLimits() {
+    // TODO: Change in deployment
+    return { fileSize: bytes('100MB') };
+    // return {
+    //   fileSize: (await this.parametersService.findByCode(ParameterType.FILES_MAX_SIZE_ALLOWED, this.connection.manager))
+    //     .value,
+    // };
   }
 
-  fileFilter(request: Request, file: Express.Multer.File, cb: (error: Error | null, acceptFile: boolean) => void) {
-    // The function should call `cb` with a boolean
-    // to indicate if the file should be accepted
-    // To reject this file pass `false`, like so:
-    // cb(null, false);
-    // To accept the file pass `true`, like so:
-    // cb(null, true);
-    // You can always pass an error if something goes wrong:
-    // cb(new Error("I don't have a clue!"), false);
-
-    // TODO: Check all conditions that are necessary
+  private async fileFilter(
+    _req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, acceptFile: boolean) => void,
+  ) {
+    //! File size cannot be accessed here, service must check this condition
     cb(null, this.ACCEPTED_MIME_TYPES.includes(file.mimetype));
   }
 
-  createMulterOptions(): MulterOptions {
+  async createMulterOptions(): Promise<MulterOptions> {
     return {
       // dest: this.destination,
       storage: this.getStorage(),
-      limits: this.getLimits(),
+      limits: await this.getLimits(),
       // preservePath: true
-      fileFilter: this.fileFilter,
+      fileFilter: this.fileFilter.bind(this),
     };
   }
 }

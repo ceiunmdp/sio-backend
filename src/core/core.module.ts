@@ -1,4 +1,5 @@
 import { CacheModule, Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { RouterModule } from 'nest-router';
 import { AutomapperModule } from 'nestjsx-automapper';
@@ -30,6 +31,7 @@ import { LoggerModule } from 'src/logger/logger.module';
     HealthModule,
     LoggerModule,
     RouterModule.forRoutes(routes), // Setup routes
+    ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../public'),
       exclude: ['/api*'],

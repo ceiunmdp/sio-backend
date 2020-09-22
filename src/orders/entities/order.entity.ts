@@ -4,6 +4,7 @@ import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { Student } from 'src/users/students/entities/student.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { OrderFile } from './order-file.entity';
+import { OrderState } from './order-state.entity';
 import { OrderToOrderState } from './order-to-order-state.entity';
 
 @Entity('orders')
@@ -25,6 +26,11 @@ export class Order extends BaseEntity {
   @AutoMap(() => OrderToOrderState)
   @OneToMany(() => OrderToOrderState, (orderToOrderState) => orderToOrderState.order)
   orderToOrderStates!: OrderToOrderState[];
+
+  @AutoMap(() => OrderState)
+  @ManyToOne(() => OrderState, { nullable: false, eager: true })
+  @JoinColumn({ name: 'state_id' })
+  state!: OrderState;
 
   // TODO: Define if the app should support this kind of payment
   // readonly deposit!: number

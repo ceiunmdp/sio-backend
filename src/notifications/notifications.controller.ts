@@ -29,7 +29,7 @@ import { UpdateNotificationDto } from './dtos/update-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { NotificationsService } from './notifications.service';
 
-@ApiTags('Notifications')
+@ApiTags(Collection.NOTIFICATIONS)
 @Controller()
 export class NotificationsController {
   private readonly notificationsService: CrudService<Notification>;

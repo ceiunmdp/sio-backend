@@ -23,7 +23,7 @@ import { ResponseItemDto } from './dtos/response-item.dto';
 import { Item } from './entities/item.entity';
 import { ItemsService } from './items.service';
 
-@ApiTags('Items')
+@ApiTags(Collection.ITEMS)
 @Controller()
 export class ItemsController {
   private readonly itemsService: CrudService<Item>;

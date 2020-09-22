@@ -11,7 +11,7 @@ export class Item extends BaseEntity {
   @Column()
   name!: string;
 
-  @Column({ update: false })
+  @Column({ type: 'enum', enum: EItem, update: false })
   readonly code!: EItem;
 
   @Column({ type: 'decimal', precision: 6, scale: 2 })

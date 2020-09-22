@@ -25,7 +25,7 @@ import { ResponseMovementDto } from './dtos/response-movement.dto';
 import { Movement } from './entities/movement.entity';
 import { MovementsService } from './movements.service';
 
-@ApiTags('Movements')
+@ApiTags(Collection.MOVEMENTS)
 @Controller()
 export class MovementsController {
   private readonly movementsService: CrudService<Movement>;

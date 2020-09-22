@@ -9,7 +9,7 @@ export class Parameter extends BaseEntity {
   @Column({ update: false })
   readonly name!: string;
 
-  @Column({ update: false })
+  @Column({ type: 'enum', enum: ParameterType, update: false })
   readonly code!: ParameterType;
 
   @Column({ type: 'bigint' })

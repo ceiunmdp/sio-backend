@@ -4,6 +4,7 @@ import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -12,7 +13,7 @@ import { CreateCareerDto } from './dtos/create-career.dto';
 import { ResponseCareerDto } from './dtos/response-career.dto';
 import { UpdateCareerDto } from './dtos/update-career.dto';
 
-@ApiTags('Careers')
+@ApiTags(Collection.CAREERS)
 @Controller()
 export class CareersController {
   constructor(private readonly appConfigService: AppConfigService, private readonly careersService: CareersService) {}

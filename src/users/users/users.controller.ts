@@ -27,7 +27,7 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
-@ApiTags('Users')
+@ApiTags(Collection.USERS)
 @Controller()
 export class UsersController {
   private readonly usersService: TypeOrmCrudService<User>;

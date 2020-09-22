@@ -30,7 +30,7 @@ import { ResponseCampusDto } from './dtos/response-campus.dto';
 import { UpdateCampusDto } from './dtos/update-campus.dto';
 import { Campus } from './entities/campus.entity';
 
-@ApiTags('Campus')
+@ApiTags(Collection.CAMPUS)
 @Controller()
 export class CampusController {
   private readonly campusService: CrudService<Campus>;

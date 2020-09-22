@@ -9,7 +9,7 @@ export class NotificationType extends BaseEntity {
   @Column({ update: false })
   readonly name!: string;
 
-  @Column({ update: false })
+  @Column({ type: 'enum', enum: ENotificationType, update: false })
   readonly code!: ENotificationType;
 
   @Column({ name: 'title_template', update: false })

@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
-import { Group } from 'src/common/classes/group.class';
+import { ALL_GROUPS } from 'src/common/constants/all-groups';
 
 @Exclude()
 export class ResponseCourseDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN] })
+  @Expose({ groups: ALL_GROUPS })
   @ApiProperty({ description: 'Name of course', example: 'Introduction to Artificial Intelligence' })
   name!: string;
 

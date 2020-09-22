@@ -20,6 +20,7 @@ import { MenuModule } from './menu/menu.module';
 import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
+import { TasksModule } from './tasks/tasks.module';
 import { UserModule } from './user/user.module';
 import { GeneralUsersModule } from './users/general-users.module';
 
@@ -38,6 +39,7 @@ import { GeneralUsersModule } from './users/general-users.module';
     NotificationsModule,
     OrdersModule,
     ParametersModule,
+    TasksModule,
     UserModule,
   ],
   providers: [

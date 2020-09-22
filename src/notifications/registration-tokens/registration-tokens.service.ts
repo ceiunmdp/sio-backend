@@ -1,17 +1,17 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { UsersService } from 'src/users/users/users.service';
-import { DeepPartial, EntityManager, Repository } from 'typeorm';
+import { DeepPartial, EntityManager } from 'typeorm';
 import { PartialUpdateRegistrationTokenDto } from './dtos/partial-update-registration-token.dto';
 import { RegistrationToken } from './entities/registration-token.entity';
+import { RegistrationTokensRepository } from './registration-tokens.repository';
 
 @Injectable()
 export class RegistrationTokensService {
   constructor(private readonly usersService: UsersService) {}
 
   async findById(userId: string, manager: EntityManager) {
-    const registrationTokensRepository = this.getRegistrationTokensRepository(manager);
-    const registrationToken = await registrationTokensRepository.findOne(userId);
+    const registrationToken = await this.getRegistrationTokensRepository(manager).findOne(userId);
 
     if (registrationToken) {
       return registrationToken;
@@ -26,10 +26,9 @@ export class RegistrationTokensService {
     manager: EntityManager,
     user: UserIdentity,
   ) {
-    const registrationTokensRepository = this.getRegistrationTokensRepository(manager);
-
     if (userId === user.id) {
-      const registrationToken = await registrationTokensRepository.findOne(userId);
+      const registrationTokensRepository = this.getRegistrationTokensRepository(manager);
+      const registrationToken = await this.getRegistrationTokensRepository(manager).findOne(userId);
       if (!registrationToken) {
         return this.createRegistrationToken(userId, updateRegistrationTokenDto, manager);
       } else {
@@ -56,13 +55,12 @@ export class RegistrationTokensService {
   private async updateRegistrationToken(
     userId: string,
     updateRegistrationTokenDto: DeepPartial<RegistrationToken>,
-    registrationTokensRepository: Repository<RegistrationToken>,
+    registrationTokensRepository: RegistrationTokensRepository,
   ) {
-    await registrationTokensRepository.save({ ...updateRegistrationTokenDto, id: userId });
-    return registrationTokensRepository.findOne(userId);
+    return registrationTokensRepository.updateAndReload(userId, updateRegistrationTokenDto);
   }
 
   private getRegistrationTokensRepository(manager: EntityManager) {
-    return manager.getRepository(RegistrationToken);
+    return manager.getCustomRepository(RegistrationTokensRepository);
   }
 }

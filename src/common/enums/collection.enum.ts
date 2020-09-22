@@ -1,5 +1,6 @@
 export enum Collection {
   PARAMETERS = 'Parameters',
+  TASKS = 'Tasks',
 
   USERS = 'Users',
   ADMINS = 'Admin users',
@@ -9,6 +10,9 @@ export enum Collection {
   STUDENTS = 'Student users',
 
   CAMPUS = 'Campus',
+  CAREERS = 'Careers',
+  COURSES = 'Courses',
+  RELATIONS = 'Relations',
 
   ITEMS = 'Items',
   BINDINGS = 'Bindings',
@@ -17,4 +21,6 @@ export enum Collection {
 
   NOTIFICATIONS = 'Notifications',
   REGISTRATION_TOKENS = 'Registration Tokens',
+
+  FILES = 'Files',
 }

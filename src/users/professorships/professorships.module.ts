@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
 import { ParametersModule } from 'src/config/parameters/parameters.module';
@@ -19,8 +19,8 @@ import { ProfessorshipSubscriber } from './subscribers/professorship.subscriber'
     AppConfigModule,
     ParametersModule,
     UsersModule,
+    forwardRef(() => FilesModule),
     TypeOrmModule.forFeature([Professorship, ProfessorshipsRepository]),
-    FilesModule,
   ],
   controllers: [ProfessorshipsController],
   providers: [ProfessorshipsService, ProfessorshipSubscriber],

@@ -119,6 +119,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
   protected addExtraClauses(queryBuilder: SelectQueryBuilder<Notification>, user?: UserIdentity) {
     queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.type`, 'type');
 
+    //* /notifications/me
     if (user) {
       queryBuilder.andWhere('user_id = :userId', { userId: user.id });
     }
@@ -180,7 +181,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
         type: notificationType,
       });
     } catch (error) {
-      // TODO: Hahdle error
+      // TODO: Handle error
       // handleFirebaseError(error)
     }
   }

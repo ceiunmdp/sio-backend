@@ -6,6 +6,7 @@ export enum Path {
   HEALTH = '/health',
 
   PARAMETERS = '/parameters',
+  TASKS = '/tasks',
 
   AUTH = '/auth',
 
@@ -31,4 +32,6 @@ export enum Path {
 
   NOTIFICATIONS = '/notifications',
   REGISTRATION_TOKENS = '/registration-tokens',
+
+  FILES = '/files',
 }
