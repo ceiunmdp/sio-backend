@@ -109,7 +109,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     return manager.getCustomRepository(ScholarshipsRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Usuario becado ${id} no encontrado.`;
   }
 }

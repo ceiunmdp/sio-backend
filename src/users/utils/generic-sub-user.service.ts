@@ -94,5 +94,5 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return;
   }
 
-  protected abstract getCustomMessageNotFoundException(id: string): string;
+  protected abstract getCustomMessageNotFoundException(id: string);
 }

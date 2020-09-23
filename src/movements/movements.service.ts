@@ -204,7 +204,7 @@ export class MovementsService extends GenericCrudService<Movement> {
     return manager.getRepository(MovementType);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Movimiento ${id} no encontrado.`;
   }
 }

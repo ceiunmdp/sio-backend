@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import camelcase from 'camelcase';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { BaseEntity } from '../base-classes/base-entity.entity';
@@ -21,7 +22,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     user?: UserIdentity,
   ) {
     const entitiesRepository = manager.getRepository<T>(this.type);
-    let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(), where);
+    let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(camelcase(this.type.name)), where);
     queryBuilder = this.addExtraClauses(queryBuilder, user);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
     return paginate<T>(queryBuilder, options);
@@ -43,7 +44,9 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
   }
 
   async findById(id: string, manager: EntityManager, user?: UserIdentity) {
-    const entity = await manager.getRepository<T>(this.type).findOne(id, { loadEagerRelations: true });
+    const entity = await manager
+      .getRepository<T>(this.type)
+      .findOne(id, { relations: this.getFindOneRelations(), loadEagerRelations: true });
 
     if (entity) {
       this.checkFindByIdConditions(user, entity);
@@ -56,6 +59,10 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected checkFindByIdConditions(_user: UserIdentity, _entity: T) {
     return;
+  }
+
+  protected getFindOneRelations(): string[] {
+    return [];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -111,5 +118,5 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return;
   }
 
-  protected abstract getCustomMessageNotFoundException(id: string): string;
+  protected abstract getCustomMessageNotFoundException(id: string);
 }

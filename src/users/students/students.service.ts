@@ -101,7 +101,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     return manager.getCustomRepository(StudentsRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Usuario estudiante ${id} no encontrado.`;
   }
 }

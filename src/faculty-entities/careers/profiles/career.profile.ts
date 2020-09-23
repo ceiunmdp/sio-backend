@@ -1,8 +1,7 @@
-import { AutoMapper, mapFrom, Profile, ProfileBase } from 'nestjsx-automapper';
+import { AutoMapper, fromValue, mapDefer, mapWith, Profile, ProfileBase } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { ResponseCourseDto } from 'src/faculty-entities/courses/dtos/response-course.dto';
-import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { ResponseCareerDto } from '../dtos/response-career.dto';
 import { Career } from '../entities/career.entity';
 
@@ -16,16 +15,11 @@ export class CareerProfile extends ProfileBase {
   createMapFromCareerToResponseCareerDto() {
     this.mapper.createMap(Career, ResponseCareerDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] }).forMember(
       (responseCareerDto) => responseCareerDto.courses,
-      mapFrom((career) => {
-        if (career.careerCourseRelations) {
-          const courses = career.careerCourseRelations
-            .map((ternary) => ternary.course)
-            .filter((course) => course != null);
-          return this.mapper.mapArray(courses, ResponseCourseDto, Course);
-        } else {
-          return [];
-        }
-      }),
+      mapDefer((career) =>
+        career.careerCourseRelations
+          ? mapWith(ResponseCourseDto, (career) => career.careerCourseRelations.map((ternary) => ternary.course))
+          : fromValue([]),
+      ),
     );
   }
 }

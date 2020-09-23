@@ -41,7 +41,7 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
     return manager.getCustomRepository(CampusUsersRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Usuario sede ${id} no encontrado.`;
   }
 }

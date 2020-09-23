@@ -209,7 +209,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
     return manager.getRepository(NotificationType);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Notificación ${id} no encontrada.`;
   }
 }

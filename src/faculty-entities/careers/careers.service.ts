@@ -1,59 +1,70 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
+import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
+import { GenericCrudService } from 'src/common/services/generic-crud.service';
+import { EntityManager, SelectQueryBuilder } from 'typeorm';
+import { Course } from '../courses/entities/course.entity';
 import { CareersRepository } from './careers.repository';
 import { CreateCareerDto } from './dtos/create-career.dto';
-import { UpdateCareerDto } from './dtos/update-career.dto';
 import { Career } from './entities/career.entity';
 
 @Injectable()
-export class CareersService {
-  constructor(private readonly careersRepository: CareersRepository) {}
-
-  async findAll(options: IPaginationOptions) {
-    return paginate<Career>(this.careersRepository, options, {
-      relations: ['careerCourseRelations', 'careerCourseRelations.course'],
-    });
+export class CareersService extends GenericCrudService<Career> {
+  constructor() {
+    super(Career);
   }
 
-  async findById(id: string) {
-    const career = await this.careersRepository.findOne(id, {
-      relations: ['careerCourseRelations', 'careerCourseRelations.course'],
-    });
-    if (career) {
-      return career;
-    } else {
-      throw new NotFoundException(`Carrera ${id} no encontrada.`);
-    }
+  //* findAll
+  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Career>) {
+    queryBuilder.leftJoinAndSelect('career.careerCourseRelations', 'careerCourseRelation');
+    queryBuilder.leftJoinAndSelect(Course, 'course', 'careerCourseRelation.course = course.id');
+    //* All these also work
+    // queryBuilder.leftJoinAndSelect(Course, 'course', 'careerCourseRelation.course.id = course.id');
+    // queryBuilder.leftJoinAndSelect(Course, 'course', 'careerCourseRelation.course_id = course.id');
+
+    return queryBuilder;
   }
 
-  async create(createCareerDto: CreateCareerDto) {
-    const career = await this.careersRepository.findOne({ where: { name: createCareerDto.name }, withDeleted: true });
+  //* findById
+  protected getFindOneRelations() {
+    return ['careerCourseRelations', 'careerCourseRelations.course'];
+  }
+
+  async create(createCareerDto: CreateCareerDto, manager: EntityManager) {
+    const careersRepository = this.getCareersRepository(manager);
+    const career = await careersRepository.findOne({ where: { name: createCareerDto.name }, withDeleted: true });
+
     if (!career) {
-      return this.careersRepository.saveAndReload(createCareerDto);
+      return careersRepository.saveAndReload(createCareerDto);
     } else if (career.deleteDate) {
-      return this.careersRepository.recover(career);
+      return careersRepository.recover(career);
     } else {
       throw new ConflictException(`Ya existe una carrera con el nombre elegido.`);
     }
   }
 
-  async update(id: string, updateCareerDto: UpdateCareerDto) {
-    return this.careersRepository.updateAndReload(id, updateCareerDto);
-  }
+  async delete(id: string, options: RemoveOptions, manager: EntityManager) {
+    const careersRepository = this.getCareersRepository(manager);
+    const career = await careersRepository.findOne(id, { relations: ['careerCourseRelations'] });
 
-  async delete(id: string) {
-    const career = await this.careersRepository.findOne(id, { relations: ['careerCourseRelations'] });
     if (career) {
-      if ((await career.careerCourseRelations).length) {
+      if (career.careerCourseRelations.length) {
         throw new BadRequestException(
           `No es posible eliminar la carrera ya que está vinculada con una o más materias.`,
         );
       } else {
-        await this.careersRepository.softRemove(career);
+        options?.softRemove ? await careersRepository.softRemove(career) : await careersRepository.remove(career);
         return;
       }
     } else {
-      throw new NotFoundException(`Carrera ${id} no encontrada.`);
+      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
+  }
+
+  private getCareersRepository(manager: EntityManager) {
+    return manager.getCustomRepository(CareersRepository);
+  }
+
+  protected getCustomMessageNotFoundException(id: string) {
+    return `Carrera ${id} no encontrada.`;
   }
 }

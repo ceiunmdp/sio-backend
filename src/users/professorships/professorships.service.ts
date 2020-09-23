@@ -101,7 +101,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     return manager.getCustomRepository(ProfessorshipsRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Usuario cátedra ${id} no encontrado.`;
   }
 }

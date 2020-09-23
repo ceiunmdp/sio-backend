@@ -9,7 +9,7 @@ export class AdminsService extends GenericSubUserService<Admin> {
     super(usersService, Admin);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Usuario admin ${id} no encontrado.`;
   }
 }

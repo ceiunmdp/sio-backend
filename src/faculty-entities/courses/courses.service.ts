@@ -8,7 +8,7 @@ export class CoursesService extends GenericCrudService<Course> {
     super(Course);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Materia ${id} no encontrada.`;
   }
 }

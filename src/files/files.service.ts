@@ -248,7 +248,7 @@ export class FilesService extends GenericCrudService<File> {
     return manager.getCustomRepository(FilesRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string): string {
+  protected getCustomMessageNotFoundException(id: string) {
     return `Archivo ${id} no encontrado.`;
   }
 }
