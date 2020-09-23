@@ -56,11 +56,11 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   //* findById // findContentById
-  protected checkFindByIdConditions(user: UserIdentity, file: File) {
-    this.userCanReadFile(user, file);
+  protected async checkFindByIdConditions(file: File, _manager: EntityManager, user: UserIdentity) {
+    this.userCanReadFile(file, user);
   }
 
-  private userCanReadFile(user: UserIdentity, file: File) {
+  private userCanReadFile(file: File, user: UserIdentity) {
     //* All users can access system files. Temporary files are only accessible by its owners, campus users and admins
     if (isTemporaryFile(file)) {
       if (isProfessorship(user) || (isStudentOrScholarship(user) && !isFileFromUser(user.id, file))) {
@@ -137,7 +137,7 @@ export class FilesService extends GenericCrudService<File> {
 
     const file = await filesRepository.findOne(id);
     if (file) {
-      this.checkUpdateConditions(user, file);
+      this.checkUpdateConditions(updateFileDto, file, manager, user);
 
       let newPath: string;
       if (updateFileDto.name) {
@@ -150,11 +150,17 @@ export class FilesService extends GenericCrudService<File> {
     }
   }
 
-  protected checkUpdateConditions(user: UserIdentity, file: File) {
-    this.userCanUpdateFile(user, file);
+  //* update
+  protected async checkUpdateConditions(
+    _updateFileDto: PartialUpdateFileDto,
+    file: File,
+    _manager: EntityManager,
+    user: UserIdentity,
+  ) {
+    this.userCanUpdateFile(file, user);
   }
 
-  private userCanUpdateFile(user: UserIdentity, file: File) {
+  private userCanUpdateFile(file: File, user: UserIdentity) {
     if (isTemporaryFile(file)) {
       throw new BadRequestException('Los archivos temporales no pueden ser modificados una vez que han sido creados.');
     } else if (isSystemStaffFile(file) && !(isAdmin(user) || isCampus(user))) {
@@ -171,13 +177,13 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   //* delete
-  protected checkDeleteConditions(user: UserIdentity, file: File) {
+  protected async checkDeleteConditions(file: File, _manager: EntityManager, user: UserIdentity) {
     //! Same conditions for the moment
-    this.checkUpdateConditions(user, file);
+    this.userCanUpdateFile(file, user);
   }
 
   //* delete
-  protected async beforeDelete(user: UserIdentity, file: File, manager: EntityManager) {
+  protected async beforeDelete(file: File, manager: EntityManager) {
     if (isSystemProfessorshipFile(file)) {
       await this.professorshipsService.topUpStorageAvailable(file.ownerId, file.size, manager);
     }
@@ -233,10 +239,10 @@ export class FilesService extends GenericCrudService<File> {
         .where('file.deleteDate IS NOT NULL')
         .andWhere('file.physically_erased = :erased', { erased: false })
         // TODO: See if it's possible somehow to use first implementation instead of second one
-        // .andWhere('state.code NOT IN (:activeStates)', {
-        // activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS].map((state) => `'${state}'`).join(','),
-        // })
-        .andWhere(`state.code NOT IN ('${EOrderState.REQUESTED}','${EOrderState.IN_PROCESS}')`)
+        .andWhere('state.code NOT IN (:...activeStates)', {
+          activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],
+        })
+        // .andWhere(`state.code NOT IN ('${EOrderState.REQUESTED}','${EOrderState.IN_PROCESS}')`)
         .getMany();
 
       await this.removeFilesByPaths(files.map((file) => file.path));

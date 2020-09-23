@@ -7,6 +7,7 @@ import { isAdmin } from 'src/common/utils/is-role-functions';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { User } from 'src/users/users/entities/user.entity';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
+import { PartialUpdateNotificationDto } from './dtos/partial-update-notification.dto';
 import { NotificationType } from './entities/notification-type.entity';
 import { Notification } from './entities/notification.entity';
 import { ENotificationType } from './enums/e-notification-type.enum';
@@ -128,8 +129,8 @@ export class NotificationsService extends GenericCrudService<Notification> {
   }
 
   //* findById
-  protected checkFindByIdConditions(user: UserIdentity, notification: Notification) {
-    this.userCanAccessNotification(user, notification);
+  protected async checkFindByIdConditions(notification: Notification, _manager: EntityManager, user: UserIdentity) {
+    this.userCanAccessNotification(notification, user);
   }
 
   //! Implemented to avoid creation of notifications by error by other developers
@@ -138,16 +139,21 @@ export class NotificationsService extends GenericCrudService<Notification> {
   }
 
   //* update
-  protected checkUpdateConditions(user: UserIdentity, notification: Notification) {
-    this.userCanAccessNotification(user, notification);
+  protected async checkUpdateConditions(
+    _updateNotificationDto: PartialUpdateNotificationDto,
+    notification: Notification,
+    _manager: EntityManager,
+    user: UserIdentity,
+  ) {
+    this.userCanAccessNotification(notification, user);
   }
 
   //* delete
-  protected checkDeleteConditions(user: UserIdentity, notification: Notification) {
-    this.userCanAccessNotification(user, notification);
+  protected async checkDeleteConditions(notification: Notification, manager: EntityManager, user: UserIdentity) {
+    this.userCanAccessNotification(notification, user);
   }
 
-  private userCanAccessNotification(user: UserIdentity, notification: Notification) {
+  private userCanAccessNotification(notification: Notification, user: UserIdentity) {
     if (!isAdmin(user) && !this.isNotificationFromUser(user.id, notification)) {
       throw new ForbiddenException('Prohibido el acceso al recurso.');
     }

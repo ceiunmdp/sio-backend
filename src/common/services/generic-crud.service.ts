@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import camelcase from 'camelcase';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
@@ -28,7 +29,6 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return paginate<T>(queryBuilder, options);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected addExtraClauses(queryBuilder: SelectQueryBuilder<T>, _user: UserIdentity) {
     return queryBuilder;
   }
@@ -49,23 +49,17 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
       .findOne(id, { relations: this.getFindOneRelations(), loadEagerRelations: true });
 
     if (entity) {
-      this.checkFindByIdConditions(user, entity);
+      await this.checkFindByIdConditions(entity, manager, user);
       return entity;
     } else {
       throw new NotFoundException(this.getCustomMessageNotFoundException(id));
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected checkFindByIdConditions(_user: UserIdentity, _entity: T) {
+  protected async checkFindByIdConditions(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
     return;
   }
 
-  protected getFindOneRelations(): string[] {
-    return [];
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async create(createDto: DeepPartial<T>, manager: EntityManager, _user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
@@ -76,9 +70,9 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
   async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
-    const entity = await entitiesRepository.findOne(id);
+    const entity = await entitiesRepository.findOne(id, { relations: this.getFindOneRelations() });
     if (entity) {
-      this.checkUpdateConditions(user, entity);
+      await this.checkUpdateConditions(updateDto, entity, manager, user);
       await entitiesRepository.save({ ...updateDto, id });
       return entitiesRepository.findOne(id);
     } else {
@@ -86,18 +80,22 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected checkUpdateConditions(_user: UserIdentity, _entity: T) {
+  protected async checkUpdateConditions(
+    _updateDto: DeepPartial<T>,
+    _entity: T,
+    _manager: EntityManager,
+    _user?: UserIdentity,
+  ) {
     return;
   }
 
   async delete(id: string, options?: RemoveOptions, manager?: EntityManager, user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
-    const entity = await entitiesRepository.findOne(id);
+    const entity = await entitiesRepository.findOne(id, { relations: this.getFindOneRelations() });
     if (entity) {
-      this.checkDeleteConditions(user, entity);
-      await this.beforeDelete(user, entity, manager);
+      await this.checkDeleteConditions(entity, manager, user);
+      await this.beforeDelete(entity, manager, user);
       options?.softRemove
         ? // TODO: Try to remove 'unknown' casting
           await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
@@ -108,14 +106,16 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected checkDeleteConditions(_user: UserIdentity, _entity: T) {
+  protected async checkDeleteConditions(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async beforeDelete(_user: UserIdentity, _entity: T, _manager: EntityManager) {
+  protected async beforeDelete(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
     return;
+  }
+
+  protected getFindOneRelations(): string[] {
+    return [];
   }
 
   protected abstract getCustomMessageNotFoundException(id: string);

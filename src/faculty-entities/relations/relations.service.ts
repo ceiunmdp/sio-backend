@@ -1,39 +1,72 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
-import { Repository } from 'typeorm';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { GenericCrudService } from 'src/common/services/generic-crud.service';
+import { EntityManager } from 'typeorm';
 import { CreateRelationDto } from './dtos/create-relation.dto';
-import { UpdateRelationDto } from './dtos/update-relation.dto';
+import { PartialUpdateRelationDto } from './dtos/partial-update-relation.dto';
 import { Relation } from './entities/relation.entity';
+import { RelationsRepository } from './relations.repository';
 
 @Injectable()
-export class RelationsService {
-  constructor(@InjectRepository(Relation) private readonly relationsRepository: Repository<Relation>) {}
-
-  async findAll(options: IPaginationOptions) {
-    return paginate<Relation>(this.relationsRepository, options);
+export class RelationsService extends GenericCrudService<Relation> {
+  constructor() {
+    super(Relation);
   }
 
-  async findById(id: string) {
-    return this.relationsRepository.findOneOrFail(id);
+  private async findRelationByName(name: string, relationsRepository: RelationsRepository) {
+    return relationsRepository.findOne({ where: { name }, withDeleted: true });
   }
 
-  async create(createRelationDto: CreateRelationDto) {
-    const relation = await this.relationsRepository.findOne({ name: createRelationDto.name });
+  private async isNameRepeated(name: string, relationsRepository: RelationsRepository) {
+    return !!(await this.findRelationByName(name, relationsRepository));
+  }
+
+  async create(createRelationDto: CreateRelationDto, manager: EntityManager) {
+    const relationsRepository = this.getRelationsRepository(manager);
+    const relation = await this.findRelationByName(createRelationDto.name, relationsRepository);
+
     if (!relation) {
-      return this.relationsRepository.save(createRelationDto);
+      return relationsRepository.saveAndReload(createRelationDto);
     } else {
-      throw new ConflictException('Ya existe una relación con el nombre elegido.');
+      throw new ConflictException(this.getCustomMessageConflictException());
     }
   }
 
-  async update(id: string, updateRelationDto: UpdateRelationDto) {
-    // TODO: Call "saveAndReload"
-    return this.relationsRepository.save({ ...updateRelationDto, id });
+  //* update
+  protected async checkUpdateConditions(
+    updateRelationDto: PartialUpdateRelationDto,
+    _relation: Relation,
+    manager: EntityManager,
+  ) {
+    if (
+      updateRelationDto.name &&
+      (await this.isNameRepeated(updateRelationDto.name, this.getRelationsRepository(manager)))
+    ) {
+      throw new ConflictException(this.getCustomMessageConflictException());
+    }
   }
 
-  async delete(id: string) {
-    // TODO: Implement "softRemove"
-    return await this.relationsRepository.softDelete(id);
+  //* delete
+  protected async checkDeleteConditions(relation: Relation) {
+    if (relation.careerCourseRelations.length) {
+      throw new BadRequestException(
+        `No es posible eliminar la relación ya que está vinculada con carreras y materias.`,
+      );
+    }
+  }
+
+  private getRelationsRepository(manager: EntityManager) {
+    return manager.getCustomRepository(RelationsRepository);
+  }
+
+  protected getFindOneRelations() {
+    return ['careerCourseRelations'];
+  }
+
+  private getCustomMessageConflictException() {
+    return 'Ya existe una relación con el nombre elegido.';
+  }
+
+  protected getCustomMessageNotFoundException(id: string) {
+    return `Relación ${id} no encontrada.`;
   }
 }

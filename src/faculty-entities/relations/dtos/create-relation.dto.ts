@@ -5,5 +5,5 @@ export class CreateRelationDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `Relation's name`, example: 'First year' })
-  name: string;
+  name!: string;
 }

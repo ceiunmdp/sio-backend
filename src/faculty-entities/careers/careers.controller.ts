@@ -87,6 +87,6 @@ export class CareersController {
   @DeleteById(Collection.CAREERS)
   @Auth(UserRole.ADMIN)
   async delete(@Id() id: string) {
-    return this.careersService.delete(id, { softRemove: true });
+    return this.careersService.delete(id, { softRemove: false });
   }
 }

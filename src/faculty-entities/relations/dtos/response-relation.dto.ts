@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
-import { Group } from 'src/common/classes/group.class';
+import { ALL_GROUPS } from 'src/common/constants/all-groups';
 
 @Exclude()
 export class ResponseRelationDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN] })
-  @ApiProperty({ description: 'Name of relation', example: 'First year' })
+  @Expose({ groups: ALL_GROUPS })
+  @ApiProperty({ description: `Relation's name`, example: 'First year' })
   name!: string;
 
   constructor(partial: Partial<ResponseRelationDto>) {
