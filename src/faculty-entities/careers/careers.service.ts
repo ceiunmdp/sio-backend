@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { EntityManager, SelectQueryBuilder } from 'typeorm';
 import { Course } from '../courses/entities/course.entity';
@@ -39,7 +39,7 @@ export class CareersService extends GenericCrudService<Career> {
     if (!career) {
       return careersRepository.saveAndReload(createCareerDto);
     } else {
-      throw new ConflictException(this.getCustomMessageConflictException());
+      this.throwCustomConflictException();
     }
   }
 
@@ -50,7 +50,7 @@ export class CareersService extends GenericCrudService<Career> {
     manager: EntityManager,
   ) {
     if (updateCareerDto.name && (await this.isNameRepeated(updateCareerDto.name, this.getCareersRepository(manager)))) {
-      throw new ConflictException(this.getCustomMessageConflictException());
+      this.throwCustomConflictException();
     }
   }
 
@@ -69,11 +69,11 @@ export class CareersService extends GenericCrudService<Career> {
     return ['careerCourseRelations', 'careerCourseRelations.course'];
   }
 
-  private getCustomMessageConflictException() {
-    return 'Ya existe una carrera con el nombre elegido.';
+  private throwCustomConflictException() {
+    throw new ConflictException('Ya existe una carrera con el nombre elegido.');
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Carrera ${id} no encontrada.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Carrera ${id} no encontrada.`);
   }
 }

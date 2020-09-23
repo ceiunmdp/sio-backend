@@ -137,7 +137,7 @@ export class FilesService extends GenericCrudService<File> {
 
     const file = await filesRepository.findOne(id);
     if (file) {
-      this.checkUpdateConditions(updateFileDto, file, manager, user);
+      await this.checkUpdateConditions(updateFileDto, file, manager, user);
 
       let newPath: string;
       if (updateFileDto.name) {
@@ -146,7 +146,7 @@ export class FilesService extends GenericCrudService<File> {
 
       return filesRepository.saveAndReload({ ...updateFileDto, id, ...(!!updateFileDto.name && { path: newPath }) });
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -254,7 +254,7 @@ export class FilesService extends GenericCrudService<File> {
     return manager.getCustomRepository(FilesRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Archivo ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Archivo ${id} no encontrado.`);
   }
 }

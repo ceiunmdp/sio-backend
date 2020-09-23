@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { UserRole } from 'src/common/enums/user-role.enum';
-import { UserNotFoundInDatabaseException } from 'src/common/exceptions/user-not-found-in-database.exception';
-import { UserNotFoundInFirebaseException } from 'src/common/exceptions/user-not-found-in-firebase.exception';
 import { Order } from 'src/common/interfaces/order.type';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { handleFirebaseError } from 'src/common/utils/firebase-handler';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
 import { DeepPartial, EntityManager, In } from 'typeorm';
 import { User } from './entities/user.entity';
+import { UserNotFoundInFirebaseException } from './exceptions/user-not-found-in-firebase.exception';
 import { UsersRepository } from './users.repository';
 
 export interface PaginationOptions {
@@ -30,9 +30,9 @@ export class UsersService implements TypeOrmCrudService<User> {
     { limit, pageToken, route }: PaginationOptions,
     // TODO: Implement filter in this method
     // TODO: All filtered properties should exist in database
-    where: Where,
+    _where: Where,
     // TODO: Implement order in this method
-    order: Order<User>,
+    _order: Order<User>,
     manager: EntityManager,
   ) {
     const userList = await admin.auth().listUsers(limit, pageToken?.toString());

@@ -7,10 +7,13 @@ import { OrderFile } from './entities/order-file.entity';
 import { OrderState } from './entities/order-state.entity';
 import { OrderToOrderState } from './entities/order-to-order-state.entity';
 import { Order } from './entities/order.entity';
+import { OrdersService } from './orders.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderFile, OrderToOrderState, OrderState, FileState, Configuration, BindingGroup]),
   ],
+  providers: [OrdersService],
+  exports: [OrdersService],
 })
 export class OrdersModule {}

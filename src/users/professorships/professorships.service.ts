@@ -82,7 +82,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
         return professorshipsRepository.updateAndReload(professorshipId, { storageUsed: newStorageUsed });
       }
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(professorshipId));
+      this.throwCustomNotFoundException(professorshipId);
     }
   }
 
@@ -93,7 +93,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
       const newStorageUsed = +professorship.storageUsed - bytes;
       return this.update(professorshipId, { storageUsed: newStorageUsed }, manager);
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(professorshipId));
+      this.throwCustomNotFoundException(professorshipId);
     }
   }
 
@@ -101,7 +101,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     return manager.getCustomRepository(ProfessorshipsRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Usuario cátedra ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Usuario cátedra ${id} no encontrado.`);
   }
 }

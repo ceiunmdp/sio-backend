@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserNotFoundInDatabaseException } from 'src/common/exceptions/user-not-found-in-database.exception';
 import { User } from 'src/users/users/entities/user.entity';
+import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
 import { EntityManager } from 'typeorm';
 import { StudentsService } from '../users/students/students.service';
 import { UsersService } from '../users/users/users.service';

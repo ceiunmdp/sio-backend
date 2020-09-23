@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as admin from 'firebase-admin';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -215,7 +215,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
     return manager.getRepository(NotificationType);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Notificación ${id} no encontrada.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Notificación ${id} no encontrada.`);
   }
 }

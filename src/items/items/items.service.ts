@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { Connection, EntityManager } from 'typeorm';
@@ -48,7 +48,7 @@ export class ItemsService extends GenericCrudService<Item> {
     return manager.getCustomRepository(ItemsRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Item ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Item ${id} no encontrado.`);
   }
 }

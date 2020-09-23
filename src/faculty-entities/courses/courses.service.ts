@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { Course } from './entities/course.entity';
 
@@ -8,7 +8,7 @@ export class CoursesService extends GenericCrudService<Course> {
     super(Course);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Materia ${id} no encontrada.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Materia ${id} no encontrada.`);
   }
 }

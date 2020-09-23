@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { Order } from 'src/common/interfaces/order.type';
 import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
@@ -41,7 +41,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
       if (subUser) {
         return this.userMerger.findAndMergeSubUser(subUser, manager);
       } else {
-        throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+        this.throwCustomNotFoundException(id);
       }
     } else {
       throw new ForbiddenException('Prohibido el acceso al recurso.');
@@ -71,7 +71,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
       const user = await this.usersService.update(id, updateDto, manager);
       return this.userMerger.mergeSubUser(user, updatedSubUser);
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -85,7 +85,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
       await subUsersRepository.remove(subUser);
       return;
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -94,5 +94,5 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return;
   }
 
-  protected abstract getCustomMessageNotFoundException(id: string);
+  protected abstract throwCustomNotFoundException(id: string): void;
 }

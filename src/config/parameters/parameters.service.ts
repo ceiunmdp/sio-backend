@@ -77,7 +77,7 @@ export class ParametersService extends GenericCrudService<Parameter> {
     return manager.getRepository(Parameter);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Parámetro ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Parámetro ${id} no encontrado.`);
   }
 }

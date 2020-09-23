@@ -30,30 +30,19 @@ export class CampusService extends GenericCrudService<Campus> {
       if (campus.deleteDate) {
         return campusRepository.recover(campus);
       } else {
-        throw new ConflictException(this.getCustomMessageConflictException());
+        this.throwCustomConflictException();
       }
     }
   }
 
-  async update(id: string, updateCampusDto: PartialUpdateCampusDto, manager: EntityManager) {
-    const campusRepository = this.getCampusRepository(manager);
-    await this.checkUpdatePreconditions(id, updateCampusDto, campusRepository);
-    return campusRepository.updateAndReload(id, updateCampusDto);
-  }
-
-  private async checkUpdatePreconditions(
-    id: string,
+  //* update
+  protected async checkUpdateConditions(
     updateCampusDto: PartialUpdateCampusDto,
-    campusRepository: CampusRepository,
+    _campus: Campus,
+    manager: EntityManager,
   ) {
-    const campus = await campusRepository.findOne(id);
-    if (campus) {
-      if (!!updateCampusDto.name && (await this.isNameRepeated(updateCampusDto.name, campusRepository))) {
-        throw new ConflictException(this.getCustomMessageConflictException());
-      }
-      return;
-    } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+    if (updateCampusDto.name && (await this.isNameRepeated(updateCampusDto.name, this.getCampusRepository(manager)))) {
+      this.throwCustomConflictException();
     }
   }
 
@@ -61,11 +50,11 @@ export class CampusService extends GenericCrudService<Campus> {
     return manager.getCustomRepository(CampusRepository);
   }
 
-  private getCustomMessageConflictException() {
-    return 'Ya existe una sede con el nombre elegido.';
+  private throwCustomConflictException() {
+    throw new ConflictException('Ya existe una sede con el nombre elegido.');
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Sede ${id} no encontrada.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Sede ${id} no encontrada.`);
   }
 }

@@ -98,7 +98,7 @@ export class MovementsService extends GenericCrudService<Movement> {
         return movement;
       }
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -204,7 +204,7 @@ export class MovementsService extends GenericCrudService<Movement> {
     return manager.getRepository(MovementType);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Movimiento ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Movimiento ${id} no encontrado.`);
   }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import camelcase from 'camelcase';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
@@ -52,7 +52,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
       await this.checkFindByIdConditions(entity, manager, user);
       return entity;
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -76,7 +76,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
       await entitiesRepository.save({ ...updateDto, id });
       return entitiesRepository.findOne(id);
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -102,7 +102,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
         : await entitiesRepository.remove(entity);
       return;
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -118,5 +118,5 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return [];
   }
 
-  protected abstract getCustomMessageNotFoundException(id: string);
+  protected abstract throwCustomNotFoundException(id: string): void;
 }

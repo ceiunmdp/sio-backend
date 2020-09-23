@@ -7,7 +7,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, RelationId } f
 import { FileType } from '../enums/file-type.enum';
 
 @Entity('files')
-// TODO: Analyze if an index in 'deleteDate' property should be created to speed up cron job
+@Index('IX_files_delete_date', ['deleteDate'])
 export class File extends BaseEntity {
   @Column()
   name!: string;

@@ -4,6 +4,7 @@ import { EOrderState } from '../enums/e-order-state.enum';
 
 @Entity('order_states')
 @Unique(['name'])
+@Unique(['code'])
 export class OrderState extends BaseEntity {
   @Column({ update: false })
   readonly name!: string;

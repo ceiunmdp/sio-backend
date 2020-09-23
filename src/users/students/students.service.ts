@@ -1,5 +1,4 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { InsufficientMoneyException } from 'src/common/exceptions/insufficient-money.exception';
 import { EntityManager } from 'typeorm';
 import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
@@ -7,6 +6,7 @@ import { GenericSubUserService } from '../utils/generic-sub-user.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { PartialUpdateStudentDto } from './dto/partial-update-student.dto';
 import { Student } from './entities/student.entity';
+import { InsufficientMoneyException } from './exceptions/insufficient-money.exception';
 import { StudentsRepository } from './students.repository';
 
 @Injectable()
@@ -34,7 +34,7 @@ export class StudentsService extends GenericSubUserService<Student> {
   async update(id: string, updateStudentDto: PartialUpdateStudentDto, manager: EntityManager) {
     const studentsRepository = this.getStudentsRepository(manager);
 
-    await this.checkUpdatePreconditions(id, updateStudentDto, manager);
+    await this.checkUpdateConditions(id, updateStudentDto, manager);
 
     const updatedStudent = await studentsRepository.updateAndReload(id, updateStudentDto);
 
@@ -47,11 +47,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     return this.userMerger.mergeSubUser(user, updatedStudent);
   }
 
-  private async checkUpdatePreconditions(
-    id: string,
-    updateStudentDto: PartialUpdateStudentDto,
-    manager: EntityManager,
-  ) {
+  private async checkUpdateConditions(id: string, updateStudentDto: PartialUpdateStudentDto, manager: EntityManager) {
     const student = await this.getStudentsRepository(manager).findOne(id);
     if (student) {
       if (
@@ -62,7 +58,7 @@ export class StudentsService extends GenericSubUserService<Student> {
       }
       return;
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -82,7 +78,7 @@ export class StudentsService extends GenericSubUserService<Student> {
         throw new InsufficientMoneyException();
       }
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(studentId));
+      this.throwCustomNotFoundException(studentId);
     }
   }
 
@@ -93,7 +89,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     if (student) {
       return studentsRepository.updateAndReload(studentId, { ...student, balance: +student.balance + amount });
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(studentId));
+      this.throwCustomNotFoundException(studentId);
     }
   }
 
@@ -101,7 +97,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     return manager.getCustomRepository(StudentsRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Usuario estudiante ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Usuario estudiante ${id} no encontrado.`);
   }
 }

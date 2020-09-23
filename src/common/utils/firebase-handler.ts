@@ -1,9 +1,9 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import admin from 'firebase-admin';
+import { UserNotFoundInFirebaseException } from 'src/users/users/exceptions/user-not-found-in-firebase.exception';
 import { FirebaseError } from '../enums/firebase-error';
 import { EmailAlreadyExistsException } from '../exceptions/email-already-exists.exception';
 import { InvalidIdTokenException } from '../exceptions/invalid-id-token.exception';
-import { UserNotFoundInFirebaseException } from '../exceptions/user-not-found-in-firebase.exception';
 
 export const handleFirebaseError = (error: admin.FirebaseError) => {
   if (!!error.code) {

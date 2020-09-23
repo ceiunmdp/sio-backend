@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { EntityManager } from 'typeorm';
 import { CreateRelationDto } from './dtos/create-relation.dto';
@@ -27,7 +27,7 @@ export class RelationsService extends GenericCrudService<Relation> {
     if (!relation) {
       return relationsRepository.saveAndReload(createRelationDto);
     } else {
-      throw new ConflictException(this.getCustomMessageConflictException());
+      this.throwCustomConflictException();
     }
   }
 
@@ -41,7 +41,7 @@ export class RelationsService extends GenericCrudService<Relation> {
       updateRelationDto.name &&
       (await this.isNameRepeated(updateRelationDto.name, this.getRelationsRepository(manager)))
     ) {
-      throw new ConflictException(this.getCustomMessageConflictException());
+      this.throwCustomConflictException();
     }
   }
 
@@ -62,11 +62,11 @@ export class RelationsService extends GenericCrudService<Relation> {
     return ['careerCourseRelations'];
   }
 
-  private getCustomMessageConflictException() {
-    return 'Ya existe una relación con el nombre elegido.';
+  private throwCustomConflictException() {
+    throw new ConflictException('Ya existe una relación con el nombre elegido.');
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Relación ${id} no encontrada.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Relación ${id} no encontrada.`);
   }
 }

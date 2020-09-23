@@ -24,7 +24,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   async update(id: string, updateScholarshipDto: PartialUpdateScholarshipDto, manager: EntityManager) {
     const scholarshipsRepository = this.getScholarshipsRepository(manager);
 
-    await this.checkUpdatePreconditions(id, updateScholarshipDto, manager);
+    await this.checkUpdateConditions(id, updateScholarshipDto, manager);
 
     let updatedScholarship = await scholarshipsRepository.updateAndReload(id, updateScholarshipDto);
 
@@ -40,7 +40,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     return this.userMerger.mergeSubUser(user, updatedScholarship);
   }
 
-  private async checkUpdatePreconditions(
+  private async checkUpdateConditions(
     id: string,
     updateScholarshipDto: PartialUpdateScholarshipDto,
     manager: EntityManager,
@@ -55,7 +55,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
       }
       return;
     } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+      this.throwCustomNotFoundException(id);
     }
   }
 
@@ -109,7 +109,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     return manager.getCustomRepository(ScholarshipsRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Usuario becado ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Usuario becado ${id} no encontrado.`);
   }
 }

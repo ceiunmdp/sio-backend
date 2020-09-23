@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
 import { Admin } from './entities/admin.entity';
@@ -9,7 +9,7 @@ export class AdminsService extends GenericSubUserService<Admin> {
     super(usersService, Admin);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Usuario admin ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Usuario admin ${id} no encontrado.`);
   }
 }

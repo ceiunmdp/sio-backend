@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { EntityManager } from 'typeorm';
 import { UsersService } from '../users/users.service';
@@ -41,7 +41,7 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
     return manager.getCustomRepository(CampusUsersRepository);
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Usuario sede ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Usuario sede ${id} no encontrado.`);
   }
 }

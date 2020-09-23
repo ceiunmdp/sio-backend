@@ -23,32 +23,21 @@ export class BindingsService extends GenericCrudService<Binding> {
     if (!item) {
       return bindingsRepository.saveAndReload(createBindingDto);
     } else {
-      throw new ConflictException(this.getCustomMessageConflictException());
+      this.throwCustomConflictException();
     }
   }
 
-  async update(id: string, updateBindingDto: PartialUpdateBindingDto, manager: EntityManager) {
-    const bindingsRepository = this.getBindingsRepository(manager);
-    await this.checkUpdatePreconditions(id, updateBindingDto, manager);
-    return bindingsRepository.updateAndReload(id, updateBindingDto);
-  }
-
-  private async checkUpdatePreconditions(
-    id: string,
+  //* update
+  protected async checkUpdateConditions(
     updateBindingDto: PartialUpdateBindingDto,
+    _binding: Binding,
     manager: EntityManager,
   ) {
-    const binding = await this.getBindingsRepository(manager).findOne(id);
-    if (binding) {
-      if (
-        !!updateBindingDto.name &&
-        (await this.itemsService.isNameRepeated(updateBindingDto.name, this.itemsService.getItemsRepository(manager)))
-      ) {
-        throw new ConflictException(this.getCustomMessageConflictException());
-      }
-      return;
-    } else {
-      throw new NotFoundException(this.getCustomMessageNotFoundException(id));
+    if (
+      updateBindingDto.name &&
+      (await this.itemsService.isNameRepeated(updateBindingDto.name, this.itemsService.getItemsRepository(manager)))
+    ) {
+      this.throwCustomConflictException();
     }
   }
 
@@ -56,11 +45,11 @@ export class BindingsService extends GenericCrudService<Binding> {
     return manager.getCustomRepository(BindingsRepository);
   }
 
-  private getCustomMessageConflictException() {
-    return 'Ya existe una artículo con el nombre elegido.';
+  private throwCustomConflictException() {
+    throw new ConflictException('Ya existe una artículo con el nombre elegido.');
   }
 
-  protected getCustomMessageNotFoundException(id: string) {
-    return `Anillado ${id} no encontrado.`;
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Anillado ${id} no encontrado.`);
   }
 }
