@@ -21,31 +21,13 @@ export class OrdersService extends GenericCrudService<Order> {
     const orderStatesRepository = this.getOrderStatesRepository(manager);
 
     if (!(await orderStatesRepository.count())) {
-      orderStatesRepository.save([
-        new OrderState({
-          name: 'Solicitado',
-          code: EOrderState.REQUESTED,
-        }),
-        new OrderState({
-          name: 'En proceso',
-          code: EOrderState.IN_PROCESS,
-        }),
-        new OrderState({
-          name: 'Listo para retirar',
-          code: EOrderState.READY,
-        }),
-        new OrderState({
-          name: 'Cancelado',
-          code: EOrderState.CANCELLED,
-        }),
-        new OrderState({
-          name: 'No entregado',
-          code: EOrderState.UNDELIVERED,
-        }),
-        new OrderState({
-          name: 'Entregado',
-          code: EOrderState.DELIVERED,
-        }),
+      return orderStatesRepository.save([
+        new OrderState({ name: 'Solicitado', code: EOrderState.REQUESTED }),
+        new OrderState({ name: 'En proceso', code: EOrderState.IN_PROCESS }),
+        new OrderState({ name: 'Listo para retirar', code: EOrderState.READY }),
+        new OrderState({ name: 'Cancelado', code: EOrderState.CANCELLED }),
+        new OrderState({ name: 'No entregado', code: EOrderState.UNDELIVERED }),
+        new OrderState({ name: 'Entregado', code: EOrderState.DELIVERED }),
       ]);
     }
   }
@@ -55,19 +37,10 @@ export class OrdersService extends GenericCrudService<Order> {
     const fileStatesRepository = this.getFileStatesRepository(manager);
 
     if (!(await fileStatesRepository.count())) {
-      fileStatesRepository.save([
-        new FileState({
-          name: 'Por imprimir',
-          code: EFileState.TO_PRINT,
-        }),
-        new FileState({
-          name: 'Imprimiendo',
-          code: EFileState.PRINTING,
-        }),
-        new FileState({
-          name: 'Impreso',
-          code: EFileState.PRINTED,
-        }),
+      return fileStatesRepository.save([
+        new FileState({ name: 'Por imprimir', code: EFileState.TO_PRINT }),
+        new FileState({ name: 'Imprimiendo', code: EFileState.PRINTING }),
+        new FileState({ name: 'Impreso', code: EFileState.PRINTED }),
       ]);
     }
   }

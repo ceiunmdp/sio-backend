@@ -29,7 +29,7 @@ export class MovementsService extends GenericCrudService<Movement> {
     const movementTypesRepository = manager.getRepository(MovementType);
 
     if (!(await movementTypesRepository.count())) {
-      movementTypesRepository.save([
+      return movementTypesRepository.save([
         new MovementType({ code: EMovementType.ORDER_PLACED, name: 'Pedido encargado' }),
         new MovementType({ code: EMovementType.TOP_UP, name: 'Carga de saldo' }),
         new MovementType({ code: EMovementType.TRANSFER, name: 'Transferencia' }),

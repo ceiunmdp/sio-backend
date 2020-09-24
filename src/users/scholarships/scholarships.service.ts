@@ -28,7 +28,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
 
     let updatedScholarship = await scholarshipsRepository.updateAndReload(id, updateScholarshipDto);
 
-    if (!!updateScholarshipDto.type) {
+    if (updateScholarshipDto.type) {
       //* Degradation from scholarship to student
       await this.degradeScholarshipToStudent(id, manager);
 
@@ -48,7 +48,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     const scholarship = await this.getScholarshipsRepository(manager).findOne(id);
     if (scholarship) {
       if (
-        !!updateScholarshipDto.dni &&
+        updateScholarshipDto.dni &&
         (await this.usersService.isDniRepeated(updateScholarshipDto.dni, this.usersService.getUsersRepository(manager)))
       ) {
         throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
@@ -60,21 +60,17 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   async promoteStudentToScholarship(studentId: string, manager: EntityManager) {
-    const studentsRepository: StudentsRepository = manager.getCustomRepository(StudentsRepository);
-    const scholarshipsRepository: ScholarshipsRepository = this.getScholarshipsRepository(manager);
-
-    const student = await studentsRepository.findOne(studentId);
-
     //! Raw query executed. Didn't found any other workaround
-    // TODO: Check declaring 'type' without "update = false"
     await manager.query(`UPDATE users SET type = '${UserType.SCHOLARSHIP}' WHERE id = ?`, [studentId]);
 
     const initialAvailableCopies = await this.getInitialAvailableCopies(manager);
-    return scholarshipsRepository.updateAndReload(studentId, {
-      ...student,
+    const updatedScholarship = await this.getScholarshipsRepository(manager).updateAndReload(studentId, {
       availableCopies: initialAvailableCopies,
       remainingCopies: initialAvailableCopies,
     });
+
+    await this.usersService.setRole(updatedScholarship, manager);
+    return updatedScholarship;
   }
 
   private async getInitialAvailableCopies(manager: EntityManager) {
@@ -87,17 +83,17 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   private async degradeScholarshipToStudent(scholarshipId: string, manager: EntityManager) {
-    await this.getScholarshipsRepository(manager).save({
-      id: scholarshipId,
+    await this.getScholarshipsRepository(manager).update(scholarshipId, {
       availableCopies: null,
       remainingCopies: null,
     });
 
     //! Raw query executed. Didn't found any other workaround
-    // TODO: Check declaring 'type' without "update = false"
     await manager.query(`UPDATE users SET type = '${UserType.STUDENT}' WHERE id = ?`, [scholarshipId]);
 
-    return manager.getCustomRepository(StudentsRepository).findOne(scholarshipId);
+    const student = await manager.getCustomRepository(StudentsRepository).findOne(scholarshipId);
+    await this.usersService.setRole(student, manager);
+    return student;
   }
 
   //! Implemented to avoid deletion of scholarships by error by other developers

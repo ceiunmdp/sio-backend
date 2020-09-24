@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
-import { Group } from 'src/common/classes/group.class';
-import { Role } from 'src/users/users/entities/role.entity';
+import { UserRole } from 'src/common/enums/user-role.enum';
+import { RolesService } from 'src/roles/roles.service';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
 import { Functionality } from './entities/functionality.entity';
 
 @Injectable()
 export class MenuService {
-  constructor(@InjectConnection() connection: Connection) {
+  constructor(@InjectConnection() connection: Connection, private readonly rolesService: RolesService) {
     this.createMenu(connection.manager);
   }
 
@@ -56,6 +56,8 @@ export class MenuService {
 
   // TODO: Delete this method in production
   private async createMenu(manager: EntityManager) {
+    await this.rolesService.createRoles(manager);
+
     const menuRepository = manager.getTreeRepository(Functionality);
 
     const roots = await menuRepository.findRoots();
@@ -77,11 +79,11 @@ export class MenuService {
       const transferMoney = new Functionality({ name: 'Transferir dinero', supraFunctionality: operations });
 
       // Roles
-      const admin = new Role({ name: Group.ADMIN });
-      const campus = new Role({ name: Group.CAMPUS });
-      const professorship = new Role({ name: Group.PROFESSORSHIP });
-      const scholarship = new Role({ name: Group.SCHOLARSHIP });
-      const student = new Role({ name: Group.STUDENT });
+      const admin = await this.rolesService.findByCode(UserRole.ADMIN, manager);
+      const campus = await this.rolesService.findByCode(UserRole.CAMPUS, manager);
+      const professorship = await this.rolesService.findByCode(UserRole.PROFESSORSHIP, manager);
+      const scholarship = await this.rolesService.findByCode(UserRole.SCHOLARSHIP, manager);
+      const student = await this.rolesService.findByCode(UserRole.STUDENT, manager);
 
       home.roles = Promise.resolve([admin, campus, professorship, scholarship, student]);
       newOrder.roles = Promise.resolve([student, scholarship]);
@@ -91,17 +93,8 @@ export class MenuService {
       transferMoney.roles = Promise.resolve([student, scholarship]);
 
       menu = await menuRepository.save(menu);
-      await menuRepository.save([
-        home,
-        orders,
-        movements,
-        operations,
-        newOrder,
-        myOrders,
-        myMovements,
-        topUp,
-        transferMoney,
-      ]);
+      await menuRepository.save([home, orders, movements, operations]);
+      await menuRepository.save([newOrder, myOrders, myMovements, topUp, transferMoney]);
 
       return menuRepository.findDescendantsTree(menu);
     } else {

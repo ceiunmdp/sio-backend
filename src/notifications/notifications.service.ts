@@ -31,7 +31,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
     const notificationTypesRepository = this.getNotificationTypesRepository(manager);
 
     if (!(await notificationTypesRepository.count())) {
-      notificationTypesRepository.save([
+      return notificationTypesRepository.save([
         new NotificationType({
           name: 'Copias disponibles restauradas',
           code: ENotificationType.AVAILABLE_COPIES_RESTORED,

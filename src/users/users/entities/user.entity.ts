@@ -2,8 +2,8 @@ import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Movement } from 'src/movements/entities/movement.entity';
 import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany, TableInheritance } from 'typeorm';
+import { Role } from '../../../roles/entities/role.entity';
 import { UserType } from '../enums/user-type.enum';
-import { Role } from './role.entity';
 
 @Entity('users')
 @TableInheritance({ column: { type: 'enum', enum: UserType, name: 'type' } })

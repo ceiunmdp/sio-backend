@@ -8,9 +8,11 @@ import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { handleFirebaseError } from 'src/common/utils/firebase-handler';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { RolesService } from 'src/roles/roles.service';
 import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
 import { DeepPartial, EntityManager, In } from 'typeorm';
 import { User } from './entities/user.entity';
+import { UserType } from './enums/user-type.enum';
 import { UserNotFoundInFirebaseException } from './exceptions/user-not-found-in-firebase.exception';
 import { UsersRepository } from './users.repository';
 
@@ -22,7 +24,7 @@ export interface PaginationOptions {
 
 @Injectable()
 export class UsersService implements TypeOrmCrudService<User> {
-  constructor(private readonly logger: CustomLoggerService) {
+  constructor(private readonly logger: CustomLoggerService, private readonly rolesService: RolesService) {
     this.logger.context = UsersService.name;
   }
 
@@ -109,7 +111,7 @@ export class UsersService implements TypeOrmCrudService<User> {
       // TODO: Decide what flow to follow: https://docs.google.com/document/d/14WzggVxA0yN99J1KxEfkE87qmjFrYFE2wLh9_jQH4I4/edit?disco=AAAAKKrQorA
       const userRecord = await admin.auth().createUser(createUserDto);
       const user = await this.transformUserRecordToUser(userRecord, manager);
-      await this.setCustomUserClaims(user);
+      await this.setRole(user, manager);
       return user;
     } catch (error) {
       throw handleFirebaseError(error);
@@ -196,20 +198,42 @@ export class UsersService implements TypeOrmCrudService<User> {
     return !!(await usersRepository.findOne({ where: { dni }, withDeleted: true }));
   }
 
-  async setCustomUserClaims({ id, uid, type }: User) {
-    const payload: UserIdentity = {
-      id,
-      role: (Object.values(UserRole) as UserRole[]).find((role) => role.toString() === type.toString()),
-    };
+  private findUserRoleByUserType(type: UserType) {
+    switch (type) {
+      case UserType.ADMIN:
+        return UserRole.ADMIN;
+      case UserType.CAMPUS:
+        return UserRole.CAMPUS;
+      case UserType.PROFESSORSHIP:
+        return UserRole.PROFESSORSHIP;
+      case UserType.SCHOLARSHIP:
+        return UserRole.SCHOLARSHIP;
+      default:
+        return UserRole.STUDENT;
+    }
+  }
+
+  async setRole(user: User, manager: EntityManager) {
+    const code = this.findUserRoleByUserType(user.type);
+    user.roles = [await this.rolesService.findByCode(code, manager)];
+
+    const updatedUser = await this.getUsersRepository(manager).saveAndReload(user);
+    this.setCustomUserClaims(updatedUser, code);
+    return updatedUser;
+  }
+
+  private async setCustomUserClaims({ id, uid }: User, role: UserRole) {
+    const payload: UserIdentity = { id, role };
 
     try {
-      return admin.auth().setCustomUserClaims(uid, payload);
+      await admin.auth().setCustomUserClaims(uid, payload);
+      return this.revokeRefreshToken(uid);
     } catch (error) {
       throw handleFirebaseError(error);
     }
   }
 
-  async revokeRefreshToken(uid: string) {
+  private async revokeRefreshToken(uid: string) {
     try {
       return admin.auth().revokeRefreshTokens(uid);
     } catch (error) {

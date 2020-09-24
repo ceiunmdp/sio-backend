@@ -7,7 +7,7 @@ import { UserRole } from 'src/common/enums/user-role.enum';
 @Exclude()
 export class ResponseRoleDto extends ResponseBaseEntityDto {
   @Expose({ groups: [Group.ADMIN] })
-  @ApiProperty({ description: 'Name of role', example: UserRole.STUDENT })
+  @ApiProperty({ description: `Role's name`, example: UserRole.STUDENT })
   name!: string;
 
   constructor(partial: Partial<ResponseRoleDto>) {

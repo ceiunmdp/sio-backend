@@ -18,7 +18,7 @@ export class ParametersService extends GenericCrudService<Parameter> {
     const parametersRepository = this.getParametersRepository(manager);
 
     if (!(await parametersRepository.count())) {
-      parametersRepository.save([
+      return parametersRepository.save([
         new Parameter({
           name: 'Mínimo saldo habilitado para el usuario',
           code: ParameterType.USERS_MINIMUM_BALANCE_ALLOWED,
@@ -59,7 +59,7 @@ export class ParametersService extends GenericCrudService<Parameter> {
     if (parameter) {
       return parameter;
     } else {
-      throw new NotFoundException(`Parameter not found.`);
+      throw new NotFoundException('Parameter not found.');
     }
   }
 

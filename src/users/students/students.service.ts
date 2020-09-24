@@ -23,8 +23,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     const student = await studentsRepository.saveAndReload({ ...createStudentDto, balance: 0 });
 
     //! Do not create user in Firebase, but instead set its custom claims
-    await this.usersService.setCustomUserClaims(student);
-    await this.usersService.revokeRefreshToken(student.uid);
+    await this.usersService.setRole(student, manager);
     //! Important: student must ask for a new ID Token with custom claims updated
 
     const user = await this.usersService.findById(student.id, manager);
@@ -38,7 +37,7 @@ export class StudentsService extends GenericSubUserService<Student> {
 
     const updatedStudent = await studentsRepository.updateAndReload(id, updateStudentDto);
 
-    if (!!updateStudentDto.type) {
+    if (updateStudentDto.type) {
       //* Promotion from student to scholarship
       await this.scholarshipsService.promoteStudentToScholarship(id, manager);
     }
@@ -51,7 +50,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     const student = await this.getStudentsRepository(manager).findOne(id);
     if (student) {
       if (
-        !!updateStudentDto.dni &&
+        updateStudentDto.dni &&
         (await this.usersService.isDniRepeated(updateStudentDto.dni, this.usersService.getUsersRepository(manager)))
       ) {
         throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
