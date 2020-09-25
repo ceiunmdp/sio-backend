@@ -7,6 +7,7 @@ export default registerAs('typeorm', () => ({
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
+  schema: process.env.TYPEORM_SCHEMA,
   logging: getLoggingEnvVariable(process.env.TYPEORM_LOGGING),
   logger: process.env.TYPEORM_LOGGER,
   maxQueryExecutionTime: process.env.TYPEORM_MAX_QUERY_EXECUTION_TIME,

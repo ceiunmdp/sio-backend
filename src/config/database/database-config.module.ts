@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { Database } from 'src/common/enums/database.enum';
 import { Environment } from 'src/common/enums/environment.enum';
 import { DatabaseConfigService } from './database-config.service';
 import databaseConfig from './database.config';
@@ -12,15 +13,20 @@ import databaseConfig from './database.config';
       load: [databaseConfig],
       expandVariables: true,
       validationSchema: Joi.object({
-        TYPEORM_CONNECTION: Joi.valid('mysql', 'postgres').default('mysql'),
+        TYPEORM_CONNECTION: Joi.valid(Database.MYSQL, Database.POSTGRES).default(Database.POSTGRES),
         TYPEORM_HOST: Joi.alternatives(
           Joi.string().uri().required(),
-          Joi.valid('localhost', 'mysql').default('localhost'),
+          Joi.valid('localhost', Database.MYSQL, Database.POSTGRES).default('localhost'),
         ),
-        TYPEORM_PORT: Joi.number().min(1024).max(65535).default(3306),
+        TYPEORM_PORT: Joi.number().min(1024).max(65535).default(5432),
         TYPEORM_USERNAME: Joi.string().required(),
         TYPEORM_PASSWORD: Joi.string().required(),
         TYPEORM_DATABASE: Joi.string().required(),
+        TYPEORM_SCHEMA: Joi.when('TYPEORM_CONNECTION', {
+          is: Database.POSTGRES,
+          then: Joi.string().required(),
+          otherwise: Joi.optional(),
+        }),
         TYPEORM_LOGGING: Joi.alternatives(
           Joi.boolean(),
           // Joi.valid('all'),

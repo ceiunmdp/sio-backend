@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { join } from 'path';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { LoggerOptions } from 'typeorm/logger/LoggerOptions';
 
 interface DatabaseEnvironmentVariables {
@@ -12,6 +13,7 @@ interface DatabaseEnvironmentVariables {
   'typeorm.username': string;
   'typeorm.password': string;
   'typeorm.database': string;
+  'typeorm.schema': string;
   'typeorm.logging': LoggerOptions;
   'typeorm.logger': string;
   'typeorm.maxQueryExecutionTime': number;
@@ -50,6 +52,10 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
     return this.configService.get<string>('typeorm.database');
   }
 
+  get schema() {
+    return this.configService.get<string>('typeorm.schema');
+  }
+
   get logging() {
     return this.configService.get<LoggerOptions>('typeorm.logging');
   }
@@ -83,8 +89,8 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
   }
 
   createTypeOrmOptions(connectionName?: string): TypeOrmModuleOptions {
-    const options: MysqlConnectionOptions = {
-      type: this.connection as 'mysql' | 'mariadb',
+    const options: MysqlConnectionOptions | PostgresConnectionOptions = {
+      type: this.connection as 'mysql' | 'mariadb' | 'postgres',
       name: connectionName,
       // url: `${this.connection}://${this.host}:${this.port}/${this.database}`,
       host: this.host,
@@ -92,6 +98,7 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
       username: this.username,
       password: this.password,
       database: this.database,
+      schema: this.schema,
       logging: this.logging, // boolean | "all" | ("query" | "schema" | "error" | "warn" | "info" | "log" | "migration")[]
       logger: this.logger as 'advanced-console' | 'simple-console' | 'file' | 'debug',
       maxQueryExecutionTime: this.maxQueryExecutionTime, // Log long-running queries
