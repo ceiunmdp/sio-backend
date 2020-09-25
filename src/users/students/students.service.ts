@@ -17,7 +17,7 @@ export class StudentsService extends GenericSubUserService<Student> {
 
   //* This is a special method because the user is already created in Firebase
   //* The only purpose of this function is create the student entity in the database
-  async create(createStudentDto: Partial<CreateStudentDto>, manager: EntityManager) {
+  async create(createStudentDto: CreateStudentDto, manager: EntityManager) {
     const studentsRepository = this.getStudentsRepository(manager);
 
     const student = await studentsRepository.saveAndReload({ ...createStudentDto, balance: 0 });

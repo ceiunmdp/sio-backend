@@ -6,8 +6,8 @@ import { InjectConnection } from '@nestjs/typeorm';
 import * as bytes from 'bytes';
 import { isUUID } from 'class-validator';
 import { Request } from 'express';
-import * as fs from 'fs-extra';
-import * as mime from 'mime-types';
+import { existsSync, mkdirSync } from 'fs-extra';
+import { lookup } from 'mime-types';
 import { diskStorage } from 'multer';
 import { join } from 'path';
 import { CoursesService } from 'src/faculty-entities/courses/courses.service';
@@ -21,7 +21,7 @@ interface MulterEnvironmentVariables {
 
 @Injectable()
 export class MulterConfigService implements MulterOptionsFactory {
-  private readonly ACCEPTED_MIME_TYPES = [mime.lookup('pdf')];
+  private readonly ACCEPTED_MIME_TYPES = [lookup('pdf')];
 
   constructor(
     @InjectConnection() private readonly connection: Connection,
@@ -40,8 +40,8 @@ export class MulterConfigService implements MulterOptionsFactory {
     cb: (error: Error | null, destination: string) => void,
   ) {
     const path = join(this.destination, await this.getCourseId(request));
-    if (!fs.existsSync(path)) {
-      fs.mkdirSync(path);
+    if (!existsSync(path)) {
+      mkdirSync(path);
     }
 
     // TODO: Check if __dirname should be used

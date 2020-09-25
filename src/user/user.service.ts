@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CreateStudentDto } from 'src/users/students/dto/create-student.dto';
 import { User } from 'src/users/users/entities/user.entity';
 import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
 import { EntityManager } from 'typeorm';
@@ -21,7 +22,10 @@ export class UserService {
 
         // Retrieve displayName to store it in local database
         const user = await this.usersService.findByUid(id);
-        const student = await this.studentsService.create({ displayName: user.displayName, uid: id }, manager);
+        const student = await this.studentsService.create(
+          new CreateStudentDto({ displayName: user.displayName, uid: id }),
+          manager,
+        );
         return new User(student);
       } else {
         throw error;

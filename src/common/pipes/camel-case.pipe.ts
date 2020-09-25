@@ -5,6 +5,6 @@ import { isObject } from 'lodash';
 @Injectable()
 export class CamelCasePipe implements PipeTransform {
   transform(value: any) {
-    return isObject(value) ? camelcaseKeys(value) : value;
+    return isObject(value) ? camelcaseKeys(value, { deep: true }) : value;
   }
 }

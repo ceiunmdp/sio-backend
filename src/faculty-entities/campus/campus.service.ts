@@ -20,18 +20,16 @@ export class CampusService extends GenericCrudService<Campus> {
     return !!(await this.findCampusByName(name, campusRepository));
   }
 
-  async create(createCampusDto: Partial<CreateCampusDto>, manager: EntityManager) {
+  async create(createCampusDto: CreateCampusDto, manager: EntityManager) {
     const campusRepository = this.getCampusRepository(manager);
 
     const campus = await this.findCampusByName(createCampusDto.name, campusRepository);
     if (!campus) {
       return campusRepository.saveAndReload(createCampusDto);
+    } else if (campus.deleteDate) {
+      return campusRepository.recover(campus);
     } else {
-      if (campus.deleteDate) {
-        return campusRepository.recover(campus);
-      } else {
-        this.throwCustomConflictException();
-      }
+      this.throwCustomConflictException();
     }
   }
 

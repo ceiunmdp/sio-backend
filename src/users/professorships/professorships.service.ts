@@ -20,7 +20,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     super(usersService, Professorship);
   }
 
-  async create(createProfessorshipDto: Partial<CreateProfessorshipDto>, manager: EntityManager) {
+  async create(createProfessorshipDto: CreateProfessorshipDto, manager: EntityManager) {
     const professorshipsRepository = this.getProfessorshipsRepository(manager);
 
     if (!(await this.isCourseIdRepeated(createProfessorshipDto.courseId, professorshipsRepository))) {

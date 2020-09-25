@@ -11,10 +11,10 @@ export class OrderPipe<T> implements PipeTransform<string, Order<T>> {
 
   transform(order: string) {
     if (order) {
-      const arr = order.split(',').map((tuple) => tuple.trim().split(' ')) as [string, string][];
-      // const arr = [['name', 'ASC'], ['surname', 'DESC']] as [string, string][]
+      const array = order.split(',').map((tuple) => tuple.trim().split(' ')) as [string, string][];
+      // const array = [['name', 'ASC'], ['surname', 'DESC']] as [string, string][]
 
-      arr.forEach((tuple) => {
+      array.forEach((tuple) => {
         if (tuple.length !== 2) {
           throw new BadRequestException(`Wrong syntax in 'sort' parameter`);
         } else if (tuple[1] !== 'ASC' && tuple[1] !== 'DESC') {
@@ -23,7 +23,7 @@ export class OrderPipe<T> implements PipeTransform<string, Order<T>> {
       });
 
       const obj: Order<T> = {};
-      return arr.reduce((o, [key, value]) => {
+      return array.reduce((o, [key, value]) => {
         // if (this.isObjKey(key)) {
         o[key] = value as 'ASC' | 'DESC';
         return o;

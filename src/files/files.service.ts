@@ -7,8 +7,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import { readFile, remove, renameSync } from 'fs-extra';
+import { basename } from 'path';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -52,7 +52,7 @@ export class FilesService extends GenericCrudService<File> {
 
   async findContentById(id: string, manager: EntityManager, user: UserIdentity) {
     const file = await this.findById(id, manager, user);
-    return fs.readFile(file.path);
+    return readFile(file.path);
   }
 
   //* findById // findContentById
@@ -77,7 +77,7 @@ export class FilesService extends GenericCrudService<File> {
       return filesRepository.saveAndReload(this.hydrateDto(createFileDto, user.role));
     } catch (error) {
       if (error instanceof ExceededAvailableStorageException) {
-        await this.removeFilesByPaths([createFileDto.path]);
+        await this.removeFromFS([createFileDto.path]);
       }
       throw error;
     }
@@ -95,7 +95,7 @@ export class FilesService extends GenericCrudService<File> {
       );
     } catch (error) {
       if (error instanceof ExceededAvailableStorageException) {
-        await this.removeFilesByPaths(createFileDtos.map((createFileDtos) => createFileDtos.path));
+        await this.removeFromFS(createFileDtos.map((createFileDtos) => createFileDtos.path));
       }
       throw error;
     }
@@ -128,10 +128,6 @@ export class FilesService extends GenericCrudService<File> {
     }
   }
 
-  private removeFilesByPaths(paths: string[]) {
-    return Promise.all(paths.map((path) => fs.remove(path)));
-  }
-
   async update(id: string, updateFileDto: PartialUpdateFileDto, manager: EntityManager, user: UserIdentity) {
     const filesRepository = this.getFilesRepository(manager);
 
@@ -144,7 +140,7 @@ export class FilesService extends GenericCrudService<File> {
         newPath = this.updatePathInFS(updateFileDto.name, file);
       }
 
-      return filesRepository.saveAndReload({ ...updateFileDto, id, ...(!!updateFileDto.name && { path: newPath }) });
+      return filesRepository.updateAndReload(id, { ...updateFileDto, ...(!!updateFileDto.name && { path: newPath }) });
     } else {
       this.throwCustomNotFoundException(id);
     }
@@ -171,8 +167,8 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   private updatePathInFS(newFilename: string, file: File) {
-    const newPath = file.path.replace(path.basename(file.path), buildFilename(newFilename, file.mimetype));
-    fs.renameSync(file.path, newPath);
+    const newPath = file.path.replace(basename(file.path), buildFilename(newFilename, file.mimetype));
+    renameSync(file.path, newPath);
     return newPath;
   }
 
@@ -189,16 +185,34 @@ export class FilesService extends GenericCrudService<File> {
     }
   }
 
-  async softDeleteAndRemoveFromFS(id: string, manager: EntityManager) {
+  async softRemoveByCourseId(courseId: string, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
-    const file = await filesRepository.findOne(id);
-
-    await this.removeFilesByPaths([file.path]);
-    await filesRepository.update(id, { physicallyErased: true });
-    await filesRepository.softRemove(file);
-    return;
+    const files = await filesRepository.find({ where: { course: { id: courseId } } });
+    return filesRepository.softRemove(files);
   }
 
+  //* Method useful to delete temporary files
+  async softRemoveAndEraseFromFS(files: File[], manager: EntityManager) {
+    const filesRepository = this.getFilesRepository(manager);
+
+    await this.removeFromFSandUpdateDB(files, manager);
+    return filesRepository.softRemove(files);
+  }
+
+  private async removeFromFSandUpdateDB(files: File[], manager: EntityManager) {
+    const filesRepository = this.getFilesRepository(manager);
+
+    await this.removeFromFS(files.map((file) => file.path));
+
+    files.forEach((file) => (file.physicallyErased = true));
+    return filesRepository.saveAndReload(files);
+  }
+
+  private removeFromFS(paths: string[]) {
+    return Promise.all(paths.map((path) => remove(path)));
+  }
+
+  // TODO: Verify this feature, it may not be necessary anymore
   async linkFilesToProfessorship(professorship: Professorship, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
 
@@ -212,6 +226,7 @@ export class FilesService extends GenericCrudService<File> {
     return filesRepository.recover(files);
   }
 
+  // TODO: Verify this feature, it may not be necessary the unlink part anymore
   async unlinkFilesFromProfessorship(professorship: Professorship, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
 
@@ -245,8 +260,7 @@ export class FilesService extends GenericCrudService<File> {
         // .andWhere(`state.code NOT IN ('${EOrderState.REQUESTED}','${EOrderState.IN_PROCESS}')`)
         .getMany();
 
-      await this.removeFilesByPaths(files.map((file) => file.path));
-      await this.getFilesRepository(manager).save(files.map((file) => ({ id: file.id, physicallyErased: true })));
+      return this.removeFromFSandUpdateDB(files, manager);
     });
   }
 

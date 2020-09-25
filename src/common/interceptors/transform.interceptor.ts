@@ -14,7 +14,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
   intercept(context: ExecutionContext, next: CallHandler<T>): Observable<Response<T>> {
     const request = context.switchToHttp().getRequest<Request>();
 
-    request.body = camelCaseKeys(request.body);
+    request.body = camelCaseKeys(request.body, { deep: true });
 
     return next.handle().pipe(
       map((data) => {

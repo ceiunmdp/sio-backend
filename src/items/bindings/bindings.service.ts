@@ -13,7 +13,7 @@ export class BindingsService extends GenericCrudService<Binding> {
     super(Binding);
   }
 
-  async create(createBindingDto: Partial<CreateBindingDto>, manager: EntityManager) {
+  async create(createBindingDto: CreateBindingDto, manager: EntityManager) {
     const bindingsRepository = this.getBindingsRepository(manager);
 
     const item = await this.itemsService.findItemByName(

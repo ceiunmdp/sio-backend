@@ -14,7 +14,7 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
   }
 
   //! Override specific method
-  async create(createCampusUserDto: Partial<CreateCampusUserDto>, manager: EntityManager) {
+  async create(createCampusUserDto: CreateCampusUserDto, manager: EntityManager) {
     const campusUsersRepository = this.getCampusUsersRepository(manager);
 
     if (!(await this.isCampusIdRepeated(createCampusUserDto.campusId, campusUsersRepository))) {

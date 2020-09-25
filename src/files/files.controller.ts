@@ -12,8 +12,8 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { validate } from 'class-validator';
 import { Response } from 'express';
-import * as fs from 'fs-extra';
-import * as mime from 'mime-types';
+import { readFileSync } from 'fs-extra';
+import { lookup } from 'mime-types';
 import { PDFDocument } from 'pdf-lib';
 import { ALL_ROLES } from 'src/common/constants/all-roles';
 import { Auth } from 'src/common/decorators/auth.decorator';
@@ -110,7 +110,7 @@ export class FilesController {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
       const buffer = await this.filesService.findContentById(id, manager, user);
 
-      response.setHeader('Content-Type', mime.lookup('pdf') as string);
+      response.setHeader('Content-Type', lookup('pdf') as string);
       response.setHeader('Content-Length', buffer.length);
       response.status(200).send(buffer);
     });
@@ -148,7 +148,7 @@ export class FilesController {
     const createFileDto = new CreateFileDto({
       name: file.originalname,
       mimetype: file.mimetype,
-      numberOfSheets: (await PDFDocument.load(fs.readFileSync(file.path))).getPageCount(),
+      numberOfSheets: (await PDFDocument.load(readFileSync(file.path))).getPageCount(),
       size: file.size,
       path: file.path,
       ownerId: userId,

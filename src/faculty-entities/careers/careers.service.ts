@@ -1,7 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { EntityManager, SelectQueryBuilder } from 'typeorm';
-import { Course } from '../courses/entities/course.entity';
 import { CareersRepository } from './careers.repository';
 import { CreateCareerDto } from './dtos/create-career.dto';
 import { PartialUpdateCareerDto } from './dtos/partial-update-career.dto';
@@ -14,14 +13,10 @@ export class CareersService extends GenericCrudService<Career> {
   }
 
   //* findAll
+  // TODO: Check if 'course' is necessary
   protected addExtraClauses(queryBuilder: SelectQueryBuilder<Career>) {
-    queryBuilder.leftJoinAndSelect('career.careerCourseRelations', 'careerCourseRelation');
-    queryBuilder.leftJoinAndSelect(Course, 'course', 'careerCourseRelation.course = course.id');
-    //* All these also work
-    // queryBuilder.innerJoinAndSelect(Course, 'course', 'careerCourseRelation.course.id = course.id');
-    // queryBuilder.leftJoinAndSelect(Course, 'course', 'careerCourseRelation.course_id = course.id');
-
-    return queryBuilder;
+    return queryBuilder.leftJoinAndSelect(`${queryBuilder.alias}.careerCourseRelations`, 'careerCourseRelation');
+    // .leftJoinAndSelect('careerCourseRelation.course', 'course');
   }
 
   private async findCareerByName(name: string, careersRepository: CareersRepository) {
@@ -34,8 +29,8 @@ export class CareersService extends GenericCrudService<Career> {
 
   async create(createCareerDto: CreateCareerDto, manager: EntityManager) {
     const careersRepository = this.getCareersRepository(manager);
-    const career = await this.findCareerByName(createCareerDto.name, careersRepository);
 
+    const career = await this.findCareerByName(createCareerDto.name, careersRepository);
     if (!career) {
       return careersRepository.saveAndReload(createCareerDto);
     } else {
@@ -65,8 +60,10 @@ export class CareersService extends GenericCrudService<Career> {
     return manager.getCustomRepository(CareersRepository);
   }
 
+  // TODO: Check if 'course' is necessary
   protected getFindOneRelations() {
-    return ['careerCourseRelations', 'careerCourseRelations.course'];
+    return ['careerCourseRelations'];
+    // return ['careerCourseRelations', 'careerCourseRelations.course'];
   }
 
   private throwCustomConflictException() {

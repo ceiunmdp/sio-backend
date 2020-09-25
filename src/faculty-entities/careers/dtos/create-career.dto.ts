@@ -1,9 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { UpdateCareerDto } from './update-career.dto';
 
-export class CreateCareerDto {
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ description: `Career's name`, example: 'Software Engineering' })
-  name!: string;
-}
+export class CreateCareerDto extends UpdateCareerDto {}

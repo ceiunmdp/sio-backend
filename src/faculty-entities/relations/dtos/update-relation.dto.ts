@@ -1,3 +1,9 @@
-import { CreateRelationDto } from './create-relation.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateRelationDto extends CreateRelationDto {}
+export class UpdateRelationDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ description: `Relation's name`, example: 'First year' })
+  name!: string;
+}

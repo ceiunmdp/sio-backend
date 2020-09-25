@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { CoursesModule } from 'src/faculty-entities/courses/courses.module';
@@ -7,7 +7,7 @@ import { MulterConfigService } from './multer-config.service';
 import multerConfig from './multer.config';
 @Module({
   imports: [
-    CoursesModule,
+    forwardRef(() => CoursesModule),
     ParametersModule,
     ConfigModule.forRoot({
       // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),

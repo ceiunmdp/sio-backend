@@ -217,7 +217,7 @@ export class UsersService implements TypeOrmCrudService<User> {
     const code = this.findUserRoleByUserType(user.type);
     user.roles = [await this.rolesService.findByCode(code, manager)];
 
-    const updatedUser = await this.getUsersRepository(manager).saveAndReload(user);
+    const updatedUser = await this.getUsersRepository(manager).updateAndReload(user.id, user);
     this.setCustomUserClaims(updatedUser, code);
     return updatedUser;
   }

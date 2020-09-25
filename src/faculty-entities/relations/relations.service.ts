@@ -22,8 +22,8 @@ export class RelationsService extends GenericCrudService<Relation> {
 
   async create(createRelationDto: CreateRelationDto, manager: EntityManager) {
     const relationsRepository = this.getRelationsRepository(manager);
-    const relation = await this.findRelationByName(createRelationDto.name, relationsRepository);
 
+    const relation = await this.findRelationByName(createRelationDto.name, relationsRepository);
     if (!relation) {
       return relationsRepository.saveAndReload(createRelationDto);
     } else {
