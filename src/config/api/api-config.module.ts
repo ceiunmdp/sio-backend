@@ -16,7 +16,7 @@ import apiSpeedConfig from './api-speed.config';
         API_SPEED_LIMITER_TIMEFRAME: Joi.number().default(30 * 60 * 1000), // 30 min
         API_SPEED_LIMITER_DELAY_AFTER: Joi.number().default(400),
         API_SPEED_LIMITER_DELAY_MS: Joi.number().max(1000).default(500),
-        API_SPEED_LIMITER_MAX_DELAY_MS: Joi.number().max(30000).default(20000),
+        API_SPEED_LIMITER_MAX_DELAY_MS: Joi.number().max(30_000).default(20_000),
       }),
       validationOptions: {
         allowUnknown: true,

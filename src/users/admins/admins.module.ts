@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
+import { RolesModule } from 'src/roles/roles.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { UsersModule } from '../users/users.module';
 import { AdminsController } from './admins.controller';
@@ -10,7 +11,7 @@ import { Admin } from './entities/admin.entity';
 import './profiles/admin.profile';
 
 @Module({
-  imports: [SharedModule, AppConfigModule, UsersModule, TypeOrmModule.forFeature([Admin])],
+  imports: [SharedModule, AppConfigModule, UsersModule, RolesModule, TypeOrmModule.forFeature([Admin])],
   controllers: [AdminsController],
   providers: [AdminsService],
   exports: [AdminsService],

@@ -30,4 +30,13 @@ export class RolesService {
       throw new NotFoundException('Role not found.');
     }
   }
+
+  async findByFunctionalityId(functionalityId: string, manager: EntityManager) {
+    return manager
+      .getRepository(Role)
+      .createQueryBuilder('role')
+      .innerJoin('role.functionalities', 'functionalities')
+      .where('functionalities.id = :functionalityId', { functionalityId })
+      .getMany();
+  }
 }

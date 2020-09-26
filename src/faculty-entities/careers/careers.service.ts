@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
-import { EntityManager, SelectQueryBuilder } from 'typeorm';
+import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { CareersRepository } from './careers.repository';
 import { CreateCareerDto } from './dtos/create-career.dto';
 import { PartialUpdateCareerDto } from './dtos/partial-update-career.dto';
@@ -8,8 +9,29 @@ import { Career } from './entities/career.entity';
 
 @Injectable()
 export class CareersService extends GenericCrudService<Career> {
-  constructor() {
+  constructor(@InjectConnection() connection: Connection) {
     super(Career);
+    this.createCareers(connection.manager);
+  }
+
+  // TODO: Delete this method in production
+  private async createCareers(manager: EntityManager) {
+    const careersRepository = this.getCareersRepository(manager);
+
+    if (!(await careersRepository.count())) {
+      return careersRepository.save([
+        new Career({ name: 'Ingeniería Eléctrica' }),
+        new Career({ name: 'Ingeniería Electromecánica' }),
+        new Career({ name: 'Ingeniería Electrónica' }),
+        new Career({ name: 'Ingeniería en Alimentos' }),
+        new Career({ name: 'Ingeniería en Computación' }),
+        new Career({ name: 'Ingeniería en Materiales' }),
+        new Career({ name: 'Ingeniería Industrial' }),
+        new Career({ name: 'Ingeniería Informática' }),
+        new Career({ name: 'Ingeniería Mecánica' }),
+        new Career({ name: 'Ingeniería Química' }),
+      ]);
+    }
   }
 
   //* findAll

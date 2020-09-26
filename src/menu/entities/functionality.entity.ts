@@ -25,7 +25,7 @@ export class Functionality extends BaseEntity {
     joinColumn: { name: 'functionality_id' },
     inverseJoinColumn: { name: 'role_id' },
   })
-  roles!: Promise<Role[]>;
+  roles!: Role[];
 
   constructor(partial: Partial<Functionality>) {
     super(partial);

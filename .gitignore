@@ -43,3 +43,6 @@ lerna-debug.log*
 
 # Files
 /files
+
+# Driver options
+/driver-options

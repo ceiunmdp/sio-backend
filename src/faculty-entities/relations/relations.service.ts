@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
-import { EntityManager } from 'typeorm';
+import { Connection, EntityManager } from 'typeorm';
 import { CreateRelationDto } from './dtos/create-relation.dto';
 import { PartialUpdateRelationDto } from './dtos/partial-update-relation.dto';
 import { Relation } from './entities/relation.entity';
@@ -8,8 +9,25 @@ import { RelationsRepository } from './relations.repository';
 
 @Injectable()
 export class RelationsService extends GenericCrudService<Relation> {
-  constructor() {
+  constructor(@InjectConnection() connection: Connection) {
     super(Relation);
+    this.createRelations(connection.manager);
+  }
+
+  // TODO: Delete this method in production
+  private async createRelations(manager: EntityManager) {
+    const relationsRepository = this.getRelationsRepository(manager);
+
+    if (!(await relationsRepository.count())) {
+      return relationsRepository.save([
+        new Relation({ name: '1° Año' }),
+        new Relation({ name: '2° Año' }),
+        new Relation({ name: '3° Año' }),
+        new Relation({ name: '4° Año' }),
+        new Relation({ name: '5° Año' }),
+        new Relation({ name: 'Optativas' }),
+      ]);
+    }
   }
 
   private async findRelationByName(name: string, relationsRepository: RelationsRepository) {

@@ -8,7 +8,7 @@ import { ResponseFunctionalityCircularDto } from './response-functionality-circu
 @Exclude()
 export class ResponseFunctionalityDto extends ResponseBaseEntityDto {
   @Expose({ groups: ALL_GROUPS })
-  @ApiProperty({ description: 'Name of functionality', example: 'Movements' })
+  @ApiProperty({ description: `Functionality's name`, example: 'Movements' })
   name!: string;
 
   @AutoMap(() => ResponseFunctionalityCircularDto)

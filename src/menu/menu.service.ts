@@ -11,7 +11,7 @@ export class MenuService {
     this.createMenu(connection.manager);
   }
 
-  async find(userRole: string, manager: EntityManager) {
+  async find(userRole: UserRole, manager: EntityManager) {
     const menuRepository = manager.getTreeRepository(Functionality);
 
     const rootFunctionalities = await menuRepository.findRoots();
@@ -19,19 +19,23 @@ export class MenuService {
       throw new InternalServerErrorException('Menú mal configurado. Contáctese con el administrador del sistema.');
     } else {
       const menu = await menuRepository.findDescendantsTree(rootFunctionalities[0]);
-      return this.cloneDeepWithFunctionalitiesAllowed(menu, userRole);
+      return this.cloneDeepWithFunctionalitiesAllowed(menu, userRole, manager);
     }
   }
 
-  private async isFunctionalityAllowed(functionality: Functionality, userRole: string) {
-    const roles = await functionality.roles;
-    return !!roles.find((role) => role.name === userRole);
+  private async isFunctionalityAllowed(functionality: Functionality, userRole: UserRole, manager: EntityManager) {
+    const roles = await this.rolesService.findByFunctionalityId(functionality.id, manager);
+    return !!roles.find((role) => role.code === userRole);
   }
 
-  private async cloneDeepWithFunctionalitiesAllowed(functionality: Functionality, userRole: string) {
+  private async cloneDeepWithFunctionalitiesAllowed(
+    functionality: Functionality,
+    userRole: UserRole,
+    manager: EntityManager,
+  ) {
     if (!functionality.subFunctionalities?.length) {
       // Leaf
-      return (await this.isFunctionalityAllowed(functionality, userRole)) ? functionality : null;
+      return (await this.isFunctionalityAllowed(functionality, userRole, manager)) ? functionality : null;
     } else {
       // Node
       const subFunctionalities = functionality.subFunctionalities;
@@ -41,7 +45,7 @@ export class MenuService {
         .sort((f1, f2) => f1.createDate.getTime() - f2.createDate.getTime());
 
       const clonedSubFunctionalities = await Promise.all(
-        sortedSubFunctionalities.map((f) => this.cloneDeepWithFunctionalitiesAllowed(f, userRole)),
+        sortedSubFunctionalities.map((f) => this.cloneDeepWithFunctionalitiesAllowed(f, userRole, manager)),
       );
       const filteredSubfunctionalities = clonedSubFunctionalities.filter((f) => f !== null);
 
@@ -85,12 +89,12 @@ export class MenuService {
       const scholarship = await this.rolesService.findByCode(UserRole.SCHOLARSHIP, manager);
       const student = await this.rolesService.findByCode(UserRole.STUDENT, manager);
 
-      home.roles = Promise.resolve([admin, campus, professorship, scholarship, student]);
-      newOrder.roles = Promise.resolve([student, scholarship]);
-      myOrders.roles = Promise.resolve([campus, student, scholarship]);
-      myMovements.roles = Promise.resolve([student, scholarship]);
-      topUp.roles = Promise.resolve([campus]);
-      transferMoney.roles = Promise.resolve([student, scholarship]);
+      home.roles = [admin, campus, professorship, scholarship, student];
+      newOrder.roles = [student, scholarship];
+      myOrders.roles = [campus, student, scholarship];
+      myMovements.roles = [student, scholarship];
+      topUp.roles = [campus];
+      transferMoney.roles = [student, scholarship];
 
       menu = await menuRepository.save(menu);
       await menuRepository.save([home, orders, movements, operations]);

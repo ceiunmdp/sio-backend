@@ -63,10 +63,8 @@ services:
     networks:
       - webnet
     volumes:
-      # - mysql-data:/var/lib/mysql
       - pgdata:/var/lib/postgresql/data
     ports:
-      # - 3306:3306
       - 5432:5432
     restart: unless-stopped
 

@@ -40,7 +40,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
       //* Copy all updated properties altered in 'afterInsert' in the original object, without having to retrieve user again
       return Object.assign(professorship, await this.afterInsert(professorship, manager));
     } else {
-      throw new ConflictException(`Ya existe un usuario con la materia elegida.`);
+      throw new ConflictException(`Ya existe un usuario cátedra con la materia elegida.`);
     }
   }
 

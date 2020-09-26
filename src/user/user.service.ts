@@ -14,7 +14,7 @@ export class UserService {
   //! 'id' is Firebase's uid in case it's first student login
   async findById(id: string, manager: EntityManager) {
     try {
-      return this.usersService.findById(id, manager);
+      return await this.usersService.findById(id, manager);
     } catch (error) {
       if (error instanceof UserNotFoundInDatabaseException) {
         //* User found in Firebase but not in database

@@ -70,26 +70,26 @@ export class UsersService implements TypeOrmCrudService<User> {
   async findById(id: string, manager: EntityManager) {
     try {
       const userRecord = await admin.auth().getUser(await this.findUid(id, manager));
-      return this.transformUserRecordToUser(userRecord, manager);
+      return await this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
     }
   }
 
   async findByUid(uid: string) {
     try {
-      return admin.auth().getUser(uid);
+      return await admin.auth().getUser(uid);
     } catch (error) {
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
     }
   }
 
   async findByEmail(email: string, manager: EntityManager) {
     try {
       const userRecord = await admin.auth().getUserByEmail(email);
-      return this.transformUserRecordToUser(userRecord, manager);
+      return await this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
     }
   }
 
@@ -97,7 +97,7 @@ export class UsersService implements TypeOrmCrudService<User> {
     try {
       return !!(await admin.auth().getUserByEmail(email));
     } catch (error) {
-      const exception = handleFirebaseError(error);
+      const exception = this.handleError(error);
       if (exception instanceof UserNotFoundInFirebaseException) {
         return false;
       } else {
@@ -114,7 +114,7 @@ export class UsersService implements TypeOrmCrudService<User> {
       await this.setRole(user, manager);
       return user;
     } catch (error) {
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
     }
   }
 
@@ -125,20 +125,20 @@ export class UsersService implements TypeOrmCrudService<User> {
         .auth()
         .updateUser(uid, { ...updateUserDto, ...(!!updateUserDto.email && { emailVerified: false }) });
       await this.getUsersRepository(manager).updateAndReload(id, updateUserDto);
-      return this.transformUserRecordToUser(userRecord, manager);
+      return await this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
       // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
     }
   }
 
   //! This method does not delete the user from the local database, this responsibility is from the appropiate service
   async delete(id: string, manager: EntityManager) {
     try {
-      return admin.auth().deleteUser(await this.findUid(id, manager));
+      return await admin.auth().deleteUser(await this.findUid(id, manager));
     } catch (error) {
       // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
     }
   }
 
@@ -227,17 +227,27 @@ export class UsersService implements TypeOrmCrudService<User> {
 
     try {
       await admin.auth().setCustomUserClaims(uid, payload);
-      return this.revokeRefreshToken(uid);
+      return await this.revokeRefreshToken(uid);
     } catch (error) {
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
     }
   }
 
   private async revokeRefreshToken(uid: string) {
     try {
-      return admin.auth().revokeRefreshTokens(uid);
+      return await admin.auth().revokeRefreshTokens(uid);
     } catch (error) {
-      throw handleFirebaseError(error);
+      throw this.handleError(error);
+    }
+  }
+
+  private handleError(error: Error) {
+    if (error instanceof Error) {
+      // TODO: Try to remove 'unknown' casting
+      const firebaseError = (error as unknown) as admin.FirebaseError;
+      return handleFirebaseError(firebaseError);
+    } else {
+      return error;
     }
   }
 
