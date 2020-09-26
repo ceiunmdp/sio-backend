@@ -34,7 +34,7 @@ export class CourseProfile extends ProfileBase {
 
               return relationsSet;
             })
-          : fromValue([]),
+          : fromValue(undefined),
       ),
     );
   }

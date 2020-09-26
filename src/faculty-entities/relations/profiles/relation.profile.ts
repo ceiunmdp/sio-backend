@@ -26,7 +26,7 @@ export class RelationProfile extends ProfileBase {
                   (career) => career.name,
                 ),
               )
-            : fromValue([]),
+            : fromValue(undefined),
         ),
       );
   }

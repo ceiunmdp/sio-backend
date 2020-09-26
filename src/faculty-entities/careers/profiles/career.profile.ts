@@ -18,7 +18,7 @@ export class CareerProfile extends ProfileBase {
     //   mapDefer((career) =>
     //     career.careerCourseRelations
     //       ? mapWith(ResponseCourseDto, (career) => career.careerCourseRelations.map((ternary) => ternary.course))
-    //       : fromValue([]),
+    //       : fromValue(undefined),
     //   ),
     // );
   }
