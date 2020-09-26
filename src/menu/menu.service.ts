@@ -4,6 +4,7 @@ import { UserRole } from 'src/common/enums/user-role.enum';
 import { RolesService } from 'src/roles/roles.service';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
 import { Functionality } from './entities/functionality.entity';
+import { EFunctionality } from './enums/e-functionality.enum';
 
 @Injectable()
 export class MenuService {
@@ -67,20 +68,48 @@ export class MenuService {
     const roots = await menuRepository.findRoots();
     if (!roots.length) {
       // First level
-      let menu = new Functionality({ name: 'Menu' });
+      let menu = new Functionality({ name: 'Menu', code: EFunctionality.MENU });
 
       // Second level
-      const home = new Functionality({ name: 'Inicio', supraFunctionality: menu });
-      const orders = new Functionality({ name: 'Pedidos', supraFunctionality: menu });
-      const movements = new Functionality({ name: 'Movimientos', supraFunctionality: menu });
-      const operations = new Functionality({ name: 'Operaciones', supraFunctionality: menu });
+      const home = new Functionality({ name: 'Inicio', code: EFunctionality.HOME, supraFunctionality: menu });
+      const orders = new Functionality({ name: 'Pedidos', code: EFunctionality.ORDERS, supraFunctionality: menu });
+      const movements = new Functionality({
+        name: 'Movimientos',
+        code: EFunctionality.MOVEMENTS,
+        supraFunctionality: menu,
+      });
+      const operations = new Functionality({
+        name: 'Operaciones',
+        code: EFunctionality.OPERATIONS,
+        supraFunctionality: menu,
+      });
 
       // Third level
-      const newOrder = new Functionality({ name: 'Nuevo pedido', supraFunctionality: orders });
-      const myOrders = new Functionality({ name: 'Mis pedidos', supraFunctionality: orders });
-      const myMovements = new Functionality({ name: 'Mis movimientos', supraFunctionality: movements });
-      const topUp = new Functionality({ name: 'Cargar saldo', supraFunctionality: operations });
-      const transferMoney = new Functionality({ name: 'Transferir dinero', supraFunctionality: operations });
+      const newOrder = new Functionality({
+        name: 'Nuevo pedido',
+        code: EFunctionality.NEW_ORDER,
+        supraFunctionality: orders,
+      });
+      const myOrders = new Functionality({
+        name: 'Mis pedidos',
+        code: EFunctionality.MY_ORDERS,
+        supraFunctionality: orders,
+      });
+      const myMovements = new Functionality({
+        name: 'Mis movimientos',
+        code: EFunctionality.MY_MOVEMENTS,
+        supraFunctionality: movements,
+      });
+      const topUp = new Functionality({
+        name: 'Cargar saldo',
+        code: EFunctionality.TOP_UP,
+        supraFunctionality: operations,
+      });
+      const transferMoney = new Functionality({
+        name: 'Transferir dinero',
+        code: EFunctionality.TRANSFER_MONEY,
+        supraFunctionality: operations,
+      });
 
       // Roles
       const admin = await this.rolesService.findByCode(UserRole.ADMIN, manager);

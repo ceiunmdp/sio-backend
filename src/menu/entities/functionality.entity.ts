@@ -2,13 +2,18 @@ import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Role } from 'src/roles/entities/role.entity';
 import { Column, Entity, JoinTable, ManyToMany, Tree, TreeChildren, TreeParent, Unique } from 'typeorm';
+import { EFunctionality } from '../enums/e-functionality.enum';
 
 @Entity('functionalities')
 @Tree('closure-table')
 @Unique(['name'])
+@Unique(['code'])
 export class Functionality extends BaseEntity {
   @Column({ update: false })
   readonly name!: string;
+
+  @Column({ type: 'enum', enum: EFunctionality, update: false })
+  readonly code!: EFunctionality;
 
   @AutoMap(() => Functionality)
   @TreeParent()

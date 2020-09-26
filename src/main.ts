@@ -184,7 +184,6 @@ function enableSwaggerUI(app: NestExpressApplication) {
 }
 
 function setupFirebaseAdminSDK(logger: LoggerService) {
-  // logger.log(admin.apps.length);
   if (!admin.apps.length) {
     logger.log('Firebase Admin SDK initialized');
     admin.initializeApp({

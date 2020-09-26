@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import got from 'got';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { Order } from 'src/common/interfaces/order.type';
@@ -7,6 +8,7 @@ import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.i
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { handleFirebaseError } from 'src/common/utils/firebase-handler';
+import { FirebaseConfigService } from 'src/config/firebase/firebase-config.service';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { RolesService } from 'src/roles/roles.service';
 import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
@@ -24,7 +26,11 @@ export interface PaginationOptions {
 
 @Injectable()
 export class UsersService implements TypeOrmCrudService<User> {
-  constructor(private readonly logger: CustomLoggerService, private readonly rolesService: RolesService) {
+  constructor(
+    private readonly logger: CustomLoggerService,
+    private readonly firebaseConfigService: FirebaseConfigService,
+    private readonly rolesService: RolesService,
+  ) {
     this.logger.context = UsersService.name;
   }
 
@@ -110,12 +116,49 @@ export class UsersService implements TypeOrmCrudService<User> {
     try {
       // TODO: Decide what flow to follow: https://docs.google.com/document/d/14WzggVxA0yN99J1KxEfkE87qmjFrYFE2wLh9_jQH4I4/edit?disco=AAAAKKrQorA
       const userRecord = await admin.auth().createUser(createUserDto);
+      await this.sendEmailVerification(userRecord.uid);
       const user = await this.transformUserRecordToUser(userRecord, manager);
       await this.setRole(user, manager);
       return user;
     } catch (error) {
       throw this.handleError(error);
     }
+  }
+
+  private async sendEmailVerification(uid: string) {
+    const customToken = await admin.auth().createCustomToken(uid);
+    const idToken = await this.exchangeCustomTokenForIdToken(customToken);
+    return this.sendEmail(idToken);
+  }
+
+  private async exchangeCustomTokenForIdToken(customToken: string) {
+    const data: { idToken: string; refreshToken: string; expiresIn: string } = await got
+      .post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${this.firebaseConfigService.apiKey}`,
+        {
+          json: {
+            token: customToken,
+            returnSecureToken: true,
+          },
+          responseType: 'json',
+        },
+      )
+      .json();
+
+    return data.idToken;
+  }
+
+  private async sendEmail(idToken: string) {
+    return got.post(
+      `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${this.firebaseConfigService.apiKey}`,
+      {
+        json: {
+          requestType: 'VERIFY_EMAIL',
+          idToken,
+        },
+        responseType: 'json',
+      },
+    );
   }
 
   async update<T extends DeepPartial<User>>(id: string, updateUserDto: T, manager: EntityManager) {

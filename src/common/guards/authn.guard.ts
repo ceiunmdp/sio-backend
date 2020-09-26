@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import * as admin from 'firebase-admin';
 import { Observable } from 'rxjs';
@@ -21,7 +21,7 @@ export class AuthNGuard implements CanActivate {
       const idToken = authorization.split(' ')[1];
       return this.validateRequest(request, idToken);
     } else {
-      return false;
+      throw new UnauthorizedException('Id token not provided.');
     }
   }
 
@@ -54,7 +54,7 @@ export class AuthNGuard implements CanActivate {
         request.user = decodedIdToken;
         return true;
       } else {
-        // return false;
+        // throw new UnauthorizedException('Email not verified.');
 
         //! Momentarily
         request.user = decodedIdToken;
@@ -63,7 +63,7 @@ export class AuthNGuard implements CanActivate {
     } catch (error) {
       const exception = handleFirebaseError(error);
       if (exception instanceof InvalidIdTokenException) {
-        return false;
+        throw new UnauthorizedException('Invalid token.');
       } else {
         throw error;
       }

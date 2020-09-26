@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
-import { UserRole } from 'src/common/enums/user-role.enum';
 import { RolesService } from 'src/roles/roles.service';
 import { Connection, EntityManager } from 'typeorm';
 import { UserNotFoundInDatabaseException } from '../users/exceptions/user-not-found-in-database.exception';
@@ -26,11 +25,15 @@ export class AdminsService extends GenericSubUserService<Admin> {
       return await this.usersService.findByEmail('admin@gmail.com', manager);
     } catch (error) {
       if (error instanceof UserNotFoundInDatabaseException) {
-        return manager.getRepository(Admin).save({
+        const adminsRepository = manager.getRepository(Admin);
+
+        const { id } = await adminsRepository.save({
           uid: error.id,
           displayName: 'Admin',
-          roles: [await this.rolesService.findByCode(UserRole.ADMIN, manager)],
+          // roles: [await this.rolesService.findByCode(UserRole.ADMIN, manager)],
         });
+        const admin = await adminsRepository.findOne(id);
+        return this.usersService.setRole(admin, manager);
       }
     }
   }
