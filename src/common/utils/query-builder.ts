@@ -44,48 +44,76 @@ const handleArgs = (query: WhereExpression, field: Field, andOr: 'andWhere' | 'o
       const [operation, value] = parameters;
 
       switch (operation) {
-        case 'is':
-          query[andOr](`${fieldName} = :isvalue`, { isvalue: value });
+        case 'is': {
+          const parameter = `${fieldName}.isvalue`;
+          query[andOr](`${fieldName} = :${parameter}`, { [parameter]: value });
           break;
-        case 'not':
-          query[andOr](`${fieldName} != :notvalue`, { notvalue: value });
+        }
+        case 'not': {
+          const parameter = `${fieldName}.notvalue`;
+          query[andOr](`${fieldName} != :${parameter}`, { [parameter]: value });
           break;
-        case 'in':
-          query[andOr](`${fieldName} IN :invalue`, { invalue: value });
+        }
+        case 'in': {
+          const parameter = `${fieldName}.invalue`;
+          query[andOr](`${fieldName} IN (:...${parameter})`, { [parameter]: value });
           break;
-        case 'not_in':
-          query[andOr](`${fieldName} NOT IN :notinvalue`, { notinvalue: value });
+        }
+        case 'not_in': {
+          const parameter = `${fieldName}.notinvalue`;
+          query[andOr](`${fieldName} NOT IN (:...${parameter})`, { [parameter]: value });
           break;
-        case 'lt':
-          query[andOr](`${fieldName} < :ltvalue`, { ltvalue: value });
+        }
+        case 'lt': {
+          const parameter = `${fieldName}.ltvalue`;
+          query[andOr](`${fieldName} < :${parameter}`, { [parameter]: value });
           break;
-        case 'lte':
-          query[andOr](`${fieldName} <= :ltevalue`, { ltevalue: value });
+        }
+        case 'lte': {
+          const parameter = `${fieldName}.ltevalue`;
+          query[andOr](`${fieldName} <= :${parameter}`, { [parameter]: value });
           break;
-        case 'gt':
-          query[andOr](`${fieldName} > :gtvalue`, { gtvalue: value });
+        }
+        case 'gt': {
+          const parameter = `${fieldName}.gtvalue`;
+          query[andOr](`${fieldName} > :${parameter}`, { [parameter]: value });
           break;
-        case 'gte':
-          query[andOr](`${fieldName} >= :gtevalue`, { gtevalue: value });
+        }
+        case 'gte': {
+          const parameter = `${fieldName}.gtevalue`;
+          query[andOr](`${fieldName} >= :${parameter}`, { [parameter]: value });
           break;
-        case 'contains':
-          query[andOr](`${fieldName} ILIKE :convalue`, { convalue: `%${value}%` });
+        }
+        case 'contains': {
+          const parameter = `${fieldName}.convalue`;
+          query[andOr](`${fieldName} ILIKE :${parameter}`, { [parameter]: `%${value}%` });
           break;
-        case 'not_contains':
-          query[andOr](`${fieldName} NOT ILIKE :notconvalue`, { notconvalue: `%${value}%` });
+        }
+        case 'not_contains': {
+          const parameter = `${fieldName}.notconvalue`;
+          query[andOr](`${fieldName} NOT ILIKE :${parameter}`, { [parameter]: `%${value}%` });
           break;
-        case 'starts_with':
-          query[andOr](`${fieldName} ILIKE :swvalue`, { swvalue: `${value}%` });
+        }
+        case 'starts_with': {
+          const parameter = `${fieldName}.swvalue`;
+          query[andOr](`${fieldName} ILIKE :${parameter}`, { [parameter]: `${value}%` });
           break;
-        case 'not_starts_with':
-          query[andOr](`${fieldName} NOT ILIKE :nswvalue`, { nswvalue: `${value}%` });
+        }
+        case 'not_starts_with': {
+          const parameter = `${fieldName}.nswvalue`;
+          query[andOr](`${fieldName} NOT ILIKE :nswvalue`, { [parameter]: `${value}%` });
           break;
-        case 'ends_with':
-          query[andOr](`${fieldName} ILIKE :ewvalue`, { ewvalue: `%${value}` });
+        }
+        case 'ends_with': {
+          const parameter = `${fieldName}.ewvalue`;
+          query[andOr](`${fieldName} ILIKE :${parameter}`, { [parameter]: `%${value}` });
           break;
-        case 'not_ends_with':
-          query[andOr](`${fieldName} NOT ILIKE :newvalue`, { newvalue: `%${value}` });
+        }
+        case 'not_ends_with': {
+          const parameter = `${fieldName}.newvalue`;
+          query[andOr](`${fieldName} NOT ILIKE :${parameter}`, { [parameter]: `%${value}` });
           break;
+        }
         default:
           break;
       }
