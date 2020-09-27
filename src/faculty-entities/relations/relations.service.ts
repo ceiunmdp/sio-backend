@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
-import { Connection, EntityManager } from 'typeorm';
+import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { CreateRelationDto } from './dtos/create-relation.dto';
 import { PartialUpdateRelationDto } from './dtos/partial-update-relation.dto';
 import { Relation } from './entities/relation.entity';
@@ -28,6 +28,13 @@ export class RelationsService extends GenericCrudService<Relation> {
         new Relation({ name: 'Optativas' }),
       ]);
     }
+  }
+
+  //* findAll
+  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Relation>) {
+    return queryBuilder
+      .leftJoinAndSelect(`${queryBuilder.alias}.careerCourseRelations`, 'careerCourseRelation')
+      .leftJoinAndSelect('careerCourseRelation.career', 'career');
   }
 
   private async findRelationByName(name: string, relationsRepository: RelationsRepository) {
