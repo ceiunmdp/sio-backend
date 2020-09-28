@@ -8,7 +8,7 @@ import { ResponseRelationDto } from 'src/faculty-entities/relations/dtos/respons
 @Exclude()
 export class ResponseCourseDto extends ResponseBaseEntityDto {
   @Expose({ groups: ALL_GROUPS })
-  @ApiProperty({ description: `Course's name`, example: 'Introduction to Artificial Intelligence' })
+  @ApiProperty({ description: `Course's name`, example: 'Artificial Intelligence' })
   name!: string;
 
   @AutoMap(() => ResponseRelationDto)

@@ -15,8 +15,9 @@ services:
     networks:
       - webnet
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .:/home/node/app
+      - /home/node/app/node_modules
+      - ./files:/home/node/app/files
     ports:
       - ${APP_PORT}:${APP_PORT}
       - 9229:9229

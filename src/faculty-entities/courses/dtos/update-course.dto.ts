@@ -7,7 +7,7 @@ import { CreateCourseRelationDto } from './create-course-relation.dto';
 export class UpdateCourseDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ description: `Course's name`, example: 'Introduction to Artificial Intelligence' })
+  @ApiProperty({ description: `Course's name`, example: 'Artificial Intelligence' })
   name!: string;
 
   @AutoMap(() => CreateCourseRelationDto)

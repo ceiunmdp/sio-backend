@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
+import { sortBy } from 'lodash';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { RolesService } from 'src/roles/roles.service';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
@@ -41,9 +42,7 @@ export class MenuService {
       // Node
       const subFunctionalities = functionality.subFunctionalities;
 
-      const sortedSubFunctionalities = subFunctionalities
-        .slice() // Copy array
-        .sort((f1, f2) => f1.createDate.getTime() - f2.createDate.getTime());
+      const sortedSubFunctionalities = sortBy(subFunctionalities.slice(), (functionality) => functionality.createDate);
 
       const clonedSubFunctionalities = await Promise.all(
         sortedSubFunctionalities.map((f) => this.cloneDeepWithFunctionalitiesAllowed(f, userRole, manager)),
