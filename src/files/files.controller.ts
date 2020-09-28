@@ -31,6 +31,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { Path } from 'src/common/enums/path.enum';
+import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -128,7 +129,7 @@ export class FilesController {
   }
 
   @PostAll(Collection.FILES, ResponseFileDto, '/bulk')
-  @Auth(...ALL_ROLES)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP)
   @UseInterceptors(FilesInterceptor('files'))
   async uploadBulk(
     @UploadedFiles() files: Express.Multer.File[],
@@ -164,13 +165,13 @@ export class FilesController {
   }
 
   @PutById(Collection.FILES, ResponseFileDto)
-  @Auth(...ALL_ROLES)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP)
   async update(@Id() id: string, @Body() updateFileDto: UpdateFileDto, @User() user: UserIdentity) {
     return this.filesServiceProxy.update(id, updateFileDto, undefined, user);
   }
 
   @PatchById(Collection.FILES, ResponseFileDto)
-  @Auth(...ALL_ROLES)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP)
   async partialUpdate(
     @Id() id: string,
     @Body() partialUpdateFileDto: PartialUpdateFileDto,
@@ -180,7 +181,7 @@ export class FilesController {
   }
 
   @DeleteById(Collection.FILES)
-  @Auth(...ALL_ROLES)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP)
   async delete(@Id() id: string, @User() user: UserIdentity) {
     return this.filesServiceProxy.delete(id, { softRemove: true }, undefined, user);
   }
