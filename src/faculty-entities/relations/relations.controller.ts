@@ -59,8 +59,8 @@ export class RelationsController {
 
   @GetById(Collection.RELATIONS, ResponseRelationDto)
   @Auth(...ALL_ROLES)
-  async findById(@Id() id: string) {
-    return this.relationsService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.relationsService.findOne(id);
   }
 
   @PostAll(Collection.RELATIONS, ResponseRelationDto)
@@ -86,7 +86,7 @@ export class RelationsController {
 
   @DeleteById(Collection.RELATIONS)
   @Auth(UserRole.ADMIN)
-  async delete(@Id() id: string) {
-    return this.relationsService.delete(id, { softRemove: false });
+  async remove(@Id() id: string) {
+    return this.relationsService.remove(id, { softRemove: false });
   }
 }

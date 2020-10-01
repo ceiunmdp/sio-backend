@@ -26,7 +26,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     await this.usersService.setRole(student, manager);
     //! Important: student must ask for a new ID Token with custom claims updated
 
-    const user = await this.usersService.findById(student.id, manager);
+    const user = await this.usersService.findOne(student.id, manager);
     return this.userMerger.mergeSubUser(user, student);
   }
 
@@ -62,7 +62,7 @@ export class StudentsService extends GenericSubUserService<Student> {
   }
 
   //! Implemented to avoid deletion of students by error by other developers
-  async delete(): Promise<void> {
+  async remove(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

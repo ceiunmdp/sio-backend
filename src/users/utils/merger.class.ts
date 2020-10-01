@@ -6,7 +6,7 @@ export class UserMerger<T extends User> {
   constructor(private readonly usersService: UsersService, private readonly type: new (partial: Partial<T>) => T) {}
 
   async findAndMergeSubUser(subUser: T, manager: EntityManager) {
-    const user = await this.usersService.findById(subUser.id, manager);
+    const user = await this.usersService.findOne(subUser.id, manager);
     return this.mergeSubUser(user, subUser);
   }
 

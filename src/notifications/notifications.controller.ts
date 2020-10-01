@@ -85,8 +85,8 @@ export class NotificationsController {
 
   @GetById(Collection.NOTIFICATIONS, ResponseNotificationDto)
   @Auth(...ALL_ROLES)
-  async findById(@Id() id: string, @User() user: UserIdentity) {
-    return this.notificationsService.findById(id, undefined, user);
+  async findOne(@Id() id: string, @User() user: UserIdentity) {
+    return this.notificationsService.findOne(id, undefined, user);
   }
 
   @PutById(Collection.NOTIFICATIONS, ResponseNotificationDto)
@@ -107,7 +107,7 @@ export class NotificationsController {
 
   @DeleteById(Collection.NOTIFICATIONS)
   @Auth(...ALL_ROLES)
-  async delete(@Id() id: string, @User() user: UserIdentity) {
-    return this.notificationsService.delete(id, { softRemove: false }, undefined, user);
+  async remove(@Id() id: string, @User() user: UserIdentity) {
+    return this.notificationsService.remove(id, { softRemove: false }, undefined, user);
   }
 }

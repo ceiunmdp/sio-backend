@@ -34,7 +34,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return qb;
   }
 
-  async findById(id: string, manager: EntityManager, user: UserIdentity) {
+  async findOne(id: string, manager: EntityManager, user: UserIdentity) {
     if (isAdmin(user) || id === user.id) {
       const subUser = await manager.getRepository<T>(this.type).findOne(id);
 
@@ -75,13 +75,13 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     }
   }
 
-  async delete(id: string, manager: EntityManager) {
+  async remove(id: string, manager: EntityManager) {
     const subUsersRepository = manager.getRepository<T>(this.type);
 
     const subUser = await subUsersRepository.findOne(id);
     if (subUser) {
       await this.beforeRemove(subUser, manager);
-      await this.usersService.delete(id, manager);
+      await this.usersService.remove(id, manager);
       await subUsersRepository.remove(subUser);
       return;
     } else {

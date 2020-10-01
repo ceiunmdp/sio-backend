@@ -16,9 +16,9 @@ export class ProxyTypeOrmCrudService<T> implements TypeOrmCrudService<T> {
     });
   }
 
-  findById(id: string, _, user: UserIdentity) {
+  findOne(id: string, _, user: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.service.findById(id, manager, user);
+      return this.service.findOne(id, manager, user);
     });
   }
 
@@ -34,9 +34,9 @@ export class ProxyTypeOrmCrudService<T> implements TypeOrmCrudService<T> {
     });
   }
 
-  delete(id: string) {
+  remove(id: string) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.service.delete(id, manager);
+      return this.service.remove(id, manager);
     });
   }
 }

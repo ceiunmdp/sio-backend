@@ -61,8 +61,8 @@ export class UsersController {
 
   @GetById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)
   @Auth(UserRole.ADMIN)
-  async findById(@Id() id: string) {
-    return this.usersService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.usersService.findOne(id);
   }
 
   @PutById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)

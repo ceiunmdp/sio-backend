@@ -43,7 +43,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return qb;
   }
 
-  async findById(id: string, manager: EntityManager, user?: UserIdentity) {
+  async findOne(id: string, manager: EntityManager, user?: UserIdentity) {
     const entity = await manager
       .getRepository<T>(this.type)
       .findOne(id, { relations: this.getFindOneRelations(), loadEagerRelations: true });
@@ -89,7 +89,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return;
   }
 
-  async delete(id: string, options?: RemoveOptions, manager?: EntityManager, user?: UserIdentity) {
+  async remove(id: string, options?: RemoveOptions, manager?: EntityManager, user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const entity = await entitiesRepository.findOne(id, { relations: this.getFindOneRelations() });

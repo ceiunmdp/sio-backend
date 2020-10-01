@@ -14,8 +14,8 @@ export interface CrudService<T extends BaseEntity> {
     manager?: EntityManager,
     user?: UserIdentity,
   ): Promise<Pagination<T>>;
-  findById(id: string, manager?: EntityManager, user?: UserIdentity): Promise<T>;
+  findOne(id: string, manager?: EntityManager, user?: UserIdentity): Promise<T>;
   create(createDto: DeepPartial<T>, manager?: EntityManager, user?: UserIdentity): Promise<T>;
   update(id: string, updateDto: DeepPartial<T>, manager?: EntityManager, user?: UserIdentity): Promise<T>;
-  delete(id: string, options?: RemoveOptions, manager?: EntityManager, user?: UserIdentity): Promise<void>;
+  remove(id: string, options?: RemoveOptions, manager?: EntityManager, user?: UserIdentity): Promise<void>;
 }

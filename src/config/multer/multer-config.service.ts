@@ -55,7 +55,7 @@ export class MulterConfigService implements MulterOptionsFactory {
       throw new UnprocessableEntityException('course_id was not provided');
     } else if (!isUUID(courseId)) {
       throw new UnprocessableEntityException('course_id is not a valid UUID');
-    } else if (!(await this.coursesService.findById(courseId, this.connection.manager))) {
+    } else if (!(await this.coursesService.findOne(courseId, this.connection.manager))) {
       throw new UnprocessableEntityException('course_id provided does not correspond to any existing Course');
     } else {
       return courseId;

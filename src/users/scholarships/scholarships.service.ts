@@ -97,7 +97,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   //! Implemented to avoid deletion of scholarships by error by other developers
-  async delete(): Promise<void> {
+  async remove(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

@@ -25,7 +25,7 @@ export class UserController {
   @ApiOkResponse({ description: 'Currently logged in user', type: ResponseUserDto })
   async find(@User('id') id: string) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.userService.findById(id, manager);
+      return this.userService.findOne(id, manager);
     });
   }
 

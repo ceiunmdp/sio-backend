@@ -65,8 +65,8 @@ export class ProfessorshipsController {
 
   @GetById(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
   @Auth(UserRole.ADMIN, UserRole.PROFESSORSHIP)
-  async findById(@Id() id: string, @User() user: UserIdentity) {
-    return this.professorshipsService.findById(id, undefined, user);
+  async findOne(@Id() id: string, @User() user: UserIdentity) {
+    return this.professorshipsService.findOne(id, undefined, user);
   }
 
   @PostAll(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
@@ -92,7 +92,7 @@ export class ProfessorshipsController {
 
   @DeleteById(Collection.PROFESSORSHIPS)
   @Auth(UserRole.ADMIN)
-  async delete(@Id() id: string) {
-    return this.professorshipsService.delete(id);
+  async remove(@Id() id: string) {
+    return this.professorshipsService.remove(id);
   }
 }

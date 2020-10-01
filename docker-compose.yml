@@ -24,6 +24,7 @@ services:
     depends_on:
       # - mysql
       - postgres
+      # - cups
     restart: unless-stopped
   # mysql:
   #   container_name: mysql
@@ -68,6 +69,29 @@ services:
     ports:
       - 5432:5432
     restart: unless-stopped
+  # cups:
+  #   container_name: cups
+  #   image: ydkn/cups
+  #   environment:
+  #     ADMIN_PASSWORD: password
+  #   networks:
+  #     - webnet
+  #   volumes:
+  #     - cups:/etc/cups
+  #   ports:
+  #     - 631:631
+  #   restart: unless-stopped
+  # cups:
+  #   container_name: cups
+  #   image: lemariva/rpi-cups
+  #   privileged: true
+  #   volumes:
+  #     - /var/run/dbus:/var/run/dbus
+  #     - /dev/bus/usb:/dev/bus/usb
+  #     - ./printers.conf:/etc/cups/printers.conf
+  #   ports:
+  #     - 631:631
+  #   restart: unless-stopped
 
 networks:
   webnet:
@@ -78,3 +102,5 @@ volumes:
   #   name: mysql_data
   pgdata:
     name: pgdata
+  # cups:
+  #   name: cups

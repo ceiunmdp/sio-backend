@@ -34,4 +34,6 @@ export enum Path {
   REGISTRATION_TOKENS = '/registration-tokens',
 
   FILES = '/files',
+
+  PRINTERS = '/printers',
 }

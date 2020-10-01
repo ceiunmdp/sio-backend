@@ -10,7 +10,7 @@ import { RegistrationTokensRepository } from './registration-tokens.repository';
 export class RegistrationTokensService {
   constructor(private readonly usersService: UsersService) {}
 
-  async findById(userId: string, manager: EntityManager) {
+  async findOne(userId: string, manager: EntityManager) {
     const registrationToken = await this.getRegistrationTokensRepository(manager).findOne(userId);
 
     if (registrationToken) {
@@ -48,7 +48,7 @@ export class RegistrationTokensService {
   ) {
     const registrationTokensRepository = this.getRegistrationTokensRepository(manager);
 
-    const user = await this.usersService.findById(userId, manager);
+    const user = await this.usersService.findOne(userId, manager);
     return this.updateRegistrationToken(userId, { ...updateRegistrationTokenDto, user }, registrationTokensRepository);
   }
 

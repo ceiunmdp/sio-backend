@@ -76,8 +76,8 @@ export class MovementsController {
 
   @GetById(Collection.MOVEMENTS, ResponseMovementDto)
   @Auth(UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
-  async findById(@Id() id: string, @User() user: UserIdentity) {
-    return this.movementsService.findById(id, undefined, user);
+  async findOne(@Id() id: string, @User() user: UserIdentity) {
+    return this.movementsService.findOne(id, undefined, user);
   }
 
   @PostAll(Collection.MOVEMENTS, ResponseMovementDto)

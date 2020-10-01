@@ -22,4 +22,6 @@ export enum Collection {
   REGISTRATION_TOKENS = 'Registration Tokens',
 
   FILES = 'Files',
+
+  PRINTERS = 'Printers',
 }

@@ -57,8 +57,8 @@ export class StudentsController {
 
   @GetById(Collection.STUDENTS, ResponseStudentDto)
   @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
-  async findById(@Id() id: string, @User() user: UserIdentity) {
-    return this.studentsService.findById(id, undefined, user);
+  async findOne(@Id() id: string, @User() user: UserIdentity) {
+    return this.studentsService.findOne(id, undefined, user);
   }
 
   @PutById(Collection.STUDENTS, ResponseStudentDto)

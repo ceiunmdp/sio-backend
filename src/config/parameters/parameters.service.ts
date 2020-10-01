@@ -69,7 +69,7 @@ export class ParametersService extends GenericCrudService<Parameter> {
   }
 
   //! Implemented to avoid deletion of parameters by error by other developers
-  async delete(): Promise<void> {
+  async remove(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

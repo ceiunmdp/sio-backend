@@ -59,8 +59,8 @@ export class CampusController {
 
   @GetById(Collection.CAMPUS, ResponseCampusDto)
   @Auth(...ALL_ROLES)
-  async findById(@Id() id: string) {
-    return this.campusService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.campusService.findOne(id);
   }
 
   @PostAll(Collection.CAMPUS, ResponseCampusDto)
@@ -86,7 +86,7 @@ export class CampusController {
 
   @DeleteById(Collection.CAMPUS)
   @Auth(UserRole.ADMIN)
-  async delete(@Id() id: string) {
-    return this.campusService.delete(id, { softRemove: true });
+  async remove(@Id() id: string) {
+    return this.campusService.remove(id, { softRemove: true });
   }
 }

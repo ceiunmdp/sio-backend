@@ -54,8 +54,8 @@ export class ParametersController {
 
   @GetById(Collection.PARAMETERS, ResponseParameterDto)
   @Auth(UserRole.ADMIN)
-  async findById(@Id() id: string) {
-    return this.parametersService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.parametersService.findOne(id);
   }
 
   @PutById(Collection.PARAMETERS, ResponseParameterDto)

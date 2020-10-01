@@ -134,7 +134,7 @@ export class MenuService {
     }
   }
 
-  private async delete(manager: EntityManager) {
+  private async remove(manager: EntityManager) {
     const menuRepository = manager.getTreeRepository(Functionality);
 
     const roots = await Promise.all(

@@ -57,8 +57,8 @@ export class BindingsController {
 
   @GetById(Collection.BINDINGS, ResponseBindingDto)
   @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
-  async findById(@Id() id: string) {
-    return this.bindingsService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.bindingsService.findOne(id);
   }
 
   @PostAll(Collection.BINDINGS, ResponseBindingDto)
@@ -83,7 +83,7 @@ export class BindingsController {
 
   @DeleteById(Collection.BINDINGS)
   @Auth(UserRole.ADMIN)
-  async delete(@Id() id: string) {
-    return this.bindingsService.delete(id, { softRemove: false });
+  async remove(@Id() id: string) {
+    return this.bindingsService.remove(id, { softRemove: false });
   }
 }

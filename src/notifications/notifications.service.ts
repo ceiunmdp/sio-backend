@@ -128,7 +128,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
     return queryBuilder;
   }
 
-  //* findById
+  //* findOne
   protected async checkFindByIdConditions(notification: Notification, _manager: EntityManager, user: UserIdentity) {
     this.userCanAccessNotification(notification, user);
   }
@@ -171,7 +171,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
 
     const notificationTypesRepository = this.getNotificationTypesRepository(manager);
     const notificationType = await notificationTypesRepository.findOne({ where: { code: type } });
-    const registrationToken = await this.registrationTokensService.findById(userId, manager);
+    const registrationToken = await this.registrationTokensService.findOne(userId, manager);
     const message = this.buildMessage(notificationType, registrationToken);
 
     // Send message to the device corresponding to the registration token provided.

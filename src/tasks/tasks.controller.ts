@@ -26,8 +26,8 @@ export class TasksController {
   @GetById(Collection.TASKS, ResponseTaskDto, ':id', { withoutId: true })
   @ApiQuery({ name: 'id', description: `Task's id`, example: 'fileEraser' })
   @Auth(UserRole.ADMIN)
-  async findById(@Param('id') id: string) {
-    return this.tasksService.findById(id);
+  async findOne(@Param('id') id: string) {
+    return this.tasksService.findOne(id);
   }
 
   @PutById(Collection.TASKS, ResponseTaskDto)

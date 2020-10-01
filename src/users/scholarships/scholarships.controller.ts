@@ -62,8 +62,8 @@ export class ScholarshipsController {
 
   @GetById(Collection.STUDENTS, ResponseScholarshipDto)
   @Auth(UserRole.ADMIN, UserRole.SCHOLARSHIP)
-  async findById(@Id() id: string, @User() user: UserIdentity) {
-    return this.scholarshipsService.findById(id, undefined, user);
+  async findOne(@Id() id: string, @User() user: UserIdentity) {
+    return this.scholarshipsService.findOne(id, undefined, user);
   }
 
   @PutById(Collection.STUDENTS, ResponseScholarshipDto)

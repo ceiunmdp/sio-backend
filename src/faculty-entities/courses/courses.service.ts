@@ -84,11 +84,11 @@ export class CoursesService extends GenericCrudService<Course> {
 
   private transformRelationsToTernary(relations: CreateCourseRelationDto[]) {
     return flatten(
-      relations.map((relation) => relation.careersIds.map((careerId) => this.createNewTernary(relation.id, careerId))),
+      relations.map((relation) => relation.careersIds.map((careerId) => this.createTernary(relation.id, careerId))),
     );
   }
 
-  private createNewTernary(relationId: string, careerId: string) {
+  private createTernary(relationId: string, careerId: string) {
     const ternary = new CareerCourseRelation({
       relation: new Relation({ id: relationId }),
       career: new Career({ id: careerId }),

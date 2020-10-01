@@ -40,7 +40,7 @@ export class ItemsService extends GenericCrudService<Item> {
   }
 
   //! Implemented to avoid deletion of items by error by other developers
-  async delete(): Promise<void> {
+  async remove(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

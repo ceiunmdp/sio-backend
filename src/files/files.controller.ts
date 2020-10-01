@@ -97,8 +97,8 @@ export class FilesController {
 
   @GetById(Collection.FILES, ResponseFileDto)
   @Auth(...ALL_ROLES)
-  async findById(@Id() id: string, @User() user: UserIdentity) {
-    return this.filesServiceProxy.findById(id, undefined, user);
+  async findOne(@Id() id: string, @User() user: UserIdentity) {
+    return this.filesServiceProxy.findOne(id, undefined, user);
   }
 
   @GetById(Collection.FILES, ResponseFileDto, '/:id/content', { withoutOk: true, withoutMapper: true })
@@ -118,7 +118,7 @@ export class FilesController {
   }
 
   @PostAll(Collection.FILES, ResponseFileDto)
-  @Auth(...ALL_ROLES)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP)
   @UseInterceptors(FileInterceptor('file'))
   async upload(
     @UploadedFile() file: Express.Multer.File,
@@ -182,7 +182,7 @@ export class FilesController {
 
   @DeleteById(Collection.FILES)
   @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.PROFESSORSHIP)
-  async delete(@Id() id: string, @User() user: UserIdentity) {
-    return this.filesServiceProxy.delete(id, { softRemove: true }, undefined, user);
+  async remove(@Id() id: string, @User() user: UserIdentity) {
+    return this.filesServiceProxy.remove(id, { softRemove: true }, undefined, user);
   }
 }

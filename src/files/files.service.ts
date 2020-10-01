@@ -51,11 +51,11 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   async findContentById(id: string, manager: EntityManager, user: UserIdentity) {
-    const file = await this.findById(id, manager, user);
+    const file = await this.findOne(id, manager, user);
     return readFile(file.path);
   }
 
-  //* findById // findContentById
+  //* findOne // findContentById
   protected async checkFindByIdConditions(file: File, _manager: EntityManager, user: UserIdentity) {
     this.userCanReadFile(file, user);
   }

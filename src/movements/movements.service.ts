@@ -80,7 +80,7 @@ export class MovementsService extends GenericCrudService<Movement> {
     return queryBuilder;
   }
 
-  async findById(id: string, manager: EntityManager, user: UserIdentity) {
+  async findOne(id: string, manager: EntityManager, user: UserIdentity) {
     const movementsRepository = this.getMovementsRepository(manager);
     const movement = await movementsRepository.findOne(id, {
       loadEagerRelations: true,

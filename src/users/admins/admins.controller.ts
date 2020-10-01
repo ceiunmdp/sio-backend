@@ -60,8 +60,8 @@ export class AdminsController {
 
   @GetById(Collection.ADMINS, ResponseAdminDto)
   @Auth(UserRole.ADMIN)
-  async findById(@Id() id: string, @User() user: UserIdentity) {
-    return this.adminsService.findById(id, undefined, user);
+  async findOne(@Id() id: string, @User() user: UserIdentity) {
+    return this.adminsService.findOne(id, undefined, user);
   }
 
   @PostAll(Collection.ADMINS, ResponseAdminDto)
@@ -87,9 +87,9 @@ export class AdminsController {
 
   @DeleteById(Collection.ADMINS)
   @Auth(UserRole.ADMIN)
-  async delete(@User('id') userId: string, @Id() id: string) {
+  async remove(@User('id') userId: string, @Id() id: string) {
     if (userId !== id) {
-      return this.adminsService.delete(id);
+      return this.adminsService.remove(id);
     } else {
       throw new BadRequestException('No es posible eliminarse a sí mismo como administrador.');
     }

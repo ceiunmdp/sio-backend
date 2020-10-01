@@ -11,6 +11,7 @@ import { MenuModule } from 'src/menu/menu.module';
 import { MovementsModule } from 'src/movements/movements.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { RegistrationTokensModule } from 'src/notifications/registration-tokens/registration-tokens.module';
+import { PrintersModule } from 'src/printers/printers.module';
 import { TasksModule } from 'src/tasks/tasks.module';
 import { UserModule } from 'src/user/user.module';
 import { AdminsModule } from 'src/users/admins/admins.module';
@@ -124,5 +125,9 @@ export const routes: Routes = [
   {
     path: Path.FILES,
     module: FilesModule,
+  },
+  {
+    path: Path.PRINTERS,
+    module: PrintersModule,
   },
 ];

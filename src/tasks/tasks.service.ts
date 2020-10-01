@@ -19,7 +19,7 @@ export class TasksService {
     return tasks;
   }
 
-  async findById(id: string) {
+  async findOne(id: string) {
     try {
       const cronJob = this.schedulerRegistry.getCronJob(id);
       return this.createTask(id, cronJob);
@@ -39,7 +39,7 @@ export class TasksService {
   }
 
   async update(id: string, { running, time }: PartialUpdateTaskDto) {
-    const cronJob = (await this.findById(id)).cronJob;
+    const cronJob = (await this.findOne(id)).cronJob;
     const previousState = cronJob.running;
 
     if (time) {
@@ -54,6 +54,6 @@ export class TasksService {
       }
     }
 
-    return this.findById(id);
+    return this.findOne(id);
   }
 }

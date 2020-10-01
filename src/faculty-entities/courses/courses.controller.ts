@@ -61,8 +61,8 @@ export class CoursesController {
 
   @GetById(Collection.COURSES, ResponseCourseDto)
   @Auth(...ALL_ROLES)
-  async findById(@Id() id: string) {
-    return this.coursesService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.coursesService.findOne(id);
   }
 
   @PostAll(Collection.COURSES, ResponseCourseDto)
@@ -91,8 +91,8 @@ export class CoursesController {
 
   @DeleteById(Collection.COURSES)
   @Auth(UserRole.ADMIN)
-  async delete(@Id() id: string) {
-    return this.coursesService.delete(id, { softRemove: true });
+  async remove(@Id() id: string) {
+    return this.coursesService.remove(id, { softRemove: true });
   }
 
   private validateDto(dto: PartialUpdateCourseDto) {

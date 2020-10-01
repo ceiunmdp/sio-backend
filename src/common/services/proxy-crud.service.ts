@@ -17,9 +17,9 @@ export class ProxyCrudService<T extends BaseEntity> implements CrudService<T> {
     });
   }
 
-  findById(id: string, _, user?: UserIdentity) {
+  findOne(id: string, _, user?: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.service.findById(id, manager, user);
+      return this.service.findOne(id, manager, user);
     });
   }
 
@@ -35,9 +35,9 @@ export class ProxyCrudService<T extends BaseEntity> implements CrudService<T> {
     });
   }
 
-  delete(id: string, options?: RemoveOptions, _?, user?: UserIdentity) {
+  remove(id: string, options?: RemoveOptions, _?, user?: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
-      return this.service.delete(id, options, manager, user);
+      return this.service.remove(id, options, manager, user);
     });
   }
 }

@@ -59,8 +59,8 @@ export class CareersController {
 
   @GetById(Collection.CAREERS, ResponseCareerDto)
   @Auth(...ALL_ROLES)
-  async findById(@Id() id: string) {
-    return this.careersService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.careersService.findOne(id);
   }
 
   @PostAll(Collection.CAREERS, ResponseCareerDto)
@@ -86,7 +86,7 @@ export class CareersController {
 
   @DeleteById(Collection.CAREERS)
   @Auth(UserRole.ADMIN)
-  async delete(@Id() id: string) {
-    return this.careersService.delete(id, { softRemove: false });
+  async remove(@Id() id: string) {
+    return this.careersService.remove(id, { softRemove: false });
   }
 }

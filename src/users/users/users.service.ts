@@ -73,7 +73,7 @@ export class UsersService implements TypeOrmCrudService<User> {
     return this.transformUserRecordsToUsers(getUsersResult.users, manager);
   }
 
-  async findById(id: string, manager: EntityManager) {
+  async findOne(id: string, manager: EntityManager) {
     try {
       const userRecord = await admin.auth().getUser(await this.findUid(id, manager));
       return await this.transformUserRecordToUser(userRecord, manager);
@@ -176,7 +176,7 @@ export class UsersService implements TypeOrmCrudService<User> {
   }
 
   //! This method does not delete the user from the local database, this responsibility is from the appropiate service
-  async delete(id: string, manager: EntityManager) {
+  async remove(id: string, manager: EntityManager) {
     try {
       return await admin.auth().deleteUser(await this.findUid(id, manager));
     } catch (error) {

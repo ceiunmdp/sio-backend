@@ -20,6 +20,7 @@ import { MenuModule } from './menu/menu.module';
 import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders.module';
+import { PrintersModule } from './printers/printers.module';
 import { RolesModule } from './roles/roles.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UserModule } from './user/user.module';
@@ -40,6 +41,7 @@ import { GeneralUsersModule } from './users/general-users.module';
     NotificationsModule,
     OrdersModule,
     ParametersModule,
+    PrintersModule,
     RolesModule,
     TasksModule,
     UserModule,

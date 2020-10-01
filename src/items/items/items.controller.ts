@@ -52,8 +52,8 @@ export class ItemsController {
 
   @GetById(Collection.ITEMS, ResponseItemDto, `:id(${UUID_V4})`)
   @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
-  async findById(@Id() id: string) {
-    return this.itemsService.findById(id);
+  async findOne(@Id() id: string) {
+    return this.itemsService.findOne(id);
   }
 
   @PatchById(Collection.ITEMS, ResponseItemDto, `:id(${UUID_V4})`)
