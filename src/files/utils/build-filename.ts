@@ -12,4 +12,8 @@ export const buildFilename = (filename: string, mimetype: string) => {
 // const removeExtension = (str: string) => str.replace(/\.[^/.]+$/, '');
 const removeExtension = (str: string) => str.replace(extname(str), '');
 
-const removeUnwantedCharacters = (str: string) => str.replace(/[^a-zA-Z0-9 ]/g, '');
+const removeUnwantedCharacters = (str: string) =>
+  str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9 ]/g, '');

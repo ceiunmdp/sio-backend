@@ -201,9 +201,9 @@ export class UsersService implements TypeOrmCrudService<User> {
     if (ids.length === users.length) {
       return users.map((user) => user.uid);
     } else {
-      const userMap = new Map(users.map((user) => [user.id, user.uid]));
+      const usersSet = new Set(users.map((user) => user.id));
       ids.forEach((id) => {
-        if (!userMap.has(id)) throw new UserNotFoundInDatabaseException(id);
+        if (!usersSet.has(id)) throw new UserNotFoundInDatabaseException(id);
       });
     }
   }

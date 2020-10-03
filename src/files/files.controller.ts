@@ -16,6 +16,7 @@ import { readFileSync } from 'fs-extra';
 import { lookup } from 'mime-types';
 import { PDFDocument } from 'pdf-lib';
 import { ALL_ROLES } from 'src/common/constants/all-roles';
+import { ArrayId } from 'src/common/decorators/array-id.decorator';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Filter } from 'src/common/decorators/filter.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
@@ -101,7 +102,7 @@ export class FilesController {
     return this.filesServiceProxy.findOne(id, undefined, user);
   }
 
-  @GetById(Collection.FILES, ResponseFileDto, '/:id/content', { withoutOk: true, withoutMapper: true })
+  @GetById(Collection.FILES, ResponseFileDto, ':id/content', { withoutOk: true, withoutMapper: true })
   @Auth(...ALL_ROLES)
   @ApiOkResponse({
     description: 'PDF file',
@@ -122,10 +123,10 @@ export class FilesController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(
     @UploadedFile() file: Express.Multer.File,
-    @Body('course_id') courseId: string,
+    @ArrayId('courses_ids', 'body') coursesIds: string[],
     @User() user: UserIdentity,
   ) {
-    return this.filesServiceProxy.create(await this.createAndValidateDto(file, courseId, user.id), undefined, user);
+    return this.filesServiceProxy.create(await this.createAndValidateDto(file, coursesIds, user.id), undefined, user);
   }
 
   @PostAll(Collection.FILES, ResponseFileDto, '/bulk')
@@ -133,19 +134,19 @@ export class FilesController {
   @UseInterceptors(FilesInterceptor('files'))
   async uploadBulk(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body('course_id') courseId: string,
+    @ArrayId('courses_ids', 'body') coursesIds: string[],
     @User() user: UserIdentity,
   ) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
       return this.filesService.createBulk(
-        await Promise.all(files.map((file) => this.createAndValidateDto(file, courseId, user.id))),
+        await Promise.all(files.map((file) => this.createAndValidateDto(file, coursesIds, user.id))),
         manager,
         user,
       );
     });
   }
 
-  private async createAndValidateDto(file: Express.Multer.File, courseId: string, userId: string) {
+  private async createAndValidateDto(file: Express.Multer.File, coursesIds: string[], userId: string) {
     const createFileDto = new CreateFileDto({
       name: file.originalname,
       mimetype: file.mimetype,
@@ -153,7 +154,7 @@ export class FilesController {
       size: file.size,
       path: file.path,
       ownerId: userId,
-      courseId,
+      coursesIds,
     });
 
     const errors = await validate(createFileDto);

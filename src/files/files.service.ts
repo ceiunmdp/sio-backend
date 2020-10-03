@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { readFile, remove, renameSync } from 'fs-extra';
+import { flatten } from 'lodash';
 import { basename } from 'path';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
@@ -40,7 +41,7 @@ export class FilesService extends GenericCrudService<File> {
 
   //* findAll
   protected addExtraClauses(queryBuilder: SelectQueryBuilder<File>, user?: UserIdentity) {
-    queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.course`, 'course');
+    queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.courses`, 'course');
 
     //* /files/me
     if (user) {
@@ -73,7 +74,7 @@ export class FilesService extends GenericCrudService<File> {
     const filesRepository = this.getFilesRepository(manager);
 
     try {
-      await this.checkIfUserCanUploadFiles(user, createFileDto.size, manager);
+      await this.checkIfUserCanUploadFiles(user, [createFileDto], manager);
       return filesRepository.saveAndReload(this.hydrateDto(createFileDto, user.role));
     } catch (error) {
       if (error instanceof ExceededAvailableStorageException) {
@@ -86,10 +87,8 @@ export class FilesService extends GenericCrudService<File> {
   async createBulk(createFileDtos: CreateFileDto[], manager: EntityManager, user: UserIdentity) {
     const filesRepository = this.getFilesRepository(manager);
 
-    const totalSize = createFileDtos.reduce((total, file) => total + file.size, 0);
-
     try {
-      await this.checkIfUserCanUploadFiles(user, totalSize, manager);
+      await this.checkIfUserCanUploadFiles(user, createFileDtos, manager);
       return filesRepository.saveAndReload(
         createFileDtos.map((createFileDto) => this.hydrateDto(createFileDto, user.role)),
       );
@@ -101,17 +100,31 @@ export class FilesService extends GenericCrudService<File> {
     }
   }
 
-  private async checkIfUserCanUploadFiles(user: UserIdentity, totalSize: number, manager: EntityManager) {
-    return (
-      !isProfessorship(user) || !!(await this.professorshipsService.useUpStorageAvailable(user.id, totalSize, manager))
-    );
+  private async checkIfUserCanUploadFiles(user: UserIdentity, createFileDtos: CreateFileDto[], manager: EntityManager) {
+    return !isProfessorship(user) || (await this.canProfessorshipUploadFiles(user, createFileDtos, manager));
+  }
+
+  private async canProfessorshipUploadFiles(
+    user: UserIdentity,
+    createFileDtos: CreateFileDto[],
+    manager: EntityManager,
+  ) {
+    const coursesIds = new Set(flatten(createFileDtos.map((createFileDto) => createFileDto.coursesIds)));
+    const professorship = await this.professorshipsService.findOne(user.id, manager, user);
+
+    if (coursesIds.size !== 1 || !coursesIds.has(professorship.courseId)) {
+      throw new BadRequestException('Professorship user cannot upload files belonging to other courses');
+    } else {
+      const totalSize = createFileDtos.reduce((total, file) => total + file.size, 0);
+      await this.professorshipsService.useUpStorageAvailable(user.id, totalSize, manager);
+    }
   }
 
   private hydrateDto(createFileDto: CreateFileDto, role: UserRole): DeepPartial<File> {
     return {
       ...createFileDto,
       owner: new User({ id: createFileDto.ownerId }),
-      course: new Course({ id: createFileDto.courseId }),
+      courses: createFileDto.coursesIds.map((courseId) => new Course({ id: courseId })),
       type: this.getFileTypeBasedOnRole(role),
     };
   }
@@ -187,7 +200,7 @@ export class FilesService extends GenericCrudService<File> {
 
   async softRemoveByCourseId(courseId: string, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
-    const files = await filesRepository.find({ where: { course: { id: courseId } } });
+    const files = await filesRepository.find({ where: { courses: { id: courseId } } });
     return filesRepository.softRemove(files);
   }
 
@@ -216,10 +229,15 @@ export class FilesService extends GenericCrudService<File> {
   async linkFilesToProfessorship(professorship: Professorship, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
 
-    const files = await filesRepository.find({
-      where: { type: FileType.SYSTEM_PROFESSORSHIP, course: { id: professorship.courseId } },
-      withDeleted: true,
-    });
+    const files = await filesRepository
+      .createQueryBuilder('file')
+      .leftJoin('file.courses', 'course')
+      .where('file.type = :type', { type: FileType.SYSTEM_PROFESSORSHIP })
+      .andWhere('course.id = :id', { id: professorship.courseId })
+      .andWhere('file.deleteDate IS NOT NULL')
+      .withDeleted()
+      .getMany();
+
     files.forEach((file) => (file.owner = professorship));
     await filesRepository.save(files);
 

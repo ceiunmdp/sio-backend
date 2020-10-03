@@ -29,8 +29,11 @@ export class CreateFileDto extends UpdateFileDto {
   ownerId!: string;
 
   @Allow() //* Already verified in MulterConfigService
-  @ApiProperty({ description: `Course file belongs to` })
-  courseId!: string;
+  @ApiProperty({
+    description: `Courses's UUIDs file belongs to`,
+    example: ['0de63cc8-d62d-4ea1-aa37-1846b6cf429d0', '911989ef-bb7c-4ca0-8cb3-bc2f976705a0'],
+  })
+  coursesIds!: string[];
 
   constructor(partial: Partial<CreateFileDto>) {
     super(partial);

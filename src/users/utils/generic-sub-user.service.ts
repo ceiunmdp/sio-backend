@@ -27,7 +27,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return new Pagination<T>(await this.userMerger.findAndMergeSubUsers(items, manager), meta, links);
   }
 
-  addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
+  protected addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
     Object.keys(order).map((property) => {
       qb.addOrderBy(property, order[property]);
     });

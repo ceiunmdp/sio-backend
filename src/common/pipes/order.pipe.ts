@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable, PipeTransform, UnprocessableEntityException } from '@nestjs/common';
 import { Order } from '../interfaces/order.type';
 
 @Injectable()
@@ -16,9 +16,9 @@ export class OrderPipe<T> implements PipeTransform<string, Order<T>> {
 
       array.forEach((tuple) => {
         if (tuple.length !== 2) {
-          throw new BadRequestException(`Wrong syntax in 'sort' parameter`);
+          throw new UnprocessableEntityException(`Wrong syntax in 'sort' parameter`);
         } else if (tuple[1] !== 'ASC' && tuple[1] !== 'DESC') {
-          throw new BadRequestException(`Order must be 'ASC' or 'DESC'`);
+          throw new UnprocessableEntityException(`Order must be 'ASC' or 'DESC'`);
         }
       });
 

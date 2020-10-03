@@ -1,4 +1,4 @@
-import { AutoMapper, mapDefer, mapFrom, mapWith, Profile, ProfileBase } from 'nestjsx-automapper';
+import { AutoMapper, fromValue, mapDefer, mapFrom, mapWith, Profile, ProfileBase } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { ResponseCourseDto } from 'src/faculty-entities/courses/dtos/response-course.dto';
@@ -21,10 +21,8 @@ export class FileProfile extends ProfileBase {
         ),
       )
       .forMember(
-        (responseFileDto) => responseFileDto.course,
-        mapDefer((file) =>
-          file.course ? mapWith(ResponseCourseDto, (file) => file.course) : mapFrom((file) => ({ id: file.courseId })),
-        ),
+        (responseFileDto) => responseFileDto.courses,
+        mapDefer((file) => (file.courses ? mapWith(ResponseCourseDto, (file) => file.courses) : fromValue(undefined))),
       );
   }
 }

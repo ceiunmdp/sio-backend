@@ -64,13 +64,20 @@ export class PrintersService {
     if (this.printersMap.has(id)) {
       return this.printersMap.get(id);
     } else {
-      throw new NotFoundException(`Impresora '${id}' no encontrada.`);
+      throw new NotFoundException(`Impresora ${id} no encontrada.`);
     }
   }
 
   async printFile(id: string, file: File, configuration: Configuration) {
     const printer = new ipp.Printer(this.findOne(id).getUrl());
+
+    // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_5500');
+    // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_8000');
+    // const printer = new ipp.Printer('http://localhost:631/printers/Savin_8060');
+
     await this.checkIfConfigurationIsSupported(printer, file.mimetype, configuration);
+    // await this.checkIfConfigurationIsSupported(printer, null, configuration);
+
     return this.sendJob(printer, file, configuration);
   }
 

@@ -33,7 +33,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     return queryBuilder;
   }
 
-  addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
+  protected addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
     if (order) {
       Object.keys(order).map((property) => {
         qb.addOrderBy(property, order[property]);
@@ -64,17 +64,26 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     const entitiesRepository = manager.getRepository<T>(this.type);
 
     const newEntity = await entitiesRepository.save(createDto);
-    return entitiesRepository.findOne(newEntity.id);
+    return entitiesRepository.findOne(newEntity.id, {
+      relations: this.getFindOneRelations(),
+      loadEagerRelations: true,
+    });
   }
 
   async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
-    const entity = await entitiesRepository.findOne(id, { relations: this.getFindOneRelations() });
+    const entity = await entitiesRepository.findOne(id, {
+      relations: this.getFindOneRelations(),
+      loadEagerRelations: true,
+    });
     if (entity) {
       await this.checkUpdateConditions(updateDto, entity, manager, user);
       await entitiesRepository.save({ ...updateDto, id });
-      return entitiesRepository.findOne(id);
+      return entitiesRepository.findOne(id, {
+        relations: this.getFindOneRelations(),
+        loadEagerRelations: true,
+      });
     } else {
       this.throwCustomNotFoundException(id);
     }
@@ -92,7 +101,10 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
   async remove(id: string, options?: RemoveOptions, manager?: EntityManager, user?: UserIdentity) {
     const entitiesRepository = manager.getRepository<T>(this.type);
 
-    const entity = await entitiesRepository.findOne(id, { relations: this.getFindOneRelations() });
+    const entity = await entitiesRepository.findOne(id, {
+      relations: this.getFindOneRelations(),
+      loadEagerRelations: true,
+    });
     if (entity) {
       await this.checkDeleteConditions(entity, manager, user);
       await this.beforeDelete(entity, manager, user);

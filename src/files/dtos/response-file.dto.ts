@@ -34,8 +34,8 @@ export class ResponseFileDto extends ResponseBaseEntityDto {
 
   @AutoMap(() => ResponseCourseDto)
   @Expose({ groups: ALL_GROUPS })
-  @ApiProperty({ description: `Course file belongs to` })
-  course!: ResponseCourseDto;
+  @ApiProperty({ description: `Courses file belongs to` })
+  courses!: ResponseCourseDto[];
 
   @Expose({ groups: ALL_GROUPS })
   @ApiProperty({ description: `File type`, example: FileType.SYSTEM_STAFF })

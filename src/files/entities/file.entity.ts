@@ -3,7 +3,7 @@ import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { OrderFile } from 'src/orders/entities/order-file.entity';
 import { User } from 'src/users/users/entities/user.entity';
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { FileType } from '../enums/file-type.enum';
 
 @Entity('files')
@@ -32,13 +32,14 @@ export class File extends BaseEntity {
   @JoinColumn({ name: 'owner_id' })
   owner?: User;
 
-  @RelationId((file: File) => file.course)
-  readonly courseId!: string;
-
   @AutoMap(() => Course)
-  @ManyToOne(() => Course, { eager: true }) //* Could be null for temporary files
-  @JoinColumn({ name: 'course_id' })
-  readonly course!: Course;
+  @ManyToMany(() => Course, { eager: true }) //* Could be null for temporary files
+  @JoinTable({
+    name: 'courses_files',
+    joinColumn: { name: 'file_id' },
+    inverseJoinColumn: { name: 'course_id' },
+  })
+  readonly courses!: Course[];
 
   @AutoMap(() => OrderFile)
   @OneToMany(() => OrderFile, (orderFile) => orderFile.file)

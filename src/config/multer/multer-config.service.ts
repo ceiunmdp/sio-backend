@@ -10,9 +10,9 @@ import { existsSync, mkdirSync } from 'fs-extra';
 import { lookup } from 'mime-types';
 import { diskStorage } from 'multer';
 import { join } from 'path';
-import { CoursesService } from 'src/faculty-entities/courses/courses.service';
+import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { buildFilename } from 'src/files/utils/build-filename';
-import { Connection } from 'typeorm';
+import { Connection, In } from 'typeorm';
 import { ParametersService } from '../parameters/parameters.service';
 
 interface MulterEnvironmentVariables {
@@ -26,7 +26,6 @@ export class MulterConfigService implements MulterOptionsFactory {
   constructor(
     @InjectConnection() private readonly connection: Connection,
     private readonly configService: ConfigService<MulterEnvironmentVariables>,
-    private readonly coursesService: CoursesService,
     private readonly parametersService: ParametersService,
   ) {}
 
@@ -39,26 +38,48 @@ export class MulterConfigService implements MulterOptionsFactory {
     _file: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void,
   ) {
-    const path = join(this.destination, await this.getCourseId(request));
-    if (!existsSync(path)) {
-      mkdirSync(path);
-    }
+    try {
+      const coursesIds = await this.checkAndGetCoursesIdsParameters(request);
+      const path = join(this.destination, coursesIds[0]);
+      if (!existsSync(path)) {
+        mkdirSync(path);
+      }
 
-    // TODO: Check if __dirname should be used
-    cb(null, path);
+      // TODO: Check if __dirname should be used
+      cb(null, path);
+    } catch (error) {
+      cb(error, null);
+    }
   }
 
-  private async getCourseId(request: Request) {
-    const courseId = request.body.course_id;
+  private async checkAndGetCoursesIdsParameters(request: Request) {
+    const ids = request.body.courses_ids as string;
 
-    if (!courseId) {
-      throw new UnprocessableEntityException('course_id was not provided');
-    } else if (!isUUID(courseId)) {
-      throw new UnprocessableEntityException('course_id is not a valid UUID');
-    } else if (!(await this.coursesService.findOne(courseId, this.connection.manager))) {
-      throw new UnprocessableEntityException('course_id provided does not correspond to any existing Course');
+    if (!ids) {
+      throw new UnprocessableEntityException('courses_ids was not provided');
     } else {
-      return courseId;
+      const coursesIds = ids.split(',');
+      this.checkCoursesIdsAreValidUUIDs(coursesIds);
+      await this.checkCoursesIdsAreValidCourses(coursesIds);
+      return coursesIds;
+    }
+  }
+
+  private checkCoursesIdsAreValidUUIDs(ids: string[]) {
+    ids.forEach((id) => {
+      if (!isUUID(id)) throw new UnprocessableEntityException(`course_id '${id}' is not a valid UUID`);
+    });
+  }
+
+  private async checkCoursesIdsAreValidCourses(ids: string[]) {
+    const courses = await this.connection.manager.getRepository(Course).find({ where: { id: In(ids) } });
+
+    if (!(ids.length === courses.length)) {
+      const coursesSet = new Set(courses.map((course) => course.id));
+      ids.forEach((id) => {
+        if (!coursesSet.has(id))
+          throw new UnprocessableEntityException(`course_id '${id}' does not correspond to any existing Course`);
+      });
     }
   }
 

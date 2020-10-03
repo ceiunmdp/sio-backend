@@ -24,7 +24,7 @@ export class TasksService {
       const cronJob = this.schedulerRegistry.getCronJob(id);
       return this.createTask(id, cronJob);
     } catch (error) {
-      throw new NotFoundException(`Tarea '${id}' no encontrada.`);
+      throw new NotFoundException(`Tarea ${id} no encontrada.`);
     }
   }
 

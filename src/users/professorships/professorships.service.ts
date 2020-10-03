@@ -53,6 +53,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     return parameter.value;
   }
 
+  // TODO: Verify this feature, it may not be necessary anymore
   private async afterInsert(professorship: Professorship, manager: EntityManager) {
     const professorshipsRepository = this.getProfessorshipsRepository(manager);
 
