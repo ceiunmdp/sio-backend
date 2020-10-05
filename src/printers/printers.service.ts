@@ -24,7 +24,7 @@ export class PrintersService {
 
   constructor(private readonly logger: CustomLoggerService) {
     this.logger.context = PrintersService.name;
-    this.setBrowserConfiguration();
+    // this.setBrowserConfiguration();
   }
 
   private setBrowserConfiguration() {
