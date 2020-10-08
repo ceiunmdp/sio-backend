@@ -3,17 +3,19 @@ import { InjectConnection } from '@nestjs/typeorm';
 import * as bytes from 'bytes';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { Connection, EntityManager } from 'typeorm';
+import { AppConfigService } from '../app/app-config.service';
 import { Parameter } from './entities/parameter.entity';
 import { ParameterType } from './enums/parameter-type.enum';
 
 @Injectable()
 export class ParametersService extends GenericCrudService<Parameter> {
-  constructor(@InjectConnection() connection: Connection) {
+  constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Parameter);
-    this.createParameters(connection.manager);
+    if (!appConfigService.isProduction) {
+      this.createParameters(connection.manager);
+    }
   }
 
-  // TODO: Delete this method in production
   private async createParameters(manager: EntityManager) {
     const parametersRepository = this.getParametersRepository(manager);
 

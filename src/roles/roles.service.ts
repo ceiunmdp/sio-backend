@@ -5,7 +5,6 @@ import { Role } from './entities/role.entity';
 
 @Injectable()
 export class RolesService {
-  // TODO: Delete this method in production
   async createRoles(manager: EntityManager) {
     const rolesRepository = manager.getRepository(Role);
 

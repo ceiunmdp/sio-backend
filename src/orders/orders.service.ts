@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
+import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection, EntityManager } from 'typeorm';
 import { FileState } from './entities/file-state.entity';
 import { OrderState } from './entities/order-state.entity';
@@ -10,13 +11,14 @@ import { EOrderState } from './enums/e-order-state.enum';
 
 @Injectable()
 export class OrdersService extends GenericCrudService<Order> {
-  constructor(@InjectConnection() connection: Connection) {
+  constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Order);
-    this.createOrderStates(connection.manager);
-    this.createFileStates(connection.manager);
+    if (!appConfigService.isProduction) {
+      this.createOrderStates(connection.manager);
+      this.createFileStates(connection.manager);
+    }
   }
 
-  // TODO: Delete this method in production
   private async createOrderStates(manager: EntityManager) {
     const orderStatesRepository = this.getOrderStatesRepository(manager);
 
@@ -32,7 +34,6 @@ export class OrdersService extends GenericCrudService<Order> {
     }
   }
 
-  // TODO: Delete this method in production
   private async createFileStates(manager: EntityManager) {
     const fileStatesRepository = this.getFileStatesRepository(manager);
 

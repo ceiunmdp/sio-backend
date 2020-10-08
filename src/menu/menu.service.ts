@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { sortBy } from 'lodash';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { AppConfigService } from 'src/config/app/app-config.service';
 import { RolesService } from 'src/roles/roles.service';
 import { Connection, EntityManager, TreeRepository } from 'typeorm';
 import { Functionality } from './entities/functionality.entity';
@@ -9,8 +10,14 @@ import { EFunctionality } from './enums/e-functionality.enum';
 
 @Injectable()
 export class MenuService {
-  constructor(@InjectConnection() connection: Connection, private readonly rolesService: RolesService) {
-    this.createMenu(connection.manager);
+  constructor(
+    @InjectConnection() connection: Connection,
+    appConfigService: AppConfigService,
+    private readonly rolesService: RolesService,
+  ) {
+    if (!appConfigService.isProduction) {
+      this.createMenu(connection.manager);
+    }
   }
 
   async find(userRole: UserRole, manager: EntityManager) {
@@ -58,7 +65,6 @@ export class MenuService {
     }
   }
 
-  // TODO: Delete this method in production
   private async createMenu(manager: EntityManager) {
     await this.rolesService.createRoles(manager);
 

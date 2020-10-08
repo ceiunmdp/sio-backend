@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
+import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection, EntityManager } from 'typeorm';
 import { Item } from './entities/item.entity';
 import { EItem } from './enums/e-item.enum';
@@ -8,9 +9,11 @@ import { ItemsRepository } from './items.repository';
 
 @Injectable()
 export class ItemsService extends GenericCrudService<Item> {
-  constructor(@InjectConnection() connection: Connection) {
+  constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Item);
-    this.createItems(connection.manager);
+    if (!appConfigService.isProduction) {
+      this.createItems(connection.manager);
+    }
   }
 
   async findItemByName(name: string, itemsRepository: ItemsRepository) {
@@ -26,7 +29,6 @@ export class ItemsService extends GenericCrudService<Item> {
     throw new Error('Method not implemented.');
   }
 
-  // TODO: Delete this method in production
   private async createItems(manager: EntityManager) {
     const itemsRepository = manager.getRepository(Item);
 

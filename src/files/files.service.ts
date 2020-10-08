@@ -271,7 +271,6 @@ export class FilesService extends GenericCrudService<File> {
         .withDeleted()
         .where('file.deleteDate IS NOT NULL')
         .andWhere('file.physically_erased = :erased', { erased: false })
-        // TODO: See if it's possible somehow to use first implementation instead of second one
         .andWhere('state.code NOT IN (:...activeStates)', {
           activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],
         })

@@ -7,6 +7,7 @@ import { Where } from 'src/common/interfaces/where.type';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { isAdmin, isCampus, isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { filterQuery } from 'src/common/utils/query-builder';
+import { AppConfigService } from 'src/config/app/app-config.service';
 import { Order } from 'src/orders/entities/order.entity';
 import { StudentsService } from 'src/users/students/students.service';
 import { User } from 'src/users/users/entities/user.entity';
@@ -19,12 +20,17 @@ import { MovementsRepository } from './movements.repository';
 
 @Injectable()
 export class MovementsService extends GenericCrudService<Movement> {
-  constructor(@InjectConnection() connection: Connection, private readonly studentsService: StudentsService) {
+  constructor(
+    @InjectConnection() connection: Connection,
+    appConfigService: AppConfigService,
+    private readonly studentsService: StudentsService,
+  ) {
     super(Movement);
-    this.createMovementTypes(connection.manager);
+    if (!appConfigService.isProduction) {
+      this.createMovementTypes(connection.manager);
+    }
   }
 
-  // TODO: Delete this method in production
   private async createMovementTypes(manager: EntityManager) {
     const movementTypesRepository = manager.getRepository(MovementType);
 

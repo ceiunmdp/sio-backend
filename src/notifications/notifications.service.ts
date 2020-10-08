@@ -4,6 +4,7 @@ import * as admin from 'firebase-admin';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { isAdmin } from 'src/common/utils/is-role-functions';
+import { AppConfigService } from 'src/config/app/app-config.service';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { User } from 'src/users/users/entities/user.entity';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
@@ -19,14 +20,16 @@ import { RegistrationTokensService } from './registration-tokens/registration-to
 export class NotificationsService extends GenericCrudService<Notification> {
   constructor(
     @InjectConnection() connection: Connection,
+    appConfigService: AppConfigService,
     private readonly logger: CustomLoggerService,
     private readonly registrationTokensService: RegistrationTokensService,
   ) {
     super(Notification);
-    this.createNotificationTypes(connection.manager);
+    if (!appConfigService.isProduction) {
+      this.createNotificationTypes(connection.manager);
+    }
   }
 
-  // TODO: Delete this method in production
   private async createNotificationTypes(manager: EntityManager) {
     const notificationTypesRepository = this.getNotificationTypesRepository(manager);
 

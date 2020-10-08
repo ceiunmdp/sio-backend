@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
-import { RolesService } from 'src/roles/roles.service';
+import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection, EntityManager } from 'typeorm';
 import { UserNotFoundInDatabaseException } from '../users/exceptions/user-not-found-in-database.exception';
 import { UserNotFoundInFirebaseException } from '../users/exceptions/user-not-found-in-firebase.exception';
@@ -10,17 +10,17 @@ import { Admin } from './entities/admin.entity';
 
 @Injectable()
 export class AdminsService extends GenericSubUserService<Admin> {
-  // TODO: remove 'connection' and 'rolesService' in production
   constructor(
     @InjectConnection() connection: Connection,
-    private readonly rolesService: RolesService,
+    appConfigService: AppConfigService,
     usersService: UsersService,
   ) {
     super(usersService, Admin);
-    setTimeout(this.createAdmin.bind(this), 5000, connection.manager);
+    if (!appConfigService.isProduction) {
+      setTimeout(this.createAdmin.bind(this), 5000, connection.manager);
+    }
   }
 
-  // TODO: Delete this method in production
   async createAdmin(manager: EntityManager) {
     try {
       return await this.usersService.findByEmail('admin@gmail.com', manager);

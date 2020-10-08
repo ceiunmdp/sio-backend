@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
+import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { CareersRepository } from './careers.repository';
 import { CreateCareerDto } from './dtos/create-career.dto';
@@ -9,12 +10,13 @@ import { Career } from './entities/career.entity';
 
 @Injectable()
 export class CareersService extends GenericCrudService<Career> {
-  constructor(@InjectConnection() connection: Connection) {
+  constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Career);
-    this.createCareers(connection.manager);
+    if (!appConfigService.isProduction) {
+      this.createCareers(connection.manager);
+    }
   }
 
-  // TODO: Delete this method in production
   private async createCareers(manager: EntityManager) {
     const careersRepository = this.getCareersRepository(manager);
 
