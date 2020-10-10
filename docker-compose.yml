@@ -7,9 +7,9 @@ services:
     #   context: .
     #   target: build
     #   target: production
-    # image: nestjs:1.0.4-dev
-    # image: nestjs:1.0.4-prod
-    image: manuelnucci/nestjs:1.0.4-prod
+    # image: nestjs:1.0.5-dev
+    # image: nestjs:1.0.5-prod
+    image: manuelnucci/nestjs:1.0.5
     # command: npm run start:dev
     env_file:
       - .env
@@ -18,16 +18,36 @@ services:
     volumes:
       # - .:/home/node/app
       # - /home/node/app/node_modules
+      - ./public:/home/node/app/public
       - ./files:/home/node/app/files
       - /var/run/dbus:/var/run/dbus
     ports:
       - ${APP_PORT}:${APP_PORT}
       - 9229:9229
     depends_on:
-      # - mysql
       - postgres
+      # - mysql
       # - cups
     restart: unless-stopped
+  postgres:
+    container_name: postgres
+    # build:
+    #   context: ./database
+    # image: postgres-es_ar:12.4
+    image: manuelnucci/postgres:1.0.0
+    environment:
+      POSTGRES_DB: ${TYPEORM_DATABASE}
+      POSTGRES_USER: ${TYPEORM_USERNAME}
+      POSTGRES_PASSWORD: ${TYPEORM_PASSWORD}
+      PG_DATA: /var/lib/postgresql/data
+    networks:
+      - webnet
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+
   # mysql:
   #   container_name: mysql
   #   image: mysql:8.0.21
@@ -54,23 +74,6 @@ services:
   #   ports:
   #     - 3306:3306
   #   restart: unless-stopped
-  postgres:
-    container_name: postgres
-    build:
-      context: ./database
-    image: postgres-es_ar:12.4
-    environment:
-      POSTGRES_DB: ${TYPEORM_DATABASE}
-      POSTGRES_USER: ${TYPEORM_USERNAME}
-      POSTGRES_PASSWORD: ${TYPEORM_PASSWORD}
-      PG_DATA: /var/lib/postgresql/data
-    networks:
-      - webnet
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
-    restart: unless-stopped
   # cups:
   #   container_name: cups
   #   image: ydkn/cups
@@ -100,9 +103,9 @@ networks:
     name: webnet
 
 volumes:
-  # mysql_data:
-  #   name: mysql_data
   pgdata:
     name: pgdata
+  # mysql_data:
+  #   name: mysql_data
   # cups:
   #   name: cups

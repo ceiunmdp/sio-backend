@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { utilities as nestWinstonModuleUtilities, WinstonModuleOptions } from 'nest-winston';
 import { Environment } from 'src/common/enums/environment.enum';
+import { isTrue } from 'src/common/utils/is-true';
 import { format, transports } from 'winston';
 import 'winston-daily-rotate-file';
 import { AppConfigService } from '../app/app-config.service';
@@ -46,7 +47,7 @@ export class LoggerConfigService {
           filename: 'combined.%DATE%.log',
           dirname: this.configService.get<string>('logger.dirname'),
           datePattern: this.configService.get<string>('logger.datePattern'),
-          zippedArchive: this.configService.get<boolean>('logger.zipped'),
+          zippedArchive: isTrue(this.configService.get('logger.zipped')),
           maxSize: this.configService.get<string>('logger.maxSize'),
           maxFiles:
             this.configService.get<number>('logger.maxFiles') || this.configService.get<string>('logger.maxDays'),
@@ -57,7 +58,7 @@ export class LoggerConfigService {
           filename: 'error.%DATE%.log',
           dirname: this.configService.get<string>('logger.dirname'),
           datePattern: this.configService.get<string>('logger.datePattern'),
-          zippedArchive: this.configService.get<boolean>('logger.zipped'),
+          zippedArchive: isTrue(this.configService.get('logger.zipped')),
           maxSize: this.configService.get<string>('logger.maxSize'),
           maxFiles:
             this.configService.get<number>('logger.maxFiles') || this.configService.get<string>('logger.maxDays'),

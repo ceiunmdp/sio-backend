@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { join } from 'path';
+import { isTrue } from 'src/common/utils/is-true';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { LoggerOptions } from 'typeorm/logger/LoggerOptions';
@@ -69,11 +70,11 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
   }
 
   get synchronize() {
-    return this.configService.get<boolean>('typeorm.synchronize');
+    return isTrue(this.configService.get('typeorm.synchronize'));
   }
 
   get migrationsRun() {
-    return this.configService.get<boolean>('typeorm.migrationsRun');
+    return isTrue(this.configService.get('typeorm.migrationsRun'));
   }
 
   get migrations() {
