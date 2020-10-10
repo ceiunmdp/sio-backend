@@ -11,7 +11,7 @@ import { ItemsRepository } from './items.repository';
 export class ItemsService extends GenericCrudService<Item> {
   constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Item);
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createItems(connection.manager);
     }
   }

@@ -12,7 +12,7 @@ import { Career } from './entities/career.entity';
 export class CareersService extends GenericCrudService<Career> {
   constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Career);
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createCareers(connection.manager);
     }
   }

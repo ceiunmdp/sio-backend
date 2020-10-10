@@ -12,7 +12,7 @@ import { RelationsRepository } from './relations.repository';
 export class RelationsService extends GenericCrudService<Relation> {
   constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Relation);
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createRelations(connection.manager);
     }
   }

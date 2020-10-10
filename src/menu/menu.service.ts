@@ -15,7 +15,7 @@ export class MenuService {
     appConfigService: AppConfigService,
     private readonly rolesService: RolesService,
   ) {
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createMenu(connection.manager);
     }
   }

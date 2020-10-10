@@ -11,7 +11,7 @@ import { ParameterType } from './enums/parameter-type.enum';
 export class ParametersService extends GenericCrudService<Parameter> {
   constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Parameter);
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createParameters(connection.manager);
     }
   }

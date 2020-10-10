@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
+import { PASSWORD_PATTERN } from 'src/common/constants/password-pattern';
 
 export class CreateUserDto {
   @IsString()
@@ -13,7 +14,7 @@ export class CreateUserDto {
 
   @IsString()
   @MinLength(8)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+  @Matches(PASSWORD_PATTERN)
   @ApiProperty({ description: `User's password`, example: 'Password123*' })
   password!: string;
 }

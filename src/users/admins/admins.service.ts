@@ -12,26 +12,26 @@ import { Admin } from './entities/admin.entity';
 export class AdminsService extends GenericSubUserService<Admin> {
   constructor(
     @InjectConnection() connection: Connection,
-    appConfigService: AppConfigService,
+    private readonly appConfigService: AppConfigService,
     usersService: UsersService,
   ) {
     super(usersService, Admin);
-    if (!appConfigService.isProduction) {
-      setTimeout(this.createAdmin.bind(this), 5000, connection.manager);
-    }
+    setTimeout(this.createAdmin.bind(this), 5000, connection.manager);
   }
 
   async createAdmin(manager: EntityManager) {
+    const adminDefaultEmail = this.appConfigService.adminDefaultEmail;
+
     try {
-      return await this.usersService.findByEmail('admin@gmail.com', manager);
+      return await this.usersService.findByEmail(adminDefaultEmail, manager);
     } catch (error) {
       if (error instanceof UserNotFoundInFirebaseException) {
         return this.create(
           {
             displayName: 'Admin',
-            email: 'admin@gmail.com',
+            email: adminDefaultEmail,
             emailVerified: true,
-            password: 'Password123*',
+            password: this.appConfigService.adminDefaultPassword,
           },
           manager,
         );

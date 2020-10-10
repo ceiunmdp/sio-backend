@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { PASSWORD_PATTERN } from 'src/common/constants/password-pattern';
 import { Database } from 'src/common/enums/database.enum';
 import { Environment } from 'src/common/enums/environment.enum';
 import { DatabaseConfigService } from './database-config.service';
@@ -20,7 +21,7 @@ import databaseConfig from './database.config';
         ),
         TYPEORM_PORT: Joi.number().min(1024).max(65535).default(5432),
         TYPEORM_USERNAME: Joi.string().required(),
-        TYPEORM_PASSWORD: Joi.string().required(),
+        TYPEORM_PASSWORD: Joi.string().pattern(PASSWORD_PATTERN).required(),
         TYPEORM_DATABASE: Joi.string().required(),
         TYPEORM_SCHEMA: Joi.when('TYPEORM_CONNECTION', {
           is: Database.POSTGRES,

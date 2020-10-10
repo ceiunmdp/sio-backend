@@ -71,7 +71,7 @@ export class AuthNGuard implements CanActivate {
   }
 
   async verifyAndDecodeIdToken(idToken: string) {
-    // TODO: Evaluate is the additional verification is required to the authentication flow (mostly of students)
+    // TODO: Evaluate if the additional verification is required to the authentication flow (mostly of students)
     // const decodedIdToken = await admin.auth().verifyIdToken(idToken);
     const decodedIdToken = await admin.auth().verifyIdToken(idToken, true);
     return {

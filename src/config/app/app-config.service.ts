@@ -8,6 +8,8 @@ export interface AppEnvironmentVariables {
   'app.scheme': string;
   'app.host': string;
   'app.port': number;
+  'app.adminDefaultEmail': string;
+  'app.adminDefaultPassword': string;
 }
 
 @Injectable()
@@ -40,5 +42,13 @@ export class AppConfigService {
 
   get basePath() {
     return `${this.origin}${Path.API}`;
+  }
+
+  get adminDefaultEmail() {
+    return this.configService.get<string>('app.adminDefaultEmail');
+  }
+
+  get adminDefaultPassword() {
+    return this.configService.get<string>('app.adminDefaultPassword');
   }
 }

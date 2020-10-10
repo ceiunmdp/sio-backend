@@ -13,7 +13,7 @@ import { EOrderState } from './enums/e-order-state.enum';
 export class OrdersService extends GenericCrudService<Order> {
   constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
     super(Order);
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createOrderStates(connection.manager);
       this.createFileStates(connection.manager);
     }

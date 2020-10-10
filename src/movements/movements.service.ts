@@ -26,7 +26,7 @@ export class MovementsService extends GenericCrudService<Movement> {
     private readonly studentsService: StudentsService,
   ) {
     super(Movement);
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createMovementTypes(connection.manager);
     }
   }

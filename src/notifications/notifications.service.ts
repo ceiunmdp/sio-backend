@@ -25,7 +25,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
     private readonly registrationTokensService: RegistrationTokensService,
   ) {
     super(Notification);
-    if (!appConfigService.isProduction) {
+    if (!appConfigService.isProduction()) {
       this.createNotificationTypes(connection.manager);
     }
   }
