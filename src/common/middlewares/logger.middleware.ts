@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: () => void) {
+  use(_req: Request, _res: Response, next: () => void) {
     next();
   }
 }
