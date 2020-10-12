@@ -1,6 +1,7 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import * as appRoot from 'app-root-path';
 import { Response } from 'express';
 import { RouterModule } from 'nest-router';
 import { AutomapperModule } from 'nestjsx-automapper';
@@ -35,14 +36,14 @@ import { LoggerModule } from 'src/logger/logger.module';
     RouterModule.forRoutes(routes), // Setup routes
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+      rootPath: join(appRoot.path, 'public'),
       exclude: [Path.API],
       serveStaticOptions: {
         setHeaders: (res: Response, path: string) => {
           if (path.endsWith('ngsw-worker.js')) {
             res.setHeader(
               'Content-Security-Policy',
-              "connect-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
+              "connect-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://www.googleapis.com",
             );
           }
         },

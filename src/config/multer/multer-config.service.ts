@@ -45,7 +45,6 @@ export class MulterConfigService implements MulterOptionsFactory {
         mkdirSync(path);
       }
 
-      // TODO: Check if __dirname should be used
       cb(null, path);
     } catch (error) {
       cb(error, null);
