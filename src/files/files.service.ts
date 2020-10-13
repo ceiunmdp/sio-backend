@@ -7,14 +7,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { readFile, remove, renameSync } from 'fs-extra';
+import { existsSync, mkdirSync, moveSync, readFile, remove } from 'fs-extra';
 import { flatten } from 'lodash';
-import { basename } from 'path';
+import { basename, dirname, join } from 'path';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { isAdmin, isCampus, isProfessorship, isStudentOrScholarship } from 'src/common/utils/is-role-functions';
+import { MulterConfigService } from 'src/config/multer/multer-config.service';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { EOrderState } from 'src/orders/enums/e-order-state.enum';
 import { Professorship } from 'src/users/professorships/entities/professorship.entity';
@@ -30,13 +31,18 @@ import { FilesRepository } from './files.repository';
 import { buildFilename } from './utils/build-filename';
 import { isFileFromUser } from './utils/is-file-from-user';
 import { isSystemProfessorshipFile, isSystemStaffFile, isTemporaryFile } from './utils/is-file-type';
+import { parentDirectory } from './utils/parent-directory';
 
 @Injectable()
 export class FilesService extends GenericCrudService<File> {
+  private basePath: string;
+
   constructor(
     @Inject(forwardRef(() => ProfessorshipsService)) private readonly professorshipsService: ProfessorshipsService,
+    multerConfigService: MulterConfigService,
   ) {
     super(File);
+    this.basePath = multerConfigService.basePath;
   }
 
   //* findAll
@@ -53,7 +59,7 @@ export class FilesService extends GenericCrudService<File> {
 
   async findContentById(id: string, manager: EntityManager, user: UserIdentity) {
     const file = await this.findOne(id, manager, user);
-    return readFile(file.path);
+    return readFile(this.getFullPath(file.path));
   }
 
   //* findOne // findContentById
@@ -144,16 +150,21 @@ export class FilesService extends GenericCrudService<File> {
   async update(id: string, updateFileDto: PartialUpdateFileDto, manager: EntityManager, user: UserIdentity) {
     const filesRepository = this.getFilesRepository(manager);
 
-    const file = await filesRepository.findOne(id);
+    let file = await filesRepository.findOne(id);
     if (file) {
+      const oldPath = file.path;
+
       await this.checkUpdateConditions(updateFileDto, file, manager, user);
 
-      let newPath: string;
       if (updateFileDto.name) {
-        newPath = this.updatePathInFS(updateFileDto.name, file);
+        file = this.updateFilename(updateFileDto.name, file);
       }
+      if (updateFileDto.coursesIds) {
+        file = this.updateCoursesRelatedWithFile(updateFileDto.coursesIds, file);
+      }
+      this.updateFSAccordingToPath(oldPath, file.path);
 
-      return filesRepository.updateAndReload(id, { ...updateFileDto, ...(!!updateFileDto.name && { path: newPath }) });
+      return filesRepository.updateAndReload(id, file);
     } else {
       this.throwCustomNotFoundException(id);
     }
@@ -161,12 +172,18 @@ export class FilesService extends GenericCrudService<File> {
 
   //* update
   protected async checkUpdateConditions(
-    _updateFileDto: PartialUpdateFileDto,
+    updateFileDto: PartialUpdateFileDto,
     file: File,
     _manager: EntityManager,
     user: UserIdentity,
   ) {
-    this.userCanUpdateFile(file, user);
+    if (isSystemProfessorshipFile(file) && updateFileDto.coursesIds) {
+      throw new BadRequestException(
+        'Los archivos subidos por las cátedras no pueden ver su materia asociada modificada.',
+      );
+    } else {
+      this.userCanUpdateFile(file, user);
+    }
   }
 
   private userCanUpdateFile(file: File, user: UserIdentity) {
@@ -179,10 +196,34 @@ export class FilesService extends GenericCrudService<File> {
     }
   }
 
-  private updatePathInFS(newFilename: string, file: File) {
-    const newPath = file.path.replace(basename(file.path), buildFilename(newFilename, file.mimetype));
-    renameSync(file.path, newPath);
-    return newPath;
+  private updateFilename(newFilename: string, file: File) {
+    return new File({
+      ...file,
+      name: newFilename,
+      path: file.path.replace(basename(file.path), buildFilename(newFilename, file.mimetype)),
+    });
+  }
+
+  private updateCoursesRelatedWithFile(coursesIds: string[], file: File) {
+    const path = file.path;
+    const copyFile = new File(file);
+
+    const courseId = parentDirectory(path);
+    if (!coursesIds.includes(courseId)) {
+      copyFile.path = path.replace(courseId, coursesIds[0]);
+    }
+    copyFile.courses = coursesIds.map((courseId) => new Course({ id: courseId }));
+    return copyFile;
+  }
+
+  private updateFSAccordingToPath(oldPath: string, newPath: string) {
+    const fullOldPath = this.getFullPath(oldPath);
+    const fullNewPath = this.getFullPath(newPath);
+    const directoryNewPath = dirname(fullNewPath);
+    if (!existsSync(directoryNewPath)) {
+      mkdirSync(directoryNewPath);
+    }
+    moveSync(fullOldPath, fullNewPath);
   }
 
   //* delete
@@ -222,7 +263,11 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   private removeFromFS(paths: string[]) {
-    return Promise.all(paths.map((path) => remove(path)));
+    return Promise.all(paths.map((path) => remove(this.getFullPath(path))));
+  }
+
+  private getFullPath(path: string) {
+    return join(this.basePath, path);
   }
 
   // TODO: Verify this feature, it may not be necessary anymore

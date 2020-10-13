@@ -9,7 +9,6 @@ export const buildFilename = (filename: string, mimetype: string) => {
   return `${camelcase(filename)}-${DateTime.local().toMillis()}.${extension(mimetype)}`;
 };
 
-// const removeExtension = (str: string) => str.replace(/\.[^/.]+$/, '');
 const removeExtension = (str: string) => str.replace(extname(str), '');
 
 const removeUnwantedCharacters = (str: string) =>

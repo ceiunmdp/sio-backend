@@ -39,6 +39,7 @@ import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
+import { MulterConfigService } from 'src/config/multer/multer-config.service';
 import { Connection, EntityManager } from 'typeorm';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { PartialUpdateFileDto } from './dtos/partial-update-file.dto';
@@ -51,13 +52,16 @@ import { FilesService } from './files.service';
 @Controller()
 export class FilesController {
   private readonly filesServiceProxy: CrudService<File>;
+  private readonly basePath: string;
 
   constructor(
     @InjectConnection() private readonly connection: Connection,
     private readonly appConfigService: AppConfigService,
     private readonly filesService: FilesService,
+    multerConfigService: MulterConfigService,
   ) {
     this.filesServiceProxy = new ProxyCrudService(connection, filesService);
+    this.basePath = multerConfigService.basePath;
   }
 
   @GetAll(Collection.FILES, ResponseFileDto)
@@ -152,7 +156,7 @@ export class FilesController {
       mimetype: file.mimetype,
       numberOfSheets: (await PDFDocument.load(readFileSync(file.path))).getPageCount(),
       size: file.size,
-      path: file.path,
+      path: file.path.slice(this.basePath.length + 1),
       ownerId: userId,
       coursesIds,
     });

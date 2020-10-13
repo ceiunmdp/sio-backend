@@ -17,6 +17,7 @@ import './profiles/file.profile';
   imports: [
     SharedModule,
     AppConfigModule,
+    MulterConfigModule,
     MulterModule.registerAsync({
       imports: [MulterConfigModule],
       useExisting: MulterConfigService,

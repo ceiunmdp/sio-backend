@@ -39,7 +39,7 @@ export class File extends BaseEntity {
     joinColumn: { name: 'file_id' },
     inverseJoinColumn: { name: 'course_id' },
   })
-  readonly courses!: Course[];
+  courses!: Course[]; //* Only SystemStaff files can alter its related courses
 
   @AutoMap(() => OrderFile)
   @OneToMany(() => OrderFile, (orderFile) => orderFile.file)

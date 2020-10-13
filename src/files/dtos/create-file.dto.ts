@@ -20,7 +20,7 @@ export class CreateFileDto extends UpdateFileDto {
   @IsNotEmpty()
   @ApiProperty({
     description: `File's path`,
-    example: './files/4bd4c8c4-1935-4e3a-8f89-fcb85a94a0c8/filename-date.pdf',
+    example: '4bd4c8c4-1935-4e3a-8f89-fcb85a94a0c8/filename-date.pdf',
   })
   path!: string;
 

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { MulterOptionsFactory } from '@nestjs/platform-express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { InjectConnection } from '@nestjs/typeorm';
+import * as appRoot from 'app-root-path';
 import * as bytes from 'bytes';
 import { isUUID } from 'class-validator';
 import { Request } from 'express';
@@ -29,8 +30,8 @@ export class MulterConfigService implements MulterOptionsFactory {
     private readonly parametersService: ParametersService,
   ) {}
 
-  get destination() {
-    return this.configService.get<string>('multer.destination');
+  get basePath() {
+    return join(appRoot.path, this.configService.get<string>('multer.destination'));
   }
 
   private async getDestination(
@@ -40,12 +41,12 @@ export class MulterConfigService implements MulterOptionsFactory {
   ) {
     try {
       const coursesIds = await this.checkAndGetCoursesIdsParameters(request);
-      const path = join(this.destination, coursesIds[0]);
-      if (!existsSync(path)) {
-        mkdirSync(path);
+      const fullPath = join(this.basePath, coursesIds[0]);
+      if (!existsSync(fullPath)) {
+        mkdirSync(fullPath);
       }
 
-      cb(null, path);
+      cb(null, fullPath);
     } catch (error) {
       cb(error, null);
     }
