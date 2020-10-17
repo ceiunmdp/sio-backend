@@ -3,12 +3,20 @@ version: '3.7'
 services:
   app:
     container_name: nestjs
-    image: manuelnucci/nestjs-dev:1.2.1
+    build:
+      context: .
+      #   target: build
+      target: production
+    # image: nestjs:1.2.1-dev
+    image: nestjs:1.2.1-prod
+    # command: npm run start:dev
     env_file:
       - .env
     networks:
       - webnet
     volumes:
+      # - .:/home/node/app
+      # - /home/node/app/node_modules
       - ./files:/home/node/app/files
       - /var/run/dbus:/var/run/dbus
     ports:

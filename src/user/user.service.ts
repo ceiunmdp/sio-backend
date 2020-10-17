@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { isUUID } from 'class-validator';
 import { CreateStudentDto } from 'src/users/students/dto/create-student.dto';
 import { User } from 'src/users/users/entities/user.entity';
-import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
 import { EntityManager } from 'typeorm';
 import { StudentsService } from '../users/students/students.service';
 import { UsersService } from '../users/users/users.service';
@@ -13,23 +13,19 @@ export class UserService {
 
   //! 'id' is Firebase's uid in case it's first student login
   async findOne(id: string, manager: EntityManager) {
-    try {
+    if (isUUID(id)) {
       return await this.usersService.findOne(id, manager);
-    } catch (error) {
-      if (error instanceof UserNotFoundInDatabaseException) {
-        //* User found in Firebase but not in database
-        //* First login of student
+    } else {
+      //* User found in Firebase but not in database
+      //* First login of student
 
-        // Retrieve displayName to store it in local database
-        const user = await this.usersService.findByUid(id);
-        const student = await this.studentsService.create(
-          new CreateStudentDto({ displayName: user.displayName, uid: id }),
-          manager,
-        );
-        return new User(student);
-      } else {
-        throw error;
-      }
+      // Retrieve displayName to store it in local database
+      const user = await this.usersService.findByUid(id);
+      const student = await this.studentsService.create(
+        new CreateStudentDto({ displayName: user.displayName, uid: id }),
+        manager,
+      );
+      return new User(student);
     }
   }
 
