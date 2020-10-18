@@ -39,13 +39,11 @@ import { LoggerModule } from 'src/logger/logger.module';
       rootPath: join(appRoot.path, 'public'),
       exclude: [Path.API],
       serveStaticOptions: {
-        setHeaders: (res: Response, path: string) => {
-          if (path.endsWith('ngsw-worker.js')) {
-            res.setHeader(
-              'Content-Security-Policy',
-              "connect-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://www.googleapis.com",
-            );
-          }
+        setHeaders: (res: Response) => {
+          res.setHeader(
+            'Content-Security-Policy',
+            "connect-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://www.googleapis.com https://firestore.googleapis.com",
+          );
         },
       },
     }),
