@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
 import { ParametersModule } from 'src/config/parameters/parameters.module';
+import { ItemsModule } from 'src/items/items/items.module';
 import { SharedModule } from 'src/shared/shared.module';
+import { StudentsModule } from '../students/students.module';
 import { UsersModule } from '../users/users.module';
 import { Scholarship } from './entities/scholarship.entity';
 //! Profiles
@@ -17,6 +19,8 @@ import { ScholarshipsService } from './scholarships.service';
     AppConfigModule,
     ParametersModule,
     UsersModule,
+    forwardRef(() => StudentsModule),
+    ItemsModule,
     TypeOrmModule.forFeature([Scholarship, ScholarshipsRepository]),
   ],
   controllers: [ScholarshipsController],

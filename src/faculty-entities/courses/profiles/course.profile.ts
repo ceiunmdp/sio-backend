@@ -8,13 +8,13 @@ import { Course } from '../entities/course.entity';
 
 @Profile()
 export class CourseProfile extends ProfileBase {
-  constructor(private readonly mapper: AutoMapper) {
+  constructor(mapper: AutoMapper) {
     super();
-    this.createMapFromCourseToResponseCourseDto();
+    this.createMapFromCourseToResponseCourseDto(mapper);
   }
 
-  createMapFromCourseToResponseCourseDto() {
-    this.mapper.createMap(Course, ResponseCourseDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] }).forMember(
+  createMapFromCourseToResponseCourseDto(mapper: AutoMapper) {
+    mapper.createMap(Course, ResponseCourseDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] }).forMember(
       (responseCourseDto) => responseCourseDto.relations,
       mapDefer((course) =>
         course.careerCourseRelations

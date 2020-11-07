@@ -19,8 +19,8 @@ import { LoggerModule } from 'src/logger/logger.module';
 
 @Module({
   imports: [
-    AppConfigModule,
     ApiConfigModule,
+    AppConfigModule,
     AutomapperModule.withMapper({
       // useUndefined: true,
       // destinationNamingConvention: SnakeCaseNamingConvention,

@@ -8,11 +8,11 @@ import {
 import { readFileSync } from 'fs-extra';
 import * as ipp from 'ipp';
 import * as mdns from 'mdns';
-import MultiRange from 'multi-integer-range';
+import { multirange } from 'multi-integer-range';
 import { PDFDocument } from 'pdf-lib';
 import { File } from 'src/files/entities/file.entity';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
-import { Configuration } from 'src/orders/entities/configuration.entity';
+import { Configuration } from 'src/orders/order-files/entities/configuration.entity';
 import { Printer } from './entities/printer.entity';
 import { CUPSPrinterAttributes } from './interfaces/cups-printer-attributes.interface';
 import { getJobAttributes, getPrinterAttributes, printJob } from './utils/promisified-functions';
@@ -79,6 +79,7 @@ export class PrintersService {
     // await this.checkIfConfigurationIsSupported(printer, null, configuration);
 
     return this.sendJob(printer, file, configuration);
+    // TODO: Once the job is finished, file state should change to "printed"
   }
 
   private async checkIfConfigurationIsSupported(printer: ipp.Printer, mimetype: string, configuration: Configuration) {
@@ -162,7 +163,7 @@ export class PrintersService {
   }
 
   private async createPdfBasedOnRange(pdf: PDFDocument, range: string) {
-    const arrayOfDesiredPages = new MultiRange(range).toArray();
+    const arrayOfDesiredPages = multirange(range).toArray();
 
     if (pdf.getPageCount() === arrayOfDesiredPages.length) {
       return pdf;
@@ -176,6 +177,8 @@ export class PrintersService {
       return rangedPdf;
     }
   }
+
+  // TODO: Set method that checks every 10 seconds until job is completed, or not and rollbacks transition state
 
   async getJobState(id: string, jobId: number) {
     const printer = new ipp.Printer(this.findOne(id).getUrl());

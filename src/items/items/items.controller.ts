@@ -1,7 +1,7 @@
 import { Body, Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
-import { UUID_V4 } from 'src/common/constants/regular-expressions';
+import { UUID_V4 } from 'src/common/constants/regular-expressions.constant';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Filter } from 'src/common/decorators/filter.decorator';
 import { Id } from 'src/common/decorators/id.decorator';

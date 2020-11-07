@@ -3,7 +3,9 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { UserRole } from '../enums/user-role.enum';
+import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
 import { UserIdentity } from '../interfaces/user-identity.interface';
+import { isHttp } from '../utils/is-application-context-functions';
 
 @Injectable()
 export class AuthZGuard implements CanActivate {
@@ -11,24 +13,44 @@ export class AuthZGuard implements CanActivate {
     this.logger.context = AuthZGuard.name;
   }
 
-  canActivate(context: ExecutionContext): boolean {
+  canActivate(context: ExecutionContext) {
     const authorizedRoles = this.reflector.get('roles', context.getHandler()) as UserRole[];
 
     if (!authorizedRoles) {
       return true;
     }
-    const request: Request = context.switchToHttp().getRequest();
-    const user = request.user as UserIdentity;
+
+    let request: Request;
+    let nsp: SocketIO.Namespace;
+    let user: UserIdentity;
+
+    if (isHttp(context)) {
+      request = context.switchToHttp().getRequest<Request>();
+      user = request.user as UserIdentity;
+    } else {
+      //* WS
+      const client = context.switchToWs().getClient<SocketWithUserData>();
+      user = client.user;
+      nsp = client.nsp;
+    }
 
     const authorized = this.checkIfRoleIsAuthorized(authorizedRoles, user.role);
-
     if (!authorized) {
-      this.logger.warn(`User ${user.id} tried to access ${request.method} ${request.url}`);
+      isHttp(context) ? this.logHttpError(user, request) : this.logWsError(user, nsp);
     }
+
     return authorized;
   }
 
-  checkIfRoleIsAuthorized(authorizedRoles: UserRole[], role: UserRole) {
+  private checkIfRoleIsAuthorized(authorizedRoles: UserRole[], role: UserRole) {
     return authorizedRoles.includes(role);
+  }
+
+  private logHttpError(user: UserIdentity, request: Request) {
+    this.logger.warn(`User ${user.id} tried to access ${request.method} ${request.url}`);
+  }
+
+  private logWsError(user: UserIdentity, nsp: SocketIO.Namespace) {
+    this.logger.warn(`User ${user.id} tried to access namespace ${nsp.name}, path ${nsp.server.path()}`);
   }
 }

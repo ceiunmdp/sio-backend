@@ -15,7 +15,7 @@ import { Response } from 'express';
 import { readFileSync } from 'fs-extra';
 import { lookup } from 'mime-types';
 import { PDFDocument } from 'pdf-lib';
-import { ALL_ROLES } from 'src/common/constants/all-roles';
+import { ALL_ROLES } from 'src/common/constants/all-roles.constant';
 import { ArrayId } from 'src/common/decorators/array-id.decorator';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Filter } from 'src/common/decorators/filter.decorator';
@@ -40,7 +40,7 @@ import { Where } from 'src/common/interfaces/where.type';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { MulterConfigService } from 'src/config/multer/multer-config.service';
-import { Connection, EntityManager } from 'typeorm';
+import { Connection } from 'typeorm';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { PartialUpdateFileDto } from './dtos/partial-update-file.dto';
 import { ResponseFileDto } from './dtos/response-file.dto';
@@ -113,7 +113,7 @@ export class FilesController {
     content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
   })
   async findContentById(@Id() id: string, @User() user: UserIdentity, @Res() response: Response) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       const buffer = await this.filesService.findContentById(id, manager, user);
 
       response.setHeader('Content-Type', lookup('pdf') as string);
@@ -141,7 +141,7 @@ export class FilesController {
     @ArrayId('courses_ids', 'body') coursesIds: string[],
     @User() user: UserIdentity,
   ) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.filesService.createBulk(
         await Promise.all(files.map((file) => this.createAndValidateDto(file, coursesIds, user.id))),
         manager,

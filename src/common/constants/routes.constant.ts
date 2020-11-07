@@ -11,6 +11,8 @@ import { MenuModule } from 'src/menu/menu.module';
 import { MovementsModule } from 'src/movements/movements.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { RegistrationTokensModule } from 'src/notifications/registration-tokens/registration-tokens.module';
+import { OrderFilesModule } from 'src/orders/order-files/order-files.module';
+import { OrdersModule } from 'src/orders/orders/orders.module';
 import { PrintersModule } from 'src/printers/printers.module';
 import { TasksModule } from 'src/tasks/tasks.module';
 import { UserModule } from 'src/user/user.module';
@@ -24,35 +26,77 @@ import { HealthModule } from '../../health/health.module';
 import { Path } from '../enums/path.enum';
 
 export const routes: Routes = [
-  // {
-  //   path: '/ninja',
-  //   module: NinjaModule,
-  //   children: [
-  //     {
-  //       path: '/:ninjaId/cats',
-  //       module: CatsModule,
-  //     },
-  //     {
-  //       path: '/:ninjaId/dogs',
-  //       module: DogsModule,
-  //     },
-  //   ],
-  // },
+  {
+    path: Path.CAMPUS,
+    module: CampusModule,
+  },
+  {
+    path: Path.CAREERS,
+    module: CareersModule,
+  },
+  {
+    path: Path.COURSES,
+    module: CoursesModule,
+  },
+  {
+    path: Path.FILES,
+    module: FilesModule,
+  },
   {
     path: Path.HEALTH,
     module: HealthModule,
+  },
+  {
+    path: Path.ITEMS,
+    module: ItemsModule,
+    children: [
+      {
+        path: Path.BINDINGS,
+        module: BindingsModule,
+      },
+    ],
+  },
+  {
+    path: Path.MENU,
+    module: MenuModule,
+  },
+  {
+    path: Path.MOVEMENTS,
+    module: MovementsModule,
+  },
+  {
+    path: Path.NOTIFICATIONS,
+    module: NotificationsModule,
+  },
+  {
+    path: Path.ORDERS,
+    module: OrdersModule,
+    children: [
+      {
+        path: `/:orderId${Path.ORDER_FILES}`,
+        module: OrderFilesModule,
+      },
+    ],
   },
   {
     path: Path.PARAMETERS,
     module: ParametersModule,
   },
   {
-    path: Path.TASKS,
-    module: TasksModule,
+    path: Path.PRINTERS,
+    module: PrintersModule,
   },
   {
-    path: Path.MENU,
-    module: MenuModule,
+    path: Path.REGISTRATION_TOKENS,
+    module: RegistrationTokensModule,
+  },
+  {
+    path: Path.RELATIONS,
+    module: RelationsModule,
+  },
+  {
+    path: Path.TASKS,
+    module: TasksModule,
   },
   {
     path: Path.USER,
@@ -83,51 +127,5 @@ export const routes: Routes = [
         module: StudentsModule,
       },
     ],
-  },
-  {
-    path: Path.CAMPUS,
-    module: CampusModule,
-  },
-  {
-    path: Path.CAREERS,
-    module: CareersModule,
-  },
-  {
-    path: Path.COURSES,
-    module: CoursesModule,
-  },
-  {
-    path: Path.RELATIONS,
-    module: RelationsModule,
-  },
-  {
-    path: Path.ITEMS,
-    module: ItemsModule,
-    children: [
-      {
-        path: Path.BINDINGS,
-        module: BindingsModule,
-      },
-    ],
-  },
-  {
-    path: Path.MOVEMENTS,
-    module: MovementsModule,
-  },
-  {
-    path: Path.NOTIFICATIONS,
-    module: NotificationsModule,
-  },
-  {
-    path: Path.REGISTRATION_TOKENS,
-    module: RegistrationTokensModule,
-  },
-  {
-    path: Path.FILES,
-    module: FilesModule,
-  },
-  {
-    path: Path.PRINTERS,
-    module: PrintersModule,
   },
 ];

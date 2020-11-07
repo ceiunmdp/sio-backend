@@ -1,7 +1,7 @@
 import { Body, Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
-import { ALL_ROLES } from 'src/common/constants/all-roles';
+import { ALL_ROLES } from 'src/common/constants/all-roles.constant';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
 import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
@@ -10,7 +10,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
-import { Connection, EntityManager } from 'typeorm';
+import { Connection } from 'typeorm';
 import { PartialUpdateRegistrationTokenDto } from './dtos/partial-update-registration-token.dto';
 import { ResponseRegistrationTokenDto } from './dtos/response-registration-token.dto';
 import { UpdateRegistrationTokenDto } from './dtos/update-registration-token.dto';
@@ -31,7 +31,7 @@ export class RegistrationTokensController {
     @User() user: UserIdentity,
     @Body() updateRegistrationTokenDto: UpdateRegistrationTokenDto,
   ) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.registrationTokensService.update(id, updateRegistrationTokenDto, manager, user);
     });
   }
@@ -43,7 +43,7 @@ export class RegistrationTokensController {
     @User() user: UserIdentity,
     @Body() partialUpdateRegistrationTokenDto: PartialUpdateRegistrationTokenDto,
   ) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.registrationTokensService.update(id, partialUpdateRegistrationTokenDto, manager, user);
     });
   }

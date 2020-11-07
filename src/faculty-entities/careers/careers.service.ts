@@ -73,8 +73,8 @@ export class CareersService extends GenericCrudService<Career> {
     }
   }
 
-  //* delete
-  protected async checkDeleteConditions(career: Career) {
+  //* remove
+  protected async checkRemoveConditions(career: Career) {
     if (career.careerCourseRelations.length) {
       throw new BadRequestException(`No es posible eliminar la carrera ya que está vinculada con una o más materias.`);
     }

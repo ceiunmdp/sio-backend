@@ -96,8 +96,8 @@ export class CoursesService extends GenericCrudService<Course> {
     return ternary;
   }
 
-  //* delete
-  protected async checkDeleteConditions({ id }: Course, manager: EntityManager) {
+  //* remove
+  protected async checkRemoveConditions({ id }: Course, manager: EntityManager) {
     const course = await this.getCoursesRepository(manager).findOne(id, { relations: ['professorship'] });
 
     if (course.professorship) {
@@ -107,8 +107,8 @@ export class CoursesService extends GenericCrudService<Course> {
     }
   }
 
-  //* delete
-  protected async beforeDelete(course: Course, manager: EntityManager) {
+  //* remove
+  protected async beforeRemove(course: Course, manager: EntityManager) {
     await this.removeRelatedEntitiesFromTernary(course, manager);
     await this.filesService.softRemoveByCourseId(course.id, manager);
   }

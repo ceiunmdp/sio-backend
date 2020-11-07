@@ -12,7 +12,8 @@ import multerConfig from './multer.config';
       load: [multerConfig],
       expandVariables: true,
       validationSchema: Joi.object({
-        MULTER_DEST: Joi.string().default('./files'),
+        MULTER_DEST: Joi.string().default('files'),
+        TEMPORARY_FILES_DIRECTORY: Joi.string().default('temporary'),
       }),
       validationOptions: {
         allowUnknown: true,

@@ -3,7 +3,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
-import { ALL_GROUPS } from 'src/common/constants/all-groups';
+import { ALL_GROUPS } from 'src/common/constants/all-groups.constant';
 import { ResponseUserDto } from 'src/users/users/dtos/response-user.dto';
 import { ResponseNotificationTypeDto } from './response-notification-type.dto';
 

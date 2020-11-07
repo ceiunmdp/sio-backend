@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
-import { PASSWORD_PATTERN } from 'src/common/constants/password-pattern';
+import { PASSWORD_PATTERN } from 'src/common/constants/password-pattern.constant';
 
 export class CreateUserDto {
   @IsString()

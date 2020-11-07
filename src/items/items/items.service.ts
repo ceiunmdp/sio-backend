@@ -24,6 +24,16 @@ export class ItemsService extends GenericCrudService<Item> {
     return !!(await this.findItemByName(name, itemsRepository));
   }
 
+  async findByCode(code: EItem, manager: EntityManager) {
+    const item = await this.getItemsRepository(manager).findOne({ where: { code } });
+
+    if (item) {
+      return item;
+    } else {
+      throw new NotFoundException('Item not found.');
+    }
+  }
+
   //! Implemented to avoid creation of items by error by other developers
   async create(): Promise<Item> {
     throw new Error('Method not implemented.');
@@ -34,9 +44,9 @@ export class ItemsService extends GenericCrudService<Item> {
 
     if (!(await itemsRepository.count())) {
       return itemsRepository.save([
+        new Item({ name: 'Color', code: EItem.COLOUR, price: 5 }),
         new Item({ name: 'Simple faz', code: EItem.SIMPLE_SIDED, price: 2 }),
         new Item({ name: 'Doble faz', code: EItem.DOUBLE_SIDED, price: 3 }),
-        new Item({ name: 'Color', code: EItem.COLOUR, price: 5 }),
       ]);
     }
   }

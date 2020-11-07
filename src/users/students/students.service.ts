@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
@@ -11,7 +11,10 @@ import { StudentsRepository } from './students.repository';
 
 @Injectable()
 export class StudentsService extends GenericSubUserService<Student> {
-  constructor(usersService: UsersService, private readonly scholarshipsService: ScholarshipsService) {
+  constructor(
+    usersService: UsersService,
+    @Inject(forwardRef(() => ScholarshipsService)) private readonly scholarshipsService: ScholarshipsService,
+  ) {
     super(usersService, Student);
   }
 

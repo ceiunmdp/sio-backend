@@ -1,14 +1,14 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
-import { ALL_ROLES } from 'src/common/constants/all-roles';
+import { ALL_ROLES } from 'src/common/constants/all-roles.constant';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-body-responses.decorator';
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
-import { Connection, EntityManager } from 'typeorm';
+import { Connection } from 'typeorm';
 import { ResponseUserDto } from '../users/users/dtos/response-user.dto';
 import { PartialUpdateLoggedInUserDto } from './dto/partial-update-logged-in-user.dto';
 import { UserService } from './user.service';
@@ -24,7 +24,7 @@ export class UserController {
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in user', type: ResponseUserDto })
   async find(@User('id') id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.userService.findOne(id, manager);
     });
   }
@@ -36,7 +36,7 @@ export class UserController {
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently user partially updated successfully', type: ResponseUserDto })
   async partialUpdate(@User('id') id: string, @Body() partialUpdateLoggedInUserDto: PartialUpdateLoggedInUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.userService.update(id, partialUpdateLoggedInUserDto, manager);
     });
   }

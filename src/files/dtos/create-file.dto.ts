@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import * as bytes from 'bytes';
-import { Allow, IsMimeType, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import { Allow, IsInt, IsMimeType, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 import { UpdateFileDto } from './update-file.dto';
 
 export class CreateFileDto extends UpdateFileDto {
@@ -8,10 +8,12 @@ export class CreateFileDto extends UpdateFileDto {
   @ApiProperty({ description: `File's mimetype`, example: 'application/pdf' })
   mimetype!: string;
 
+  @IsInt()
   @IsPositive()
   @ApiProperty({ description: `File's number of sheets`, example: 53 })
   numberOfSheets!: number;
 
+  @IsInt()
   @IsPositive()
   @ApiProperty({ description: `File's size`, example: bytes('14.6MB') })
   size!: number;

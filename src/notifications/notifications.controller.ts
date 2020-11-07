@@ -1,7 +1,7 @@
 import { Body, Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
-import { ALL_ROLES } from 'src/common/constants/all-roles';
+import { ALL_ROLES } from 'src/common/constants/all-roles.constant';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Filter } from 'src/common/decorators/filter.decorator';
 import { Id } from 'src/common/decorators/id.decorator';

@@ -10,6 +10,10 @@ import { File } from '../entities/file.entity';
 export class FileProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();
+    this.createMapFromFileToResponseFileDto(mapper);
+  }
+
+  createMapFromFileToResponseFileDto(mapper: AutoMapper) {
     mapper
       .createMap(File, ResponseFileDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] })
       .forMember(

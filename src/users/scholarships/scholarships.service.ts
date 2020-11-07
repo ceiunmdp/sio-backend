@@ -1,8 +1,18 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { ParameterType } from 'src/config/parameters/enums/parameter-type.enum';
 import { ParametersService } from 'src/config/parameters/parameters.service';
+import { ItemsService } from 'src/items/items/items.service';
 import { EntityManager } from 'typeorm';
 import { StudentsRepository } from '../students/students.repository';
+import { StudentsService } from '../students/students.service';
 import { UserType } from '../users/enums/user-type.enum';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
@@ -12,7 +22,12 @@ import { ScholarshipsRepository } from './scholarships.repository';
 
 @Injectable()
 export class ScholarshipsService extends GenericSubUserService<Scholarship> {
-  constructor(usersService: UsersService, private readonly parametersService: ParametersService) {
+  constructor(
+    usersService: UsersService,
+    private readonly parametersService: ParametersService,
+    @Inject(forwardRef(() => StudentsService)) private readonly studentsService: StudentsService,
+    private readonly itemsService: ItemsService,
+  ) {
     super(usersService, Scholarship);
   }
 
@@ -47,6 +62,9 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   ) {
     const scholarship = await this.getScholarshipsRepository(manager).findOne(id);
     if (scholarship) {
+      if (updateScholarshipDto.remainingCopies) {
+        this.checkIfRemainingCopiesSurpassesAvailableCopies(updateScholarshipDto, scholarship);
+      }
       if (
         updateScholarshipDto.dni &&
         (await this.usersService.isDniRepeated(updateScholarshipDto.dni, this.usersService.getUsersRepository(manager)))
@@ -56,6 +74,17 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
       return;
     } else {
       this.throwCustomNotFoundException(id);
+    }
+  }
+
+  private checkIfRemainingCopiesSurpassesAvailableCopies(dto: PartialUpdateScholarshipDto, scholarship: Scholarship) {
+    if (
+      (dto.availableCopies && dto.remainingCopies > dto.availableCopies) ||
+      (!dto.availableCopies && dto.remainingCopies > scholarship.availableCopies)
+    ) {
+      throw new BadRequestException(
+        'Las copias disponibles del becado no pueden superar el total de copias habilitadas',
+      );
     }
   }
 
@@ -74,12 +103,8 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   private async getInitialAvailableCopies(manager: EntityManager) {
-    const parameter = await this.parametersService.findByCode(
-      ParameterType.USERS_SCHOLARSHIPS_INITIAL_AVAILABLE_COPIES,
-      manager,
-    );
-
-    return parameter.value;
+    return (await this.parametersService.findByCode(ParameterType.USERS_SCHOLARSHIPS_INITIAL_AVAILABLE_COPIES, manager))
+      .value;
   }
 
   private async degradeScholarshipToStudent(scholarshipId: string, manager: EntityManager) {
@@ -99,6 +124,25 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   //! Implemented to avoid deletion of scholarships by error by other developers
   async remove(): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  async useUpRemainingCopiesAndBalance(
+    numberOfSheets: number,
+    amount: number,
+    user: UserIdentity,
+    manager: EntityManager,
+  ) {
+    const scholarshipsRepository = this.getScholarshipsRepository(manager);
+    const scholarship = await this.findOne(user.id, manager, user);
+    const remainingCopies = scholarship.remainingCopies;
+
+    if (remainingCopies >= numberOfSheets) {
+      scholarship.remainingCopies = remainingCopies - numberOfSheets;
+    } else {
+      scholarship.remainingCopies = 0;
+      await this.studentsService.useUpBalance(user.id, amount, manager);
+    }
+    return scholarshipsRepository.save(scholarship);
   }
 
   private getScholarshipsRepository(manager: EntityManager) {

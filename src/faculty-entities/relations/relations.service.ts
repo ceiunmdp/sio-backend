@@ -72,8 +72,8 @@ export class RelationsService extends GenericCrudService<Relation> {
     }
   }
 
-  //* delete
-  protected async checkDeleteConditions(relation: Relation) {
+  //* remove
+  protected async checkRemoveConditions(relation: Relation) {
     if (relation.careerCourseRelations.length) {
       throw new BadRequestException(
         `No es posible eliminar la relación ya que está vinculada con carreras y materias.`,

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
-import { ALL_GROUPS } from 'src/common/constants/all-groups';
+import { ALL_GROUPS } from 'src/common/constants/all-groups.constant';
 
 @Exclude()
 export class ResponseRegistrationTokenDto extends ResponseBaseEntityDto {

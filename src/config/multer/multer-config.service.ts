@@ -4,7 +4,6 @@ import { MulterOptionsFactory } from '@nestjs/platform-express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as appRoot from 'app-root-path';
-import * as bytes from 'bytes';
 import { isUUID } from 'class-validator';
 import { Request } from 'express';
 import { existsSync, mkdirSync } from 'fs-extra';
@@ -14,10 +13,12 @@ import { join } from 'path';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
 import { buildFilename } from 'src/files/utils/build-filename';
 import { Connection, In } from 'typeorm';
+import { ParameterType } from '../parameters/enums/parameter-type.enum';
 import { ParametersService } from '../parameters/parameters.service';
 
 interface MulterEnvironmentVariables {
   'multer.destination': string;
+  'multer.temporaryFilesDirectory': string;
 }
 
 @Injectable()
@@ -32,6 +33,10 @@ export class MulterConfigService implements MulterOptionsFactory {
 
   get basePath() {
     return join(appRoot.path, this.configService.get<string>('multer.destination'));
+  }
+
+  get temporaryFilesDirectory() {
+    return this.configService.get<string>('multer.temporaryFilesDirectory');
   }
 
   private async getDestination(
@@ -95,12 +100,10 @@ export class MulterConfigService implements MulterOptionsFactory {
   }
 
   private async getLimits() {
-    // TODO: Change in deployment
-    return { fileSize: bytes('100MB') };
-    // return {
-    //   fileSize: (await this.parametersService.findByCode(ParameterType.FILES_MAX_SIZE_ALLOWED, this.connection.manager))
-    //     .value,
-    // };
+    return {
+      fileSize: (await this.parametersService.findByCode(ParameterType.FILES_MAX_SIZE_ALLOWED, this.connection.manager))
+        .value,
+    };
   }
 
   private async fileFilter(

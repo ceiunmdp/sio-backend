@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 
 export class UpdateBindingDto {
   @IsString()
@@ -11,6 +11,7 @@ export class UpdateBindingDto {
   @ApiProperty({ description: `Binding's price`, example: 15 })
   price!: number;
 
+  @IsInt()
   @IsPositive()
   @ApiProperty({ name: 'sheets_limit', description: `Binding's sheets limit`, example: 100 })
   sheetsLimit!: number;

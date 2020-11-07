@@ -1,5 +1,28 @@
 export enum Collection {
+  CAMPUS = 'Campus',
+  CAREERS = 'Careers',
+  COURSES = 'Courses',
+
+  FILES = 'Files',
+
+  ITEMS = 'Items',
+  BINDINGS = 'Bindings',
+
+  MOVEMENTS = 'Movements',
+
+  NOTIFICATIONS = 'Notifications',
+
+  ORDERS = 'Orders',
+  ORDER_FILES = 'Order Files',
+
   PARAMETERS = 'Parameters',
+
+  PRINTERS = 'Printers',
+
+  REGISTRATION_TOKENS = 'Registration Tokens',
+
+  RELATIONS = 'Relations',
+
   TASKS = 'Tasks',
 
   USERS = 'Users',
@@ -8,20 +31,4 @@ export enum Collection {
   PROFESSORSHIPS = 'Professorship users',
   SCHOLARSHIPS = 'Scholarship users',
   STUDENTS = 'Student users',
-  CAMPUS = 'Campus',
-  CAREERS = 'Careers',
-  COURSES = 'Courses',
-  RELATIONS = 'Relations',
-
-  ITEMS = 'Items',
-  BINDINGS = 'Bindings',
-
-  MOVEMENTS = 'Movements',
-
-  NOTIFICATIONS = 'Notifications',
-  REGISTRATION_TOKENS = 'Registration Tokens',
-
-  FILES = 'Files',
-
-  PRINTERS = 'Printers',
 }

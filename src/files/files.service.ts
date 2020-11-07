@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { existsSync, mkdirSync, moveSync, readFile, remove } from 'fs-extra';
+import { existsSync, mkdirSync, moveSync, readFile, remove, writeFileSync } from 'fs-extra';
 import { flatten } from 'lodash';
 import { basename, dirname, join } from 'path';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
@@ -17,13 +17,14 @@ import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { isAdmin, isCampus, isProfessorship, isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { MulterConfigService } from 'src/config/multer/multer-config.service';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
-import { EOrderState } from 'src/orders/enums/e-order-state.enum';
+import { EOrderState } from 'src/orders/orders/enums/e-order-state.enum';
 import { Professorship } from 'src/users/professorships/entities/professorship.entity';
 import { ExceededAvailableStorageException } from 'src/users/professorships/exceptions/exceeded-available-storage.exception';
 import { ProfessorshipsService } from 'src/users/professorships/professorships.service';
 import { User } from 'src/users/users/entities/user.entity';
 import { DeepPartial, EntityManager, getConnection, SelectQueryBuilder } from 'typeorm';
 import { CreateFileDto } from './dtos/create-file.dto';
+import { CreateTemporaryFileDto } from './dtos/create-temporary-file.dto';
 import { PartialUpdateFileDto } from './dtos/partial-update-file.dto';
 import { File } from './entities/file.entity';
 import { FileType } from './enums/file-type.enum';
@@ -36,6 +37,7 @@ import { parentDirectory } from './utils/parent-directory';
 @Injectable()
 export class FilesService extends GenericCrudService<File> {
   private basePath: string;
+  private temporaryFilesDirectory: string;
 
   constructor(
     @Inject(forwardRef(() => ProfessorshipsService)) private readonly professorshipsService: ProfessorshipsService,
@@ -43,6 +45,7 @@ export class FilesService extends GenericCrudService<File> {
   ) {
     super(File);
     this.basePath = multerConfigService.basePath;
+    this.temporaryFilesDirectory = multerConfigService.temporaryFilesDirectory;
   }
 
   //* findAll
@@ -63,7 +66,7 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   //* findOne // findContentById
-  protected async checkFindByIdConditions(file: File, _manager: EntityManager, user: UserIdentity) {
+  protected async checkFindOneConditions(file: File, _manager: EntityManager, user: UserIdentity) {
     this.userCanReadFile(file, user);
   }
 
@@ -104,6 +107,23 @@ export class FilesService extends GenericCrudService<File> {
       }
       throw error;
     }
+  }
+
+  async createTemporaryFile(createTemporaryFileDto: CreateTemporaryFileDto, manager: EntityManager) {
+    const path = join(
+      this.temporaryFilesDirectory,
+      buildFilename(createTemporaryFileDto.name, createTemporaryFileDto.mimetype),
+    );
+
+    const temporaryFile = await this.getFilesRepository(manager).saveAndReload({
+      ...createTemporaryFileDto,
+      path,
+      owner: new User({ id: createTemporaryFileDto.ownerId }),
+      type: FileType.TEMPORARY,
+    });
+
+    writeFileSync(this.getFullPath(path), createTemporaryFileDto.content);
+    return temporaryFile;
   }
 
   private async checkIfUserCanUploadFiles(user: UserIdentity, createFileDtos: CreateFileDto[], manager: EntityManager) {
@@ -226,14 +246,14 @@ export class FilesService extends GenericCrudService<File> {
     moveSync(fullOldPath, fullNewPath);
   }
 
-  //* delete
-  protected async checkDeleteConditions(file: File, _manager: EntityManager, user: UserIdentity) {
+  //* remove
+  protected async checkRemoveConditions(file: File, _manager: EntityManager, user: UserIdentity) {
     //! Same conditions for the moment
     this.userCanUpdateFile(file, user);
   }
 
-  //* delete
-  protected async beforeDelete(file: File, manager: EntityManager) {
+  //* remove
+  protected async beforeRemove(file: File, manager: EntityManager) {
     if (isSystemProfessorshipFile(file)) {
       await this.professorshipsService.topUpStorageAvailable(file.ownerId, file.size, manager);
     }
@@ -241,7 +261,14 @@ export class FilesService extends GenericCrudService<File> {
 
   async softRemoveByCourseId(courseId: string, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
-    const files = await filesRepository.find({ where: { courses: { id: courseId } } });
+
+    //! "find" method does not work using where on a many to many relation
+    const files = await filesRepository
+      .createQueryBuilder('file')
+      .leftJoin('file.courses', 'course')
+      .where('course.id = :courseId', { courseId })
+      .getMany();
+
     return filesRepository.softRemove(files);
   }
 
@@ -305,7 +332,7 @@ export class FilesService extends GenericCrudService<File> {
   private async removeUnusedDeletedFiles() {
     const connection = getConnection();
 
-    return connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager: EntityManager) => {
+    return connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       const files = await manager
         .createQueryBuilder()
         .select('file')
@@ -328,6 +355,10 @@ export class FilesService extends GenericCrudService<File> {
 
   private getFilesRepository(manager: EntityManager) {
     return manager.getCustomRepository(FilesRepository);
+  }
+
+  protected getFindOneRelations(): string[] {
+    return ['courses'];
   }
 
   protected throwCustomNotFoundException(id: string) {

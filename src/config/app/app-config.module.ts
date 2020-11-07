@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { PASSWORD_PATTERN } from 'src/common/constants/password-pattern';
+import { PASSWORD_PATTERN } from 'src/common/constants/password-pattern.constant';
 import { Environment } from 'src/common/enums/environment.enum';
 import { AppConfigService } from './app-config.service';
 import appConfig from './app.config';

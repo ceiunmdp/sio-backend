@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import * as bytes from 'bytes';
-import { IsNumber, Max, Min } from 'class-validator';
+import { IsInt, Max, Min } from 'class-validator';
 import { UpdateUserDto } from 'src/users/users/dtos/update-user.dto';
 
 export class UpdateProfessorshipDto extends UpdateUserDto {
-  @IsNumber()
+  @IsInt()
   @Min(bytes('200MB'))
   @Max(bytes('2GB'))
   @ApiProperty({

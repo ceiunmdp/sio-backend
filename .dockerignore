@@ -12,6 +12,8 @@
 **/.aws
 **/dist
 **/docs
+**/documentation
+
 /database
 /driver-options
 /files

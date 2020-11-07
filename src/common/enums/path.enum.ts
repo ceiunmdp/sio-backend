@@ -1,39 +1,44 @@
 export enum Path {
-  ME = '/me',
-
   API = '/api/v1',
+
+  CAMPUS = '/campus',
+  CAREERS = '/careers',
+  COURSES = '/courses',
+
+  FILES = '/files',
 
   HEALTH = '/health',
 
-  PARAMETERS = '/parameters',
-  TASKS = '/tasks',
+  ITEMS = '/items',
+  BINDINGS = '/bindings',
 
-  AUTH = '/auth',
+  ME = '/me',
 
   MENU = '/menu',
 
+  MOVEMENTS = '/movements',
+
+  NOTIFICATIONS = '/notifications',
+
+  ORDERS = '/orders',
+  ORDER_FILES = '/order-files',
+
+  PARAMETERS = '/parameters',
+
+  PRINTERS = '/printers',
+
+  REGISTRATION_TOKENS = '/registration-tokens',
+
+  RELATIONS = '/relations',
+
+  TASKS = '/tasks',
+
   USER = '/user',
+
   USERS = '/users',
   ADMINS = '/admins',
   CAMPUS_USERS = '/campus',
   PROFESSORSHIPS = '/professorships',
   SCHOLARSHIPS = '/scholarships',
   STUDENTS = '/students',
-
-  CAMPUS = '/campus',
-  CAREERS = '/careers',
-  COURSES = '/courses',
-  RELATIONS = '/relations',
-
-  ITEMS = '/items',
-  BINDINGS = '/bindings',
-
-  MOVEMENTS = '/movements',
-
-  NOTIFICATIONS = '/notifications',
-  REGISTRATION_TOKENS = '/registration-tokens',
-
-  FILES = '/files',
-
-  PRINTERS = '/printers',
 }

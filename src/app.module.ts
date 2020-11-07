@@ -1,9 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { AuthModule } from './auth/auth.module';
 //! Profiles
 import './common/base-classes/base-entity.profile';
-import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ErrorsInterceptor } from './common/interceptors/errors.interceptor';
 import { HttpCacheInterceptor } from './common/interceptors/http-cache.interceptor';
 import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
@@ -19,7 +18,7 @@ import { GeneralItemsModule } from './items/general-items.module';
 import { MenuModule } from './menu/menu.module';
 import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { OrdersModule } from './orders/orders.module';
+import { OrdersModule } from './orders/orders/orders.module';
 import { PrintersModule } from './printers/printers.module';
 import { RolesModule } from './roles/roles.module';
 import { TasksModule } from './tasks/tasks.module';
@@ -30,7 +29,6 @@ import { GeneralUsersModule } from './users/general-users.module';
 
 @Module({
   imports: [
-    AuthModule,
     CoreModule,
     FacultyEntitiesModule,
     FilesModule,

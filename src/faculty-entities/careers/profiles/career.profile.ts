@@ -6,13 +6,13 @@ import { Career } from '../entities/career.entity';
 
 @Profile()
 export class CareerProfile extends ProfileBase {
-  constructor(private readonly mapper: AutoMapper) {
+  constructor(mapper: AutoMapper) {
     super();
-    this.createMapFromCareerToResponseCareerDto();
+    this.createMapFromCareerToResponseCareerDto(mapper);
   }
 
-  createMapFromCareerToResponseCareerDto() {
-    this.mapper.createMap(Career, ResponseCareerDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] });
+  createMapFromCareerToResponseCareerDto(mapper: AutoMapper) {
+    mapper.createMap(Career, ResponseCareerDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] });
     // .forMember(
     //   (responseCareerDto) => responseCareerDto.courses,
     //   mapDefer((career) =>

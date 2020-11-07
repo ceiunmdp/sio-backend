@@ -5,6 +5,7 @@ import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { BaseEntity } from '../base-classes/base-entity.entity';
 import { CrudService } from '../interfaces/crud-service.interface';
+import { GenericInterface } from '../interfaces/generic.interface';
 import { Order } from '../interfaces/order.type';
 import { RemoveOptions } from '../interfaces/remove-options.interface';
 import { UserIdentity } from '../interfaces/user-identity.interface';
@@ -21,15 +22,20 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     order: Order<T>,
     manager: EntityManager,
     user?: UserIdentity,
+    parentCollectionIds?: GenericInterface,
   ) {
     const entitiesRepository = manager.getRepository<T>(this.type);
     let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(camelcase(this.type.name)), where);
-    queryBuilder = this.addExtraClauses(queryBuilder, user);
+    queryBuilder = this.addExtraClauses(queryBuilder, user, parentCollectionIds);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
     return paginate<T>(queryBuilder, options);
   }
 
-  protected addExtraClauses(queryBuilder: SelectQueryBuilder<T>, _user: UserIdentity) {
+  protected addExtraClauses(
+    queryBuilder: SelectQueryBuilder<T>,
+    _user: UserIdentity,
+    _parentCollectionIds?: GenericInterface,
+  ) {
     return queryBuilder;
   }
 
@@ -49,14 +55,14 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
       .findOne(id, { relations: this.getFindOneRelations(), loadEagerRelations: true });
 
     if (entity) {
-      await this.checkFindByIdConditions(entity, manager, user);
+      await this.checkFindOneConditions(entity, manager, user);
       return entity;
     } else {
       this.throwCustomNotFoundException(id);
     }
   }
 
-  protected async checkFindByIdConditions(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
+  protected async checkFindOneConditions(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
     return;
   }
 
@@ -106,8 +112,8 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
       loadEagerRelations: true,
     });
     if (entity) {
-      await this.checkDeleteConditions(entity, manager, user);
-      await this.beforeDelete(entity, manager, user);
+      await this.checkRemoveConditions(entity, manager, user);
+      await this.beforeRemove(entity, manager, user);
       options?.softRemove
         ? // TODO: Try to remove 'unknown' casting
           await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
@@ -118,11 +124,11 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     }
   }
 
-  protected async checkDeleteConditions(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
+  protected async checkRemoveConditions(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
     return;
   }
 
-  protected async beforeDelete(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
+  protected async beforeRemove(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
     return;
   }
 

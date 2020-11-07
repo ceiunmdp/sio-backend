@@ -1,5 +1,5 @@
 import { DefaultValuePipe, ParseIntPipe, Query } from '@nestjs/common';
-import { DEFAULT_LIMIT } from '../constants/limits';
+import { DEFAULT_LIMIT } from '../constants/limits.constant';
 import { PaginationLimitPipe } from '../pipes/pagination-limit.pipe';
 
 export const Limit = (property = 'limit') =>

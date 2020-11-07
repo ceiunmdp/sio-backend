@@ -20,9 +20,8 @@ export class RolesService {
   }
 
   async findByCode(code: UserRole, manager: EntityManager) {
-    const rolesRepository = manager.getRepository(Role);
+    const role = manager.getRepository(Role).findOne({ where: { code } });
 
-    const role = rolesRepository.findOne({ where: { code } });
     if (role) {
       return role;
     } else {

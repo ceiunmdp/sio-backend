@@ -1,12 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 import { Request } from 'express';
 import * as admin from 'firebase-admin';
-import { Observable } from 'rxjs';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { UserRole } from '../enums/user-role.enum';
 import { InvalidIdTokenException } from '../exceptions/invalid-id-token.exception';
+import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
 import { DecodedIdToken } from '../interfaces/user-identity.interface';
 import { handleFirebaseError } from '../utils/firebase-handler';
+import { getToken } from '../utils/get-token';
+import { isHttp as isHttpFunction } from '../utils/is-application-context-functions';
 
 @Injectable()
 export class AuthNGuard implements CanActivate {
@@ -14,15 +17,39 @@ export class AuthNGuard implements CanActivate {
     this.logger.context = AuthNGuard.name;
   }
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const authorization = request.headers.authorization as string;
-    if (authorization) {
-      const idToken = authorization.split(' ')[1];
-      return this.validateRequest(request, idToken);
+  async canActivate(context: ExecutionContext) {
+    const isHttp = isHttpFunction(context);
+
+    if (isHttp) {
+      const request = context.switchToHttp().getRequest<Request>();
+      const authorization = request.headers.authorization;
+
+      if (authorization) {
+        await this.verifyDecodeAndAttachTokenPayload(authorization, request, isHttp);
+      } else {
+        throw new UnauthorizedException('Id token not provided.');
+      }
     } else {
-      throw new UnauthorizedException('Id token not provided.');
+      //* WS
+      const client = context.switchToWs().getClient<SocketWithUserData>();
+      const authorization = client.handshake.headers.authorization;
+
+      if (authorization) {
+        await this.verifyDecodeAndAttachTokenPayload(authorization, client, isHttp);
+      } else {
+        throw new WsException('Id token not provided.');
+      }
     }
+
+    return true;
+  }
+
+  private async verifyDecodeAndAttachTokenPayload(
+    authorization: string,
+    requestOrSocket: Request | SocketWithUserData,
+    isHttp: boolean,
+  ) {
+    requestOrSocket.user = await this.verifyAndDecodeToken(getToken(authorization), isHttp);
   }
 
   //! Firebase idToken's payload
@@ -47,30 +74,32 @@ export class AuthNGuard implements CanActivate {
   //   uid: 'eFBjrJtPnLMRjCVSs4gnXOvLBsz2'
   // }
 
-  async validateRequest(request: Request, idToken: string) {
+  async verifyAndDecodeToken(idToken: string, isHttp: boolean): Promise<DecodedIdToken> {
     try {
       const decodedIdToken = await this.verifyAndDecodeIdToken(idToken);
       if (decodedIdToken.email_verified) {
-        request.user = decodedIdToken;
-        return true;
+        return decodedIdToken;
       } else {
         // throw new UnauthorizedException('Email not verified.');
 
         //! Momentarily
-        request.user = decodedIdToken;
-        return true;
+        return decodedIdToken;
       }
     } catch (error) {
       const exception = handleFirebaseError(error);
       if (exception instanceof InvalidIdTokenException) {
-        throw new UnauthorizedException('Invalid token.');
+        if (isHttp) {
+          throw new UnauthorizedException('Invalid token.');
+        } else {
+          throw new WsException('Invalid token.');
+        }
       } else {
         throw error;
       }
     }
   }
 
-  async verifyAndDecodeIdToken(idToken: string) {
+  private async verifyAndDecodeIdToken(idToken: string) {
     // TODO: Evaluate if the additional verification is required to the authentication flow (mostly of students)
     // const decodedIdToken = await admin.auth().verifyIdToken(idToken);
     const decodedIdToken = await admin.auth().verifyIdToken(idToken, true);

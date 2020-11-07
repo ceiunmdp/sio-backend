@@ -1,5 +1,5 @@
 import { Injectable, PipeTransform } from '@nestjs/common';
-import { DEFAULT_LIMIT, MAX_LIMIT } from '../constants/limits';
+import { DEFAULT_LIMIT, MAX_LIMIT } from '../constants/limits.constant';
 
 @Injectable()
 export class PaginationLimitPipe implements PipeTransform<number, number> {

@@ -11,5 +11,6 @@ import { Binding } from './entities/binding.entity';
   imports: [SharedModule, AppConfigModule, ItemsModule, TypeOrmModule.forFeature([Binding])],
   controllers: [BindingsController],
   providers: [BindingsService],
+  exports: [BindingsService],
 })
 export class BindingsModule {}

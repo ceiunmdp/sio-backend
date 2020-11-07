@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
 import { SharedModule } from 'src/shared/shared.module';
@@ -16,7 +16,7 @@ import { StudentsService } from './students.service';
     SharedModule,
     AppConfigModule,
     UsersModule,
-    ScholarshipsModule,
+    forwardRef(() => ScholarshipsModule),
     TypeOrmModule.forFeature([Student, StudentsRepository]),
   ],
   controllers: [StudentsController],

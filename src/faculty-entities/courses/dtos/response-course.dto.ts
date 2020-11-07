@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
-import { ALL_GROUPS } from 'src/common/constants/all-groups';
+import { ALL_GROUPS } from 'src/common/constants/all-groups.constant';
 import { ResponseRelationDto } from 'src/faculty-entities/relations/dtos/response-relation.dto';
 
 @Exclude()

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
-import { ALL_GROUPS } from 'src/common/constants/all-groups';
+import { ALL_GROUPS } from 'src/common/constants/all-groups.constant';
 import { UserType } from '../enums/user-type.enum';
 
 @Exclude()

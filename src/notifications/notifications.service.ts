@@ -132,7 +132,7 @@ export class NotificationsService extends GenericCrudService<Notification> {
   }
 
   //* findOne
-  protected async checkFindByIdConditions(notification: Notification, _manager: EntityManager, user: UserIdentity) {
+  protected async checkFindOneConditions(notification: Notification, _manager: EntityManager, user: UserIdentity) {
     this.userCanAccessNotification(notification, user);
   }
 
@@ -151,8 +151,8 @@ export class NotificationsService extends GenericCrudService<Notification> {
     this.userCanAccessNotification(notification, user);
   }
 
-  //* delete
-  protected async checkDeleteConditions(notification: Notification, manager: EntityManager, user: UserIdentity) {
+  //* remove
+  protected async checkRemoveConditions(notification: Notification, manager: EntityManager, user: UserIdentity) {
     this.userCanAccessNotification(notification, user);
   }
 

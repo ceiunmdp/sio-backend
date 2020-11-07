@@ -8,26 +8,24 @@ import { Relation } from '../entities/relation.entity';
 
 @Profile()
 export class RelationProfile extends ProfileBase {
-  constructor(private readonly mapper: AutoMapper) {
+  constructor(mapper: AutoMapper) {
     super();
-    this.createMapFromRelationToResponseRelationDto();
+    this.createMapFromRelationToResponseRelationDto(mapper);
   }
 
-  createMapFromRelationToResponseRelationDto() {
-    this.mapper
-      .createMap(Relation, ResponseRelationDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] })
-      .forMember(
-        (responseRelationDto) => responseRelationDto.careers,
-        mapDefer((relation) =>
-          relation.careerCourseRelations
-            ? mapWith(ResponseCareerDto, (relation) =>
-                sortBy(
-                  relation.careerCourseRelations.map((ternary) => ternary.career),
-                  (career) => career.name,
-                ),
-              )
-            : fromValue(undefined),
-        ),
-      );
+  createMapFromRelationToResponseRelationDto(mapper: AutoMapper) {
+    mapper.createMap(Relation, ResponseRelationDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] }).forMember(
+      (responseRelationDto) => responseRelationDto.careers,
+      mapDefer((relation) =>
+        relation.careerCourseRelations
+          ? mapWith(ResponseCareerDto, (relation) =>
+              sortBy(
+                relation.careerCourseRelations.map((ternary) => ternary.career),
+                (career) => career.name,
+              ),
+            )
+          : fromValue(undefined),
+      ),
+    );
   }
 }

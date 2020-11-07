@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { ALL_GROUPS } from '../constants/all-groups';
+import { ALL_GROUPS } from '../constants/all-groups.constant';
 
 @Exclude()
 export class ResponseBaseEntityDto {

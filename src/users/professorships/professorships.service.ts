@@ -45,12 +45,9 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
   }
 
   private async getInitialAvailableStorage(manager: EntityManager) {
-    const parameter = await this.parametersService.findByCode(
-      ParameterType.USERS_PROFESSORSHIPS_INITIAL_AVAILABLE_STORAGE,
-      manager,
-    );
-
-    return parameter.value;
+    return (
+      await this.parametersService.findByCode(ParameterType.USERS_PROFESSORSHIPS_INITIAL_AVAILABLE_STORAGE, manager)
+    ).value;
   }
 
   // TODO: Verify this feature, it may not be necessary anymore
@@ -71,7 +68,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     await this.filesService.unlinkFilesFromProfessorship(professorship, manager);
   }
 
-  public async useUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
+  async useUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
     const professorshipsRepository = this.getProfessorshipsRepository(manager);
     const professorship = await professorshipsRepository.findOne(professorshipId);
 
@@ -87,7 +84,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     }
   }
 
-  public async topUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
+  async topUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
     const professorship = await this.getProfessorshipsRepository(manager).findOne(professorshipId);
 
     if (professorship) {
