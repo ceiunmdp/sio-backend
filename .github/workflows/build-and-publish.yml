@@ -1,0 +1,23 @@
+name: Publish Docker
+on:
+  push: # every pull request is followed by a push
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@develop
+
+      - name: Read version from package.json
+        uses: nyaayaya/package-version@v1
+
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: manuelnucci/nestjs-dev
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          default_branch: develop
+          cache: true
+          tags: "latest,${{ env.PACKAGE_VERSION }}"
