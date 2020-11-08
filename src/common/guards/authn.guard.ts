@@ -82,7 +82,7 @@ export class AuthNGuard implements CanActivate {
       } else {
         // throw new UnauthorizedException('Email not verified.');
 
-        //! Momentarily
+        //TODO: Momentarily
         return decodedIdToken;
       }
     } catch (error) {

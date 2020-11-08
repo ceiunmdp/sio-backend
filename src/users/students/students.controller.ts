@@ -42,7 +42,7 @@ export class StudentsController {
   }
 
   @GetAll(Collection.STUDENTS, ResponseStudentDto)
-  @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
   async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<Student>) {
     return this.studentsService.findAll(
       {
@@ -56,7 +56,7 @@ export class StudentsController {
   }
 
   @GetById(Collection.STUDENTS, ResponseStudentDto)
-  @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.studentsService.findOne(id, undefined, user);
   }
