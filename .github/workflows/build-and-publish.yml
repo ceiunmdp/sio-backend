@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@develop
+      - uses: actions/checkout@master
 
       - name: Read version from package.json
         uses: nyaayaya/package-version@v1
@@ -20,4 +20,4 @@ jobs:
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           default_branch: develop
           cache: true
-          tags: "latest,${{ env.PACKAGE_VERSION }}"
+          tags: 'latest,${{ env.PACKAGE_VERSION }}'
