@@ -19,5 +19,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           default_branch: develop
+          dockerfile: Dockerfile.dev
           cache: true
           tags: 'latest,${{ env.PACKAGE_VERSION }}'
