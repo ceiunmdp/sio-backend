@@ -46,3 +46,9 @@ lerna-debug.log*
 
 # Driver options
 /driver-options
+
+# BlackBox
+/.blackbox/pubring.gpg~
+/.blackbox/pubring.kbx~
+/.blackbox/secring.gpg
+/icei-firebase-admin-sdk.json
