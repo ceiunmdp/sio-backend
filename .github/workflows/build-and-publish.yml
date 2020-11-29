@@ -1,4 +1,4 @@
-name: Publish Docker
+name: Build and publish Docker image
 on:
   push: # every pull request is followed by a push
     branches:
@@ -12,7 +12,15 @@ jobs:
       - name: Read version from package.json
         uses: nyaayaya/package-version@v1
 
-      - name: Publish to Registry
+      - name: Decrypt all managed filespostdeploy
+        uses: jrmcdonald/blackbox-github-actions@v0.2.0
+        with:
+          bb_actions_subcommand: 'postdeploy'
+        env:
+          BLACKBOX_PUBKEY: ${{ secrets.BLACKBOX_PUBKEY }}
+          BLACKBOX_PRIVKEY: ${{ secrets.BLACKBOX_PRIVKEY }}
+
+      - name: Publish to Docker Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: manuelnucci/nestjs-dev
@@ -22,3 +30,11 @@ jobs:
           dockerfile: Dockerfile.dev
           cache: true
           tags: 'latest,${{ env.PACKAGE_VERSION }}'
+
+      - name: Safely delete any decrypted files
+        uses: jrmcdonald/blackbox-github-actions@v0.2.0
+        with:
+          bb_actions_subcommand: 'shred_all_files'
+        env:
+          BLACKBOX_PUBKEY: ${{ secrets.BLACKBOX_PUBKEY }}
+          BLACKBOX_PRIVKEY: ${{ secrets.BLACKBOX_PRIVKEY }}
