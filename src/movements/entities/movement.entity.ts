@@ -27,7 +27,7 @@ export class Movement extends BaseEntity {
   @JoinColumn({ name: 'movement_type_id' })
   readonly type!: MovementType;
 
-  @Column({ type: 'decimal', precision: 6, scale: 2, update: false })
+  @Column({ type: 'decimal', precision: 8, scale: 2, update: false })
   readonly amount!: number;
 
   //* Timestamp is already stored in BaseEntity

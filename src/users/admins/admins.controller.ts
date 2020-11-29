@@ -74,22 +74,26 @@ export class AdminsController {
   @PutById(Collection.ADMINS, ResponseAdminDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async update(@Id() id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminsService.update(id, updateAdminDto);
+  async update(@Id() id: string, @Body() updateAdminDto: UpdateAdminDto, @User() user: UserIdentity) {
+    return this.adminsService.update(id, updateAdminDto, undefined, user);
   }
 
   @PatchById(Collection.ADMINS, ResponseAdminDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async partialUpdate(@Id() id: string, @Body() partialUpdateAdminDto: PartialUpdateAdminDto) {
-    return this.adminsService.update(id, partialUpdateAdminDto);
+  async partialUpdate(
+    @Id() id: string,
+    @Body() partialUpdateAdminDto: PartialUpdateAdminDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.adminsService.update(id, partialUpdateAdminDto, undefined, user);
   }
 
   @DeleteById(Collection.ADMINS)
   @Auth(UserRole.ADMIN)
-  async remove(@User('id') userId: string, @Id() id: string) {
-    if (userId !== id) {
-      return this.adminsService.remove(id);
+  async remove(@Id() id: string, @User() user: UserIdentity) {
+    if (user.id !== id) {
+      return this.adminsService.remove(id, undefined, user);
     } else {
       throw new BadRequestException('No es posible eliminarse a sí mismo como administrador.');
     }

@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -16,8 +16,8 @@ import { ScholarshipsService } from 'src/users/scholarships/scholarships.service
 import { Student } from 'src/users/students/entities/student.entity';
 import { StudentsService } from 'src/users/students/students.service';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
-import { TypeState } from 'typestate';
-import { BindingGroup } from '../order-files/entities/binding-group.entity';
+import { BindingGroupsService } from '../binding-groups/binding-groups.service';
+import { BindingGroup } from '../binding-groups/entities/binding-group.entity';
 import { EFileState } from '../order-files/enums/e-file-state.enum';
 import { OrderFilesService } from '../order-files/order-files.service';
 import { CreateOrderDto } from './dtos/create/create-order.dto';
@@ -26,6 +26,7 @@ import { OrderState } from './entities/order-state.entity';
 import { OrderToOrderState } from './entities/order-to-order-state.entity';
 import { Order } from './entities/order.entity';
 import { EOrderState } from './enums/e-order-state.enum';
+import { OrdersGateway } from './orders.gateway';
 import { OrdersRepository } from './orders.repository';
 import { isOrderFromStudent } from './utils/is-order-from-student';
 
@@ -36,10 +37,12 @@ export class OrdersService extends GenericCrudService<Order> {
     appConfigService: AppConfigService,
     private readonly itemsService: ItemsService,
     private readonly bindingsService: BindingsService,
-    private readonly orderFilesService: OrderFilesService,
+    @Inject(forwardRef(() => BindingGroupsService)) private readonly bindingGroupsService: BindingGroupsService,
+    @Inject(forwardRef(() => OrderFilesService)) private readonly orderFilesService: OrderFilesService,
     private readonly parametersService: ParametersService,
     private readonly studentsService: StudentsService,
     private readonly scholarshipsService: ScholarshipsService,
+    @Inject(forwardRef(() => OrdersGateway)) private readonly ordersGateway: OrdersGateway,
   ) {
     super(Order);
     if (!appConfigService.isProduction()) {
@@ -97,7 +100,7 @@ export class OrdersService extends GenericCrudService<Order> {
       .innerJoinAndSelect('order.campus', 'campus')
       .innerJoinAndSelect('order.state', 'state')
       .innerJoinAndSelect('order.orderToOrderStates', 'tracking')
-      .innerJoinAndSelect(`tracking.state`, 'state_2')
+      .innerJoinAndSelect('tracking.state', 'state_2')
       .where('campus.id = :campusId', { campusId })
       .andWhere('state.code IN (:...pendingStates)', {
         pendingStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS, EOrderState.READY],
@@ -106,7 +109,7 @@ export class OrdersService extends GenericCrudService<Order> {
       .getMany();
   }
 
-  //* findOne // findContentById
+  //* findOne
   protected async checkFindOneConditions(order: Order, _manager: EntityManager, user: UserIdentity) {
     if (isStudentOrScholarship(user) && !isOrderFromStudent(user.id, order)) {
       throw new ForbiddenException('Prohibido el acceso al recurso.');
@@ -127,13 +130,17 @@ export class OrdersService extends GenericCrudService<Order> {
     createOrderDto.deposit = await this.calculateDeposit(createOrderDto.total, numberOfSheetsFromOrder, manager);
     await this.payOrder(createOrderDto, numberOfSheetsFromOrder, user, manager);
 
-    const bindingGroupsMapWithBindingGroup = await this.orderFilesService.buildBindingGroupsMapWithBindingGroup(
+    const bindingGroupsMapWithBindingGroup = await this.bindingGroupsService.buildBindingGroupsMapWithBindingGroup(
       bindingGroupsMapWithMostAppropiateBinding,
       manager,
     );
-    return this.getOrdersRepository(manager).saveAndReload(
+
+    const order = await this.getOrdersRepository(manager).saveAndReload(
       await this.createOrder(createOrderDto, user.id, bindingGroupsMapWithBindingGroup, manager),
     );
+
+    this.ordersGateway.emitNewPendingOrder(order);
+    return order;
   }
 
   private getNumberOfSheetsFromOrder(bindingGroupsMap: Map<number, number>) {
@@ -303,43 +310,35 @@ export class OrdersService extends GenericCrudService<Order> {
   }
 
   async update(id: string, updateOrderDto: PartialUpdateOrderDto, manager: EntityManager, user: UserIdentity) {
-    const ordersRepository = this.getOrdersRepository(manager);
+    const order = await this.findOne(id, manager, user);
 
-    const order = await ordersRepository.findOne(id, {
-      relations: this.getFindOneRelations(),
-      loadEagerRelations: true,
+    await this.checkUpdateConditions(updateOrderDto, order, manager, user);
+
+    const desiredState = await this.findOrderStateByCode(updateOrderDto.state.code, manager);
+
+    const updatedOrder = await this.getOrdersRepository(manager).updateAndReload(id, {
+      ...updateOrderDto,
+      state: desiredState,
+      orderToOrderStates: [
+        ...order.orderToOrderStates,
+        new OrderToOrderState({ state: desiredState, timestamp: new Date() }),
+      ],
     });
-    if (order) {
-      await this.checkUpdateConditions(updateOrderDto, order, manager, user);
-      return ordersRepository.updateAndReload(id, {
-        ...updateOrderDto,
-        state: await this.findOrderStateByCode(updateOrderDto.state.code, manager),
-      });
-    } else {
-      this.throwCustomNotFoundException(id);
-    }
+    this.ordersGateway.emitUpdatedOrder(updatedOrder);
+    return updatedOrder;
   }
 
   protected async checkUpdateConditions(
     updateOrderDto: PartialUpdateOrderDto,
     order: Order,
-    manager: EntityManager,
+    _manager: EntityManager,
     user: UserIdentity,
   ) {
-    //* For the moment, the conditions between "find" and "update" are the same
-    this.checkFindOneConditions(order, manager, user);
-
     if (updateOrderDto.state) {
-      this.checkTransitionIsValid(
-        isStudentOrScholarship(user) ? order.fsmStudent : order.fsmStaff,
-        updateOrderDto.state.code,
-      );
-    }
-  }
-
-  private checkTransitionIsValid(fsm: TypeState.FiniteStateMachine<EOrderState>, desiredState: EOrderState) {
-    if (!fsm.canGo(desiredState)) {
-      throw new BadRequestException('Transición de estado no válida.');
+      const code = updateOrderDto.state.code;
+      isStudentOrScholarship(user)
+        ? order.fsmStudent.checkTransitionIsValid(code)
+        : order.fsmStaff.checkTransitionIsValid(code);
     }
   }
 

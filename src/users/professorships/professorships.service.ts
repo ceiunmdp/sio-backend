@@ -68,6 +68,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     await this.filesService.unlinkFilesFromProfessorship(professorship, manager);
   }
 
+  // TODO: Try to use methods developed inside this class instead of accessing repository directly
   async useUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
     const professorshipsRepository = this.getProfessorshipsRepository(manager);
     const professorship = await professorshipsRepository.findOne(professorshipId);
@@ -84,12 +85,14 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     }
   }
 
+  // TODO: Try to use methods developed inside this class instead of accessing repository directly
   async topUpStorageAvailable(professorshipId: string, bytes: number, manager: EntityManager) {
-    const professorship = await this.getProfessorshipsRepository(manager).findOne(professorshipId);
+    const professorshipsRepository = this.getProfessorshipsRepository(manager);
+    const professorship = await professorshipsRepository.findOne(professorshipId);
 
     if (professorship) {
       const newStorageUsed = +professorship.storageUsed - bytes;
-      return this.update(professorshipId, { storageUsed: newStorageUsed }, manager);
+      return professorshipsRepository.updateAndReload(professorshipId, { storageUsed: newStorageUsed });
     } else {
       this.throwCustomNotFoundException(professorshipId);
     }

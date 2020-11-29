@@ -79,20 +79,24 @@ export class CampusUsersController {
   @PutById(Collection.CAMPUS_USERS, ResponseCampusUserDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async update(@Id() id: string, @Body() updateCampusUserDto: UpdateCampusUserDto) {
-    return this.campusUsersService.update(id, updateCampusUserDto);
+  async update(@Id() id: string, @Body() updateCampusUserDto: UpdateCampusUserDto, @User() user: UserIdentity) {
+    return this.campusUsersService.update(id, updateCampusUserDto, undefined, user);
   }
 
   @PatchById(Collection.CAMPUS_USERS, ResponseCampusUserDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async partialUpdate(@Id() id: string, @Body() partialUpdateCampusUserDto: PartialUpdateCampusUserDto) {
-    return this.campusUsersService.update(id, partialUpdateCampusUserDto);
+  async partialUpdate(
+    @Id() id: string,
+    @Body() partialUpdateCampusUserDto: PartialUpdateCampusUserDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.campusUsersService.update(id, partialUpdateCampusUserDto, undefined, user);
   }
 
   @DeleteById(Collection.CAMPUS_USERS)
   @Auth(UserRole.ADMIN)
-  async remove(@Id() id: string) {
-    return this.campusUsersService.remove(id);
+  async remove(@Id() id: string, @User() user: UserIdentity) {
+    return this.campusUsersService.remove(id, undefined, user);
   }
 }

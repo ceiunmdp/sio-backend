@@ -8,7 +8,6 @@ import { AppConfigService } from 'src/config/app/app-config.service';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { User } from 'src/users/users/entities/user.entity';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
-import { PartialUpdateNotificationDto } from './dtos/partial-update-notification.dto';
 import { NotificationType } from './entities/notification-type.entity';
 import { Notification } from './entities/notification.entity';
 import { ENotificationType } from './enums/e-notification-type.enum';
@@ -136,26 +135,6 @@ export class NotificationsService extends GenericCrudService<Notification> {
     this.userCanAccessNotification(notification, user);
   }
 
-  //! Implemented to avoid creation of notifications by error by other developers
-  async create(): Promise<Notification> {
-    throw new Error('Method not implemented.');
-  }
-
-  //* update
-  protected async checkUpdateConditions(
-    _updateNotificationDto: PartialUpdateNotificationDto,
-    notification: Notification,
-    _manager: EntityManager,
-    user: UserIdentity,
-  ) {
-    this.userCanAccessNotification(notification, user);
-  }
-
-  //* remove
-  protected async checkRemoveConditions(notification: Notification, manager: EntityManager, user: UserIdentity) {
-    this.userCanAccessNotification(notification, user);
-  }
-
   private userCanAccessNotification(notification: Notification, user: UserIdentity) {
     if (!isAdmin(user) && !this.isNotificationFromUser(user.id, notification)) {
       throw new ForbiddenException('Prohibido el acceso al recurso.');
@@ -164,6 +143,11 @@ export class NotificationsService extends GenericCrudService<Notification> {
 
   private isNotificationFromUser(userId: string, notification: Notification) {
     return userId === notification.userId;
+  }
+
+  //! Implemented to avoid creation of notifications by error by other developers
+  async create(): Promise<Notification> {
+    throw new Error('Method not implemented.');
   }
 
   // TODO: Define if all logic should be in a unique method (general handler) or it's convenient to split

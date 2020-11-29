@@ -68,8 +68,8 @@ export class PrintersService {
     }
   }
 
-  async printFile(id: string, file: File, configuration: Configuration) {
-    const printer = new ipp.Printer(this.findOne(id).getUrl());
+  async printFile(printerId: string, file: File, configuration: Configuration) {
+    const printer = new ipp.Printer(this.findOne(printerId).getUrl());
 
     // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_5500');
     // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_8000');
@@ -79,7 +79,7 @@ export class PrintersService {
     // await this.checkIfConfigurationIsSupported(printer, null, configuration);
 
     return this.sendJob(printer, file, configuration);
-    // TODO: Once the job is finished, file state should change to "printed"
+    // TODO: Once the job is finished, file state should change to "Printed"
   }
 
   private async checkIfConfigurationIsSupported(printer: ipp.Printer, mimetype: string, configuration: Configuration) {

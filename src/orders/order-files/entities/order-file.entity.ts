@@ -3,15 +3,16 @@ import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { File } from 'src/files/entities/file.entity';
 import { Order } from 'src/orders/orders/entities/order.entity';
 import { AfterLoad, Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
-import { TypeState } from 'typestate';
+import { BindingGroup } from '../../binding-groups/entities/binding-group.entity';
 import { OrderFileFsm } from '../classes/order-file-fsm.class';
-import { EFileState } from '../enums/e-file-state.enum';
-import { BindingGroup } from './binding-group.entity';
 import { Configuration } from './configuration.entity';
 import { FileState } from './file-state.entity';
 
 @Entity('order_files')
 export class OrderFile extends BaseEntity {
+  @RelationId((orderFile: OrderFile) => orderFile.order)
+  readonly orderId!: string;
+
   @AutoMap(() => Order)
   @ManyToOne(() => Order, (order) => order.orderFiles, { nullable: false })
   @JoinColumn({ name: 'order_id' })
@@ -26,8 +27,8 @@ export class OrderFile extends BaseEntity {
   readonly file!: File;
 
   //* Finite State Machine
-  @AutoMap(() => TypeState.FiniteStateMachine)
-  fsm!: TypeState.FiniteStateMachine<EFileState>;
+  @AutoMap(() => OrderFileFsm)
+  fsm!: OrderFileFsm;
 
   @AutoMap(() => FileState)
   @ManyToOne(() => FileState, { nullable: false, eager: true })
@@ -47,7 +48,7 @@ export class OrderFile extends BaseEntity {
   @Column({ update: false, nullable: true })
   readonly position?: number;
 
-  @Column({ type: 'decimal', precision: 6, scale: 2, update: false })
+  @Column({ type: 'decimal', precision: 8, scale: 2, update: false })
   readonly total!: number;
 
   constructor(partial: Partial<OrderFile>) {

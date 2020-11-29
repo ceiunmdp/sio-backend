@@ -12,6 +12,7 @@ import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
 import { PostAll } from 'src/common/decorators/methods/post-all.decorator';
 import { PutById } from 'src/common/decorators/methods/put-by-id.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
+import { Sort } from 'src/common/decorators/sort.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
@@ -43,7 +44,7 @@ export class BindingsController {
 
   @GetAll(Collection.BINDINGS, ResponseBindingDto)
   @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
-  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, order: Order<Binding>) {
+  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<Binding>) {
     return this.bindingsService.findAll(
       {
         limit,

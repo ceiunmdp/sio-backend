@@ -9,6 +9,6 @@ export class CreateBindingGroupDto {
 
   @IsInt()
   @IsPositive()
-  @ApiProperty({ description: `Order inside binding group`, example: 4 })
+  @ApiProperty({ description: `Position inside binding group`, example: 4 })
   position!: number;
 }

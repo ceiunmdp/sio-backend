@@ -1,6 +1,6 @@
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { PaginationOptions } from 'src/users/users/users.service';
-import { Connection, DeepPartial } from 'typeorm';
+import { Connection, DeepPartial, EntityManager } from 'typeorm';
 import { IsolationLevel } from '../enums/isolation-level.enum';
 import { Order } from '../interfaces/order.type';
 import { TypeOrmCrudService } from '../interfaces/typeorm-crud-service.interface';
@@ -16,7 +16,7 @@ export class ProxyTypeOrmCrudService<T> implements TypeOrmCrudService<T> {
     });
   }
 
-  findOne(id: string, _, user: UserIdentity) {
+  findOne(id: string, _manager: EntityManager, user: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.service.findOne(id, manager, user);
     });

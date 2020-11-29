@@ -12,7 +12,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 36, default: null })
   uid!: string;
 
-  // TODO: Consider adding an index here to speed up queries filtered by name
+  @Index('IX_users_full_name')
   @Column({ name: 'full_name' })
   displayName!: string;
 

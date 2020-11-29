@@ -36,12 +36,17 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     throw new Error('Method not implemented.');
   }
 
-  async update(id: string, updateScholarshipDto: PartialUpdateScholarshipDto, manager: EntityManager) {
-    const scholarshipsRepository = this.getScholarshipsRepository(manager);
+  async update(
+    id: string,
+    updateScholarshipDto: PartialUpdateScholarshipDto,
+    manager: EntityManager,
+    userIdentity: UserIdentity,
+  ) {
+    const scholarship = await this.findOne(id, manager, userIdentity);
 
-    await this.checkUpdateConditions(id, updateScholarshipDto, manager);
+    await this.checkUpdateConditions(updateScholarshipDto, scholarship, manager);
 
-    let updatedScholarship = await scholarshipsRepository.updateAndReload(id, updateScholarshipDto);
+    let updatedScholarship = await this.getScholarshipsRepository(manager).updateAndReload(id, updateScholarshipDto);
 
     if (updateScholarshipDto.type) {
       //* Degradation from scholarship to student
@@ -55,25 +60,19 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     return this.userMerger.mergeSubUser(user, updatedScholarship);
   }
 
-  private async checkUpdateConditions(
-    id: string,
+  protected async checkUpdateConditions(
     updateScholarshipDto: PartialUpdateScholarshipDto,
+    scholarship: Scholarship,
     manager: EntityManager,
   ) {
-    const scholarship = await this.getScholarshipsRepository(manager).findOne(id);
-    if (scholarship) {
-      if (updateScholarshipDto.remainingCopies) {
-        this.checkIfRemainingCopiesSurpassesAvailableCopies(updateScholarshipDto, scholarship);
-      }
-      if (
-        updateScholarshipDto.dni &&
-        (await this.usersService.isDniRepeated(updateScholarshipDto.dni, this.usersService.getUsersRepository(manager)))
-      ) {
-        throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
-      }
-      return;
-    } else {
-      this.throwCustomNotFoundException(id);
+    if (updateScholarshipDto.remainingCopies) {
+      this.checkIfRemainingCopiesSurpassesAvailableCopies(updateScholarshipDto, scholarship);
+    }
+    if (
+      updateScholarshipDto.dni &&
+      (await this.usersService.isDniRepeated(updateScholarshipDto.dni, this.usersService.getUsersRepository(manager)))
+    ) {
+      throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
     }
   }
 

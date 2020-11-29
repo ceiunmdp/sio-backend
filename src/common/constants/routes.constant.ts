@@ -11,6 +11,7 @@ import { MenuModule } from 'src/menu/menu.module';
 import { MovementsModule } from 'src/movements/movements.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { RegistrationTokensModule } from 'src/notifications/registration-tokens/registration-tokens.module';
+import { BindingGroupsModule } from 'src/orders/binding-groups/binding-groups.module';
 import { OrderFilesModule } from 'src/orders/order-files/order-files.module';
 import { OrdersModule } from 'src/orders/orders/orders.module';
 import { PrintersModule } from 'src/printers/printers.module';
@@ -75,6 +76,10 @@ export const routes: Routes = [
       {
         path: `/:orderId${Path.ORDER_FILES}`,
         module: OrderFilesModule,
+      },
+      {
+        path: `/:orderId${Path.BINDING_GROUPS}`,
+        module: BindingGroupsModule,
       },
     ],
   },

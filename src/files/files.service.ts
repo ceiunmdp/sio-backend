@@ -168,26 +168,21 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   async update(id: string, updateFileDto: PartialUpdateFileDto, manager: EntityManager, user: UserIdentity) {
-    const filesRepository = this.getFilesRepository(manager);
+    let file = await this.findOne(id, manager, user);
 
-    let file = await filesRepository.findOne(id);
-    if (file) {
-      const oldPath = file.path;
+    const oldPath = file.path;
 
-      await this.checkUpdateConditions(updateFileDto, file, manager, user);
+    await this.checkUpdateConditions(updateFileDto, file, manager, user);
 
-      if (updateFileDto.name) {
-        file = this.updateFilename(updateFileDto.name, file);
-      }
-      if (updateFileDto.coursesIds) {
-        file = this.updateCoursesRelatedWithFile(updateFileDto.coursesIds, file);
-      }
-      this.updateFSAccordingToPath(oldPath, file.path);
-
-      return filesRepository.updateAndReload(id, file);
-    } else {
-      this.throwCustomNotFoundException(id);
+    if (updateFileDto.name) {
+      file = this.updateFilename(updateFileDto.name, file);
     }
+    if (updateFileDto.coursesIds) {
+      file = this.updateCoursesRelatedWithFile(updateFileDto.coursesIds, file);
+    }
+    this.updateFSAccordingToPath(oldPath, file.path);
+
+    return this.getFilesRepository(manager).updateAndReload(id, file);
   }
 
   //* update

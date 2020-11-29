@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { Order } from 'src/common/interfaces/order.type';
@@ -20,7 +21,7 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
   }
 
   async findAll(options: IPaginationOptions, where: Where, order: Order<T>, manager: EntityManager) {
-    const entitiesRepository = manager.getRepository<T>(this.type);
+    const entitiesRepository = this.getRepository(manager);
     let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(), where);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
     const { items, meta, links } = await paginate<T>(queryBuilder, options);
@@ -35,21 +36,24 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
   }
 
   async findOne(id: string, manager: EntityManager, user: UserIdentity) {
-    if (isAdmin(user) || id === user.id) {
-      const subUser = await manager.getRepository<T>(this.type).findOne(id);
+    const subUser = await this.getRepository(manager).findOne(id);
 
-      if (subUser) {
-        return this.userMerger.findAndMergeSubUser(subUser, manager);
-      } else {
-        this.throwCustomNotFoundException(id);
-      }
+    if (subUser) {
+      await this.checkFindOneConditions(subUser, manager, user);
+      return this.userMerger.findAndMergeSubUser(subUser, manager);
     } else {
+      this.throwCustomNotFoundException(id);
+    }
+  }
+
+  protected async checkFindOneConditions(entity: T, _manager: EntityManager, user: UserIdentity) {
+    if (!(isAdmin(user) || entity.id === user.id)) {
       throw new ForbiddenException('Prohibido el acceso al recurso.');
     }
   }
 
   async create(createDto: DeepPartial<T>, manager: EntityManager) {
-    const subUserRepository = manager.getRepository<T>(this.type);
+    const subUserRepository = this.getRepository(manager);
 
     const newSubUser = await subUserRepository.save(createDto);
 
@@ -62,36 +66,42 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return this.userMerger.mergeSubUser(user, newSubUser);
   }
 
-  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager) {
-    const subUsersRepository = manager.getRepository<T>(this.type);
+  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, userIdentity: UserIdentity) {
+    const subUser = await this.findOne(id, manager, userIdentity);
 
-    const subUser = await subUsersRepository.findOne(id);
-    if (subUser) {
-      const updatedSubUser = await subUsersRepository.save({ ...updateDto, id });
-      const user = await this.usersService.update(id, updateDto, manager);
-      return this.userMerger.mergeSubUser(user, updatedSubUser);
-    } else {
-      this.throwCustomNotFoundException(id);
-    }
+    await this.checkUpdateConditions(updateDto, subUser, manager, userIdentity);
+
+    const updatedSubUser = await this.getRepository(manager).save({ ...updateDto, id });
+    const user = await this.usersService.update(id, updateDto, manager);
+
+    return this.userMerger.mergeSubUser(user, updatedSubUser);
   }
 
-  async remove(id: string, manager: EntityManager) {
-    const subUsersRepository = manager.getRepository<T>(this.type);
-
-    const subUser = await subUsersRepository.findOne(id);
-    if (subUser) {
-      await this.beforeRemove(subUser, manager);
-      await this.usersService.remove(id, manager);
-      await subUsersRepository.remove(subUser);
-      return;
-    } else {
-      this.throwCustomNotFoundException(id);
-    }
+  protected async checkUpdateConditions(
+    _updateDto: DeepPartial<T>,
+    _entity: T,
+    _manager: EntityManager,
+    _user?: UserIdentity,
+  ) {
+    return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async remove(id: string, manager: EntityManager, user: UserIdentity) {
+    const subUser = await this.findOne(id, manager, user);
+
+    await this.beforeRemove(subUser, manager);
+
+    await this.usersService.remove(id, manager);
+    await this.getRepository(manager).remove(subUser);
+    return;
+  }
+
   protected async beforeRemove(_subUser: T, _manager: EntityManager) {
     return;
+  }
+
+  private getRepository(manager: EntityManager) {
+    return manager.getRepository<T>(this.type);
   }
 
   protected abstract throwCustomNotFoundException(id: string): void;

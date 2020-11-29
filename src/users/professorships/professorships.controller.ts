@@ -79,20 +79,24 @@ export class ProfessorshipsController {
   @PutById(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async update(@Id() id: string, @Body() updateProfessorshipDto: UpdateProfessorshipDto) {
-    return this.professorshipsService.update(id, updateProfessorshipDto);
+  async update(@Id() id: string, @Body() updateProfessorshipDto: UpdateProfessorshipDto, @User() user: UserIdentity) {
+    return this.professorshipsService.update(id, updateProfessorshipDto, undefined, user);
   }
 
   @PatchById(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async partialUpdate(@Id() id: string, @Body() partialUpdateProfessorshipDto: PartialUpdateProfessorshipDto) {
-    return this.professorshipsService.update(id, partialUpdateProfessorshipDto);
+  async partialUpdate(
+    @Id() id: string,
+    @Body() partialUpdateProfessorshipDto: PartialUpdateProfessorshipDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.professorshipsService.update(id, partialUpdateProfessorshipDto, undefined, user);
   }
 
   @DeleteById(Collection.PROFESSORSHIPS)
   @Auth(UserRole.ADMIN)
-  async remove(@Id() id: string) {
-    return this.professorshipsService.remove(id);
+  async remove(@Id() id: string, @User() user: UserIdentity) {
+    return this.professorshipsService.remove(id, undefined, user);
   }
 }

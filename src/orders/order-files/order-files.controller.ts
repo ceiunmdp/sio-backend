@@ -88,7 +88,7 @@ export class OrderFilesController {
   @Auth(UserRole.ADMIN, UserRole.CAMPUS)
   async partialUpdate(
     @Id() id: string,
-    @Body() partialUpdateOrderFileDto: PartialUpdateOrderFileDto,
+    @Body() partialUpdateOrderFileDto: PartialUpdateOrderFileDto & Pick<UpdateOrderFileDto, 'printerId'>,
     @User() user: UserIdentity,
   ) {
     return this.orderFilesService.update(id, partialUpdateOrderFileDto, undefined, user);

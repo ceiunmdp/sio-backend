@@ -1,3 +1,4 @@
+import { forwardRef, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
 import { defer, from, Observable } from 'rxjs';
@@ -33,7 +34,7 @@ export class OrdersGateway extends BaseGateway {
     @InjectConnection() private readonly connection: Connection,
     private readonly authNGuard: AuthNGuard,
     private readonly campusUsersService: CampusUsersService,
-    private readonly ordersService: OrdersService,
+    @Inject(forwardRef(() => OrdersService)) private readonly ordersService: OrdersService,
   ) {
     super();
   }
@@ -75,13 +76,20 @@ export class OrdersGateway extends BaseGateway {
     // TODO: Check if validation is run
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       const order = await this.ordersService.update(updateOrderDto.id, updateOrderDto, manager, user);
-      this.emitEvent(OrderEvent.UPDATED_ORDER, order, { namespace: Namespace.ORDERS, room: order.campusId });
       return this.buildWsResponse(OrderEvent.UPDATE_ORDER, order);
     });
   }
 
   @Mapper(ResponseOrderDto)
-  async emitNewPendingOrder(order: Order) {
+  emitNewPendingOrder(order: Order) {
     this.emitEvent(OrderEvent.NEW_PENDING_ORDER, order, { namespace: Namespace.ORDERS, room: order.campusId });
+  }
+
+  @Mapper(ResponseOrderDto)
+  emitUpdatedOrder(order: Order) {
+    this.emitEvent(OrderEvent.UPDATED_ORDER, order, {
+      namespace: Namespace.ORDERS,
+      room: order.campusId,
+    });
   }
 }

@@ -51,19 +51,16 @@ export class CoursesService extends GenericCrudService<Course> {
   }
 
   async update(id: string, updateCourseDto: PartialUpdateCourseDto, manager: EntityManager) {
-    const coursesRepository = this.getCoursesRepository(manager);
+    const course = await this.findOne(id, manager);
 
-    const course = await coursesRepository.findOne(id, { relations: this.getFindOneRelations() });
-    if (course) {
-      await this.checkUpdateConditions(updateCourseDto, course, manager);
-      await this.removeRelatedEntitiesFromTernary(course, manager);
-      return coursesRepository.updateAndReload(id, {
-        ...updateCourseDto,
-        careerCourseRelations: this.transformRelationsToTernary(updateCourseDto.relations),
-      });
-    } else {
-      this.throwCustomNotFoundException(id);
-    }
+    await this.checkUpdateConditions(updateCourseDto, course, manager);
+
+    await this.removeRelatedEntitiesFromTernary(course, manager);
+
+    return this.getCoursesRepository(manager).updateAndReload(id, {
+      ...updateCourseDto,
+      careerCourseRelations: this.transformRelationsToTernary(updateCourseDto.relations),
+    });
   }
 
   // TODO: Temporary method. Check for future fix -> https://github.com/typeorm/typeorm/pull/6704

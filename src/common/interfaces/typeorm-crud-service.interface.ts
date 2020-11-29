@@ -14,6 +14,6 @@ export interface TypeOrmCrudService<T> {
   ): Promise<Pagination<T>>;
   findOne(id: string, manager?: EntityManager, user?: UserIdentity): Promise<T>;
   create(createDto: DeepPartial<T>, manager?: EntityManager): Promise<T>;
-  update(id: string, updateDto: DeepPartial<T>, manager?: EntityManager): Promise<T>;
-  remove(id: string, manager?: EntityManager): Promise<void>;
+  update(id: string, updateDto: DeepPartial<T>, manager?: EntityManager, user?: UserIdentity): Promise<T>;
+  remove(id: string, manager?: EntityManager, user?: UserIdentity): Promise<void>;
 }

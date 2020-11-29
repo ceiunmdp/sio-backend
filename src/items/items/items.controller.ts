@@ -9,6 +9,7 @@ import { GetAll } from 'src/common/decorators/methods/get-all.decorator';
 import { GetById } from 'src/common/decorators/methods/get-by-id.decorator';
 import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
+import { Sort } from 'src/common/decorators/sort.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
@@ -38,7 +39,7 @@ export class ItemsController {
 
   @GetAll(Collection.ITEMS, ResponseItemDto)
   @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
-  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, order: Order<Item>) {
+  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<Item>) {
     return this.itemsService.findAll(
       {
         limit,

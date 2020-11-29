@@ -4,10 +4,8 @@ import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { OrderFile } from 'src/orders/order-files/entities/order-file.entity';
 import { Student } from 'src/users/students/entities/student.entity';
 import { AfterLoad, Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from 'typeorm';
-import { TypeState } from 'typestate';
 import { OrderFsmStaff } from '../classes/order-fsm-staff.class';
 import { OrderFsmStudent } from '../classes/order-fsm-student.class';
-import { EOrderState } from '../enums/e-order-state.enum';
 import { OrderState } from './order-state.entity';
 import { OrderToOrderState } from './order-to-order-state.entity';
 
@@ -34,10 +32,10 @@ export class Order extends BaseEntity {
   readonly orderFiles!: OrderFile[];
 
   //* Finite State Machines
-  @AutoMap(() => TypeState.FiniteStateMachine)
-  fsmStaff!: TypeState.FiniteStateMachine<EOrderState>;
-  @AutoMap(() => TypeState.FiniteStateMachine)
-  fsmStudent!: TypeState.FiniteStateMachine<EOrderState>;
+  @AutoMap(() => OrderFsmStaff)
+  fsmStaff!: OrderFsmStaff;
+  @AutoMap(() => OrderFsmStudent)
+  fsmStudent!: OrderFsmStudent;
 
   @AutoMap(() => OrderState)
   @ManyToOne(() => OrderState, { nullable: false, eager: true })
@@ -48,10 +46,10 @@ export class Order extends BaseEntity {
   @OneToMany(() => OrderToOrderState, (orderToOrderState) => orderToOrderState.order, { cascade: true })
   orderToOrderStates!: OrderToOrderState[];
 
-  @Column({ type: 'decimal', precision: 6, scale: 2, update: false, nullable: true }) //* Could be null in case student pays total sum
+  @Column({ type: 'decimal', precision: 8, scale: 2, update: false, nullable: true }) //* Could be null in case student pays total sum
   readonly deposit?: number;
 
-  @Column({ type: 'decimal', precision: 6, scale: 2, update: false })
+  @Column({ type: 'decimal', precision: 8, scale: 2, update: false })
   readonly total!: number;
 
   constructor(partial: Partial<Order>) {

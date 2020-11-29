@@ -1,7 +1,7 @@
-import { admin } from 'firebase-admin/lib/auth';
+import { auth } from 'firebase-admin/lib/auth';
 import { UserRole } from '../enums/user-role.enum';
 
-export type DecodedIdToken = admin.auth.DecodedIdToken & UserIdentity;
+export type DecodedIdToken = auth.DecodedIdToken & UserIdentity;
 
 export interface UserIdentity {
   id: string;

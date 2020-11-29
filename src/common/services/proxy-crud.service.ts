@@ -1,5 +1,5 @@
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
-import { Connection, DeepPartial } from 'typeorm';
+import { Connection, DeepPartial, EntityManager } from 'typeorm';
 import { BaseEntity } from '../base-classes/base-entity.entity';
 import { IsolationLevel } from '../enums/isolation-level.enum';
 import { CrudService } from '../interfaces/crud-service.interface';
@@ -16,7 +16,7 @@ export class ProxyCrudService<T extends BaseEntity> implements CrudService<T> {
     options: IPaginationOptions,
     where: Where,
     order: Order<T>,
-    _,
+    _manager: EntityManager,
     user?: UserIdentity,
     parentCollectionIds?: GenericInterface,
   ) {
@@ -25,25 +25,25 @@ export class ProxyCrudService<T extends BaseEntity> implements CrudService<T> {
     });
   }
 
-  findOne(id: string, _, user?: UserIdentity, parentCollectionIds?: GenericInterface) {
+  findOne(id: string, _manager: EntityManager, user?: UserIdentity, parentCollectionIds?: GenericInterface) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.service.findOne(id, manager, user, parentCollectionIds);
     });
   }
 
-  create(createDto: DeepPartial<T>, _, user?: UserIdentity) {
+  create(createDto: DeepPartial<T>, _manager: EntityManager, user?: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.service.create(createDto, manager, user);
     });
   }
 
-  update(id: string, updateDto: DeepPartial<T>, _, user?: UserIdentity) {
+  update(id: string, updateDto: DeepPartial<T>, _manager: EntityManager, user?: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.service.update(id, updateDto, manager, user);
     });
   }
 
-  remove(id: string, options?: RemoveOptions, _?, user?: UserIdentity) {
+  remove(id: string, options?: RemoveOptions, _manager?: EntityManager, user?: UserIdentity) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.service.remove(id, options, manager, user);
     });

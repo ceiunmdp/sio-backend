@@ -1,4 +1,5 @@
 import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { EntityManager } from 'typeorm';
 import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
@@ -33,12 +34,17 @@ export class StudentsService extends GenericSubUserService<Student> {
     return this.userMerger.mergeSubUser(user, student);
   }
 
-  async update(id: string, updateStudentDto: PartialUpdateStudentDto, manager: EntityManager) {
-    const studentsRepository = this.getStudentsRepository(manager);
+  async update(
+    id: string,
+    updateStudentDto: PartialUpdateStudentDto,
+    manager: EntityManager,
+    userIdentity: UserIdentity,
+  ) {
+    const student = await this.findOne(id, manager, userIdentity);
 
-    await this.checkUpdateConditions(id, updateStudentDto, manager);
+    await this.checkUpdateConditions(updateStudentDto, student, manager);
 
-    const updatedStudent = await studentsRepository.updateAndReload(id, updateStudentDto);
+    const updatedStudent = await this.getStudentsRepository(manager).updateAndReload(id, updateStudentDto);
 
     if (updateStudentDto.type) {
       //* Promotion from student to scholarship
@@ -49,18 +55,16 @@ export class StudentsService extends GenericSubUserService<Student> {
     return this.userMerger.mergeSubUser(user, updatedStudent);
   }
 
-  private async checkUpdateConditions(id: string, updateStudentDto: PartialUpdateStudentDto, manager: EntityManager) {
-    const student = await this.getStudentsRepository(manager).findOne(id);
-    if (student) {
-      if (
-        updateStudentDto.dni &&
-        (await this.usersService.isDniRepeated(updateStudentDto.dni, this.usersService.getUsersRepository(manager)))
-      ) {
-        throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
-      }
-      return;
-    } else {
-      this.throwCustomNotFoundException(id);
+  protected async checkUpdateConditions(
+    updateStudentDto: PartialUpdateStudentDto,
+    _student: Student,
+    manager: EntityManager,
+  ) {
+    if (
+      updateStudentDto.dni &&
+      (await this.usersService.isDniRepeated(updateStudentDto.dni, this.usersService.getUsersRepository(manager)))
+    ) {
+      throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
     }
   }
 

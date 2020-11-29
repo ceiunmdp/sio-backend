@@ -63,11 +63,6 @@ export class MovementsService extends GenericCrudService<Movement> {
     );
   }
 
-  private convertSourceAndTargetToUser(movement: Movement) {
-    // TODO: Caveat! The resulting user is missing all properties from Firebase database (for now it's only the email)
-    return new Movement({ ...movement, source: new User(movement.source), target: new User(movement.target) });
-  }
-
   protected addExtraClauses(queryBuilder: SelectQueryBuilder<Movement>, user?: UserIdentity) {
     queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.source`, 'source');
     queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.target`, 'target');
@@ -87,29 +82,22 @@ export class MovementsService extends GenericCrudService<Movement> {
   }
 
   async findOne(id: string, manager: EntityManager, user: UserIdentity) {
-    const movementsRepository = this.getMovementsRepository(manager);
-    const movement = await movementsRepository.findOne(id, {
-      loadEagerRelations: true,
-      relations: ['source', 'target'],
-    });
+    return this.convertSourceAndTargetToUser(await super.findOne(id, manager, user));
+  }
 
-    if (movement) {
-      if (!isAdmin(user)) {
-        if (this.isMovementFromUser(movement, user.id)) {
-          return this.convertSourceAndTargetToUser(movement);
-        } else {
-          throw new ForbiddenException(`El movimiento ${id} no pertenece al usuario.`);
-        }
-      } else {
-        return movement;
-      }
-    } else {
-      this.throwCustomNotFoundException(id);
+  protected async checkFindOneConditions(movement: Movement, _manager: EntityManager, user: UserIdentity) {
+    if (!isAdmin(user) && !this.isMovementFromUser(movement, user.id)) {
+      throw new ForbiddenException(`El movimiento ${movement.id} no pertenece al usuario.`);
     }
   }
 
   private isMovementFromUser(movement: Movement, userId: string) {
     return movement.source.id === userId || movement.target.id === userId;
+  }
+
+  private convertSourceAndTargetToUser(movement: Movement) {
+    // TODO: Caveat! The resulting user is missing all properties from Firebase database (for now it's only the email)
+    return new Movement({ ...movement, source: new User(movement.source), target: new User(movement.target) });
   }
 
   async create(createMovementDto: CreateMovementDto, manager: EntityManager, user: UserIdentity) {
@@ -208,6 +196,10 @@ export class MovementsService extends GenericCrudService<Movement> {
 
   private getMovementTypesRepository(manager: EntityManager) {
     return manager.getRepository(MovementType);
+  }
+
+  protected getFindOneRelations(): string[] {
+    return ['source', 'target'];
   }
 
   protected throwCustomNotFoundException(id: string) {

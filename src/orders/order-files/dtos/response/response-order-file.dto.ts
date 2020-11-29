@@ -4,12 +4,18 @@ import { AutoMap } from 'nestjsx-automapper';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { Group } from 'src/common/classes/group.class';
 import { ResponseFileDto } from 'src/files/dtos/response-file.dto';
-import { ResponseBindingGroupDto } from './response-binding-group.dto';
+import { ResponseOrderDto } from 'src/orders/orders/dtos/response/response-order.dto';
+import { ResponseBindingGroupDto } from '../../../binding-groups/dtos/response-binding-group.dto';
 import { ResponseConfigurationDto } from './response-configuration.dto';
 import { ResponseFileStateDto } from './response-file-state.dto';
 
 @Exclude()
 export class ResponseOrderFileDto extends ResponseBaseEntityDto {
+  @AutoMap(() => ResponseOrderDto)
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @ApiProperty({ description: 'Order' })
+  order!: ResponseOrderDto;
+
   @AutoMap(() => ResponseFileDto)
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
   @ApiProperty({ description: 'File' })

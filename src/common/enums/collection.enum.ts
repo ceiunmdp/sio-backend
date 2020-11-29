@@ -14,6 +14,7 @@ export enum Collection {
 
   ORDERS = 'Orders',
   ORDER_FILES = 'Order Files',
+  BINDING_GROUPS = 'Binding Groups',
 
   PARAMETERS = 'Parameters',
 
