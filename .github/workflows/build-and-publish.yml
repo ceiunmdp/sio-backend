@@ -1,8 +1,10 @@
 name: Build and publish Docker image
+
 on:
   push: # every pull request is followed by a push
     branches:
       - develop
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,8 +14,8 @@ jobs:
       - name: Read version from package.json
         uses: nyaayaya/package-version@v1
 
-      - name: Decrypt all managed filespostdeploy
-        uses: jrmcdonald/blackbox-github-actions@v0.2.0
+      - name: Decrypt all managed files
+        uses: manuelnucci/blackbox-github-actions@v0.2.1
         with:
           bb_actions_subcommand: 'postdeploy'
         env:
@@ -32,7 +34,7 @@ jobs:
           tags: 'latest,${{ env.PACKAGE_VERSION }}'
 
       - name: Safely delete any decrypted files
-        uses: jrmcdonald/blackbox-github-actions@v0.2.0
+        uses: manuelnucci/blackbox-github-actions@v0.2.1
         with:
           bb_actions_subcommand: 'shred_all_files'
         env:
