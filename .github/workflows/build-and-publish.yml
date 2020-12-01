@@ -15,9 +15,9 @@ jobs:
         uses: nyaayaya/package-version@v1
 
       - name: Decrypt all managed files
-        uses: manuelnucci/blackbox-github-actions@v0.2.1
+        uses: jrmcdonald/blackbox-github-actions@v0.2.0
         with:
-          bb_actions_subcommand: 'postdeploy'
+          bb_actions_subcommand: "postdeploy"
         env:
           BLACKBOX_PUBKEY: ${{ secrets.BLACKBOX_PUBKEY }}
           BLACKBOX_PRIVKEY: ${{ secrets.BLACKBOX_PRIVKEY }}
@@ -31,12 +31,12 @@ jobs:
           default_branch: develop
           dockerfile: Dockerfile.dev
           cache: true
-          tags: 'latest,${{ env.PACKAGE_VERSION }}'
+          tags: "latest,${{ env.PACKAGE_VERSION }}"
 
       - name: Safely delete any decrypted files
-        uses: manuelnucci/blackbox-github-actions@v0.2.1
+        uses: jrmcdonald/blackbox-github-actions@v0.2.0
         with:
-          bb_actions_subcommand: 'shred_all_files'
+          bb_actions_subcommand: "shred_all_files"
         env:
           BLACKBOX_PUBKEY: ${{ secrets.BLACKBOX_PUBKEY }}
           BLACKBOX_PRIVKEY: ${{ secrets.BLACKBOX_PRIVKEY }}
