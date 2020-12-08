@@ -54,10 +54,10 @@ export class MovementsService extends GenericCrudService<Movement> {
     let queryBuilder = filterQuery(movementsRepository.createQueryBuilder('movement'), where);
     queryBuilder = this.addExtraClauses(queryBuilder, user);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
-    const { items, meta, links } = await paginate(queryBuilder, options);
+    const { items: movements, meta, links } = await paginate(queryBuilder, options);
 
     return new Pagination(
-      items.map((movement) => this.convertSourceAndTargetToUser(movement)),
+      movements.map((movement) => this.convertSourceAndTargetToUser(movement)),
       meta,
       links,
     );

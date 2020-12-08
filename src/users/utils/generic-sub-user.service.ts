@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
-import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
+import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { isAdmin } from 'src/common/utils/is-role-functions';
@@ -13,7 +14,7 @@ import { UsersService } from '../users/users.service';
 import { UserMerger } from './merger.class';
 
 @Injectable()
-export abstract class GenericSubUserService<T extends User> implements TypeOrmCrudService<T> {
+export abstract class GenericSubUserService<T extends User> implements CrudService<T> {
   protected userMerger: UserMerger<T>;
 
   constructor(protected readonly usersService: UsersService, private readonly type: new (partial: Partial<T>) => T) {
@@ -24,14 +25,15 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     const entitiesRepository = this.getRepository(manager);
     let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(), where);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
-    const { items, meta, links } = await paginate<T>(queryBuilder, options);
-    return new Pagination<T>(await this.userMerger.findAndMergeSubUsers(items, manager), meta, links);
+    const { items: subUsers, meta, links } = await paginate<T>(queryBuilder, options);
+    return new Pagination<T>(await this.userMerger.findAndMergeSubUsers(subUsers, manager), meta, links);
   }
 
   protected addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
     Object.keys(order).map((property) => {
       qb.addOrderBy(property, order[property]);
     });
+
     return qb;
   }
 
@@ -86,13 +88,20 @@ export abstract class GenericSubUserService<T extends User> implements TypeOrmCr
     return;
   }
 
-  async remove(id: string, manager: EntityManager, user: UserIdentity) {
+  async remove(id: string, options: RemoveOptions, manager: EntityManager, user: UserIdentity) {
+    const usersRepository = this.getRepository(manager);
     const subUser = await this.findOne(id, manager, user);
 
     await this.beforeRemove(subUser, manager);
 
-    await this.usersService.remove(id, manager);
-    await this.getRepository(manager).remove(subUser);
+    if (options.softRemove) {
+      // TODO: Try to remove 'unknown' casting
+      await usersRepository.softRemove((subUser as unknown) as DeepPartial<T>);
+    } else {
+      await this.usersService.remove(id, { softRemove: false }, manager);
+      await usersRepository.remove(subUser);
+    }
+
     return;
   }
 

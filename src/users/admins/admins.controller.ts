@@ -17,11 +17,11 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
-import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
-import { ProxyTypeOrmCrudService } from 'src/common/services/proxy-typeorm-crud.service';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
 import { AdminsService } from './admins.service';
@@ -34,14 +34,14 @@ import { Admin } from './entities/admin.entity';
 @ApiTags('Admins')
 @Controller()
 export class AdminsController {
-  private readonly adminsService: TypeOrmCrudService<Admin>;
+  private readonly adminsService: CrudService<Admin>;
 
   constructor(
     @InjectConnection() connection: Connection,
     adminsService: AdminsService,
     private readonly appConfigService: AppConfigService,
   ) {
-    this.adminsService = new ProxyTypeOrmCrudService(connection, adminsService);
+    this.adminsService = new ProxyCrudService(connection, adminsService);
   }
 
   @GetAll(Collection.ADMINS, ResponseAdminDto)
@@ -93,7 +93,7 @@ export class AdminsController {
   @Auth(UserRole.ADMIN)
   async remove(@Id() id: string, @User() user: UserIdentity) {
     if (user.id !== id) {
-      return this.adminsService.remove(id, undefined, user);
+      return this.adminsService.remove(id, { softRemove: false }, undefined, user);
     } else {
       throw new BadRequestException('No es posible eliminarse a sí mismo como administrador.');
     }

@@ -7,16 +7,17 @@ import { UserType } from '../enums/user-type.enum';
 
 @Entity('users')
 @TableInheritance({ column: { type: 'enum', enum: UserType, name: 'type' } })
+@Index('IX_users_uid', ['uid'])
+@Index('IX_users_full_name', ['displayName'])
+@Index('IX_users_email', ['email'])
 export class User extends BaseEntity {
-  @Index('IX_users_uid')
-  @Column({ type: 'varchar', length: 36, default: null })
+  @Column({ type: 'varchar', length: 36, default: null }) //* Default value null, the tuple is first created and then reassigned this property with corresponding id
   uid!: string;
 
-  @Index('IX_users_full_name')
   @Column({ name: 'full_name' })
   displayName!: string;
 
-  //* Firebase
+  @Column()
   email!: string;
 
   //* Firebase

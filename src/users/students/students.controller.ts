@@ -15,11 +15,11 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
-import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
-import { ProxyTypeOrmCrudService } from 'src/common/services/proxy-typeorm-crud.service';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
 import { PartialUpdateStudentDto } from './dto/partial-update-student.dto';
@@ -31,14 +31,14 @@ import { StudentsService } from './students.service';
 @ApiTags('Students')
 @Controller()
 export class StudentsController {
-  private readonly studentsService: TypeOrmCrudService<Student>;
+  private readonly studentsService: CrudService<Student>;
 
   constructor(
     @InjectConnection() connection: Connection,
     private readonly appConfigService: AppConfigService,
     studentsService: StudentsService,
   ) {
-    this.studentsService = new ProxyTypeOrmCrudService(connection, studentsService);
+    this.studentsService = new ProxyCrudService(connection, studentsService);
   }
 
   @GetAll(Collection.STUDENTS, ResponseStudentDto)

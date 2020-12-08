@@ -7,6 +7,7 @@ import { FileType } from '../enums/file-type.enum';
 
 @Entity('files')
 @Index('IX_files_delete_date', ['deleteDate'])
+@Index('IX_files_type', ['type'])
 export class File extends BaseEntity {
   @Column()
   name!: string;
@@ -40,7 +41,6 @@ export class File extends BaseEntity {
   })
   courses!: Course[]; //* Only SystemStaff files can alter its related courses
 
-  @Index('IX_files_type')
   @Column({ type: 'enum', enum: FileType, update: false })
   readonly type!: FileType;
 

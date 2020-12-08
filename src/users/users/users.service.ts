@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import got from 'got';
-import { Pagination } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
-import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
+import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { handleFirebaseError } from 'src/common/utils/firebase-handler';
+import { filterQuery } from 'src/common/utils/query-builder';
 import { FirebaseConfigService } from 'src/config/firebase/firebase-config.service';
 import { CustomLoggerService } from 'src/logger/custom-logger.service';
 import { RolesService } from 'src/roles/roles.service';
 import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
-import { DeepPartial, EntityManager, In } from 'typeorm';
+import { DeepPartial, EntityManager, In, SelectQueryBuilder } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserType } from './enums/user-type.enum';
 import { UserNotFoundInFirebaseException } from './exceptions/user-not-found-in-firebase.exception';
@@ -25,7 +27,7 @@ export interface PaginationOptions {
 }
 
 @Injectable()
-export class UsersService implements TypeOrmCrudService<User> {
+export class UsersService implements CrudService<User> {
   constructor(
     private readonly logger: CustomLoggerService,
     private readonly firebaseConfigService: FirebaseConfigService,
@@ -34,41 +36,37 @@ export class UsersService implements TypeOrmCrudService<User> {
     this.logger.context = UsersService.name;
   }
 
-  async findAll(
-    { limit, pageToken, route }: PaginationOptions,
-    // TODO: Implement filter in this method
-    // TODO: All filtered properties should exist in database
-    _where: Where,
-    // TODO: Implement order in this method
-    _order: Order<User>,
-    manager: EntityManager,
-  ) {
-    const userList = await admin.auth().listUsers(limit, pageToken?.toString());
+  async findAll(options: IPaginationOptions, where: Where, order: Order<User>, manager: EntityManager) {
+    const usersRepository = this.getUsersRepository(manager);
+    let queryBuilder = filterQuery(usersRepository.createQueryBuilder(), where);
+    queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
+    const { items: users, meta, links } = await paginate(queryBuilder, options);
 
-    const numberOfUsers = await this.getUsersRepository(manager).count();
+    // TODO: Check if try/catch is required here
+    const userRecords = (await admin.auth().getUsers(users.map(({ uid }) => ({ uid })))).users;
 
-    return new Pagination<User>(
-      await this.transformUserRecordsToUsers(userList.users, manager),
-      {
-        totalItems: numberOfUsers,
-        itemCount: userList.users.length,
-        itemsPerPage: limit,
-        totalPages: Math.ceil(numberOfUsers / limit),
-        currentPage: null, //* Cannot use pageToken (string) here
-      },
-      {
-        first: `${route}?limit=${limit}`,
-        previous: '', //* Inaccessible
-        next: userList.pageToken ? `${route}?limit=${limit}&page=${userList.pageToken}` : '',
-        last: '', //* Inaccessible
-      },
-    );
+    if (users.length === userRecords.length) {
+      return new Pagination(this.mergeUserRecordsAndUsers(userRecords, users), meta, links);
+    } else {
+      const userRecordsMap = new Map(userRecords.map((userRecord) => [userRecord.uid, userRecord]));
+      users.forEach((user) => {
+        if (!userRecordsMap.has(user.uid)) throw new UserNotFoundInFirebaseException(user.uid);
+      });
+    }
+  }
+
+  private addOrderByClausesToQueryBuilder<T>(qb: SelectQueryBuilder<T>, order: Order<T>) {
+    Object.keys(order).map((property) => {
+      qb.addOrderBy(property, order[property]);
+    });
+
+    return qb;
   }
 
   async findAllById(ids: string[], manager: EntityManager) {
     const userIdentifiers = (await this.findUids(ids, manager)).map((uid) => ({ uid }));
 
-    // TODO: Check if a try/catch is required here
+    // TODO: Check if try/catch is required here
     const getUsersResult = await admin.auth().getUsers(userIdentifiers);
     return this.transformUserRecordsToUsers(getUsersResult.users, manager);
   }
@@ -176,7 +174,7 @@ export class UsersService implements TypeOrmCrudService<User> {
   }
 
   //! This method does not delete the user from the local database, this responsibility is from the appropiate service
-  async remove(id: string, manager: EntityManager) {
+  async remove(id: string, _options: RemoveOptions, manager: EntityManager) {
     try {
       return await admin.auth().deleteUser(await this.findUid(id, manager));
     } catch (error) {
@@ -212,7 +210,7 @@ export class UsersService implements TypeOrmCrudService<User> {
     const user = await this.getUsersRepository(manager).findOne({ uid: userRecord.uid });
 
     if (user) {
-      return new User({ ...user, ...userRecord });
+      return this.mergeUserRecordAndUser(userRecord, user);
     } else {
       throw new UserNotFoundInDatabaseException(userRecord.uid);
     }
@@ -223,13 +221,14 @@ export class UsersService implements TypeOrmCrudService<User> {
 
     if (uids.length) {
       const users = await this.getUsersRepository(manager).find({ where: { uid: In(uids) } });
-      const userMap = new Map(users.map((user) => [user.uid, user]));
+      const usersMap = new Map(users.map((user) => [user.uid, user]));
 
       if (userRecords.length === users.length) {
-        return userRecords.map((userRecord) => new User({ ...userMap.get(userRecord.uid), ...userRecord }));
+        // TODO: Call mergeUserRecordsAndUsers method instead of creating Map here
+        return userRecords.map((userRecord) => this.mergeUserRecordAndUser(userRecord, usersMap.get(userRecord.uid)));
       } else {
         userRecords.forEach((userRecord) => {
-          if (!userMap.has(userRecord.uid)) throw new UserNotFoundInDatabaseException(userRecord.uid);
+          if (!usersMap.has(userRecord.uid)) throw new UserNotFoundInDatabaseException(userRecord.uid);
         });
       }
     } else {
@@ -237,8 +236,17 @@ export class UsersService implements TypeOrmCrudService<User> {
     }
   }
 
-  async isDniRepeated(dni: string, usersRepository: UsersRepository) {
-    return !!(await usersRepository.findOne({ where: { dni }, withDeleted: true }));
+  private mergeUserRecordAndUser(userRecord: admin.auth.UserRecord, user: User) {
+    return new User({ ...user, ...userRecord });
+  }
+
+  private mergeUserRecordsAndUsers(userRecords: admin.auth.UserRecord[], users: User[]) {
+    const usersMap = new Map(users.map((user) => [user.uid, user]));
+    return userRecords.map((userRecord) => this.mergeUserRecordAndUser(userRecord, usersMap.get(userRecord.uid)));
+  }
+
+  async isDniRepeated(dni: string, manager: EntityManager) {
+    return !!(await this.getUsersRepository(manager).findOne({ where: { dni }, withDeleted: true }));
   }
 
   private findUserRoleByUserType(type: UserType) {
@@ -294,7 +302,7 @@ export class UsersService implements TypeOrmCrudService<User> {
     }
   }
 
-  getUsersRepository(manager: EntityManager) {
+  private getUsersRepository(manager: EntityManager) {
     return manager.getCustomRepository(UsersRepository);
   }
 }

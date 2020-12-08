@@ -42,6 +42,7 @@ export class AdminsService extends GenericSubUserService<Admin> {
           id: error.id,
           uid: error.id,
           displayName: 'Admin',
+          email: adminDefaultEmail,
         });
         const admin = await adminsRepository.findOne(id);
         return this.usersService.setRole(admin, manager);

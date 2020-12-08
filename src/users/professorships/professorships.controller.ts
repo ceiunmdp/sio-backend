@@ -17,11 +17,11 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
-import { TypeOrmCrudService } from 'src/common/interfaces/typeorm-crud-service.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
-import { ProxyTypeOrmCrudService } from 'src/common/services/proxy-typeorm-crud.service';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Connection } from 'typeorm';
 import { CreateProfessorshipDto } from './dtos/create-professorship.dto';
@@ -34,14 +34,14 @@ import { ProfessorshipsService } from './professorships.service';
 @ApiTags('Professorships')
 @Controller()
 export class ProfessorshipsController {
-  private readonly professorshipsService: TypeOrmCrudService<Professorship>;
+  private readonly professorshipsService: CrudService<Professorship>;
 
   constructor(
     @InjectConnection() connection: Connection,
     professorshipsService: ProfessorshipsService,
     private readonly appConfigService: AppConfigService,
   ) {
-    this.professorshipsService = new ProxyTypeOrmCrudService(connection, professorshipsService);
+    this.professorshipsService = new ProxyCrudService(connection, professorshipsService);
   }
 
   @GetAll(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
@@ -97,6 +97,6 @@ export class ProfessorshipsController {
   @DeleteById(Collection.PROFESSORSHIPS)
   @Auth(UserRole.ADMIN)
   async remove(@Id() id: string, @User() user: UserIdentity) {
-    return this.professorshipsService.remove(id, undefined, user);
+    return this.professorshipsService.remove(id, { softRemove: false }, undefined, user);
   }
 }

@@ -5,6 +5,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, RelationId } from 'typeor
 import { NotificationType } from './notification-type.entity';
 
 @Entity('notifications')
+@Index('IX_notifications_read', ['read'])
 export class Notification extends BaseEntity {
   @Column({ name: 'message_id', update: false })
   readonly messageId!: string;
@@ -34,7 +35,6 @@ export class Notification extends BaseEntity {
   @Column({ update: false, nullable: true })
   readonly data?: string; //* Could be an embedded entity
 
-  @Index('IX_notifications_read')
   @Column({ default: false })
   read!: boolean;
 

@@ -60,10 +60,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     _student: Student,
     manager: EntityManager,
   ) {
-    if (
-      updateStudentDto.dni &&
-      (await this.usersService.isDniRepeated(updateStudentDto.dni, this.usersService.getUsersRepository(manager)))
-    ) {
+    if (updateStudentDto.dni && (await this.usersService.isDniRepeated(updateStudentDto.dni, manager))) {
       throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
     }
   }
