@@ -8,10 +8,11 @@ import { Order } from 'src/common/interfaces/order.type';
 import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
-import { handleFirebaseError } from 'src/common/utils/firebase-handler';
+import { buildMapBasedOnProperty } from 'src/common/utils/buildMapBasedOnProperty';
 import { filterQuery } from 'src/common/utils/query-builder';
 import { FirebaseConfigService } from 'src/config/firebase/firebase-config.service';
-import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { CustomLoggerService } from 'src/global/custom-logger.service';
+import { FirebaseErrorHandlerService } from 'src/global/firebase-error-handler.service';
 import { RolesService } from 'src/roles/roles.service';
 import { UserNotFoundInDatabaseException } from 'src/users/users/exceptions/user-not-found-in-database.exception';
 import { DeepPartial, EntityManager, In, SelectQueryBuilder } from 'typeorm';
@@ -31,6 +32,7 @@ export class UsersService implements CrudService<User> {
   constructor(
     private readonly logger: CustomLoggerService,
     private readonly firebaseConfigService: FirebaseConfigService,
+    private readonly firebaseErrorHandlerService: FirebaseErrorHandlerService,
     private readonly rolesService: RolesService,
   ) {
     this.logger.context = UsersService.name;
@@ -42,7 +44,7 @@ export class UsersService implements CrudService<User> {
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
     const { items: users, meta, links } = await paginate(queryBuilder, options);
 
-    // TODO: Check if try/catch is required here
+    //* No need to use try/catch here. Max limit will never be exceeded
     const userRecords = (await admin.auth().getUsers(users.map(({ uid }) => ({ uid })))).users;
 
     if (users.length === userRecords.length) {
@@ -66,7 +68,7 @@ export class UsersService implements CrudService<User> {
   async findAllById(ids: string[], manager: EntityManager) {
     const userIdentifiers = (await this.findUids(ids, manager)).map((uid) => ({ uid }));
 
-    // TODO: Check if try/catch is required here
+    //* No need to use try/catch here. Max limit will never be exceeded
     const getUsersResult = await admin.auth().getUsers(userIdentifiers);
     return this.transformUserRecordsToUsers(getUsersResult.users, manager);
   }
@@ -112,9 +114,12 @@ export class UsersService implements CrudService<User> {
 
   async create<T extends DeepPartial<User>>(createUserDto: T, manager: EntityManager) {
     try {
-      // TODO: Decide what flow to follow: https://docs.google.com/document/d/14WzggVxA0yN99J1KxEfkE87qmjFrYFE2wLh9_jQH4I4/edit?disco=AAAAKKrQorA
       const userRecord = await admin.auth().createUser(createUserDto);
-      await this.sendEmailVerification(userRecord.uid);
+
+      if (!createUserDto.emailVerified) {
+        await this.sendEmailVerification(userRecord.uid);
+      }
+
       const user = await this.transformUserRecordToUser(userRecord, manager);
       await this.setRole(user, manager);
       return user;
@@ -168,7 +173,6 @@ export class UsersService implements CrudService<User> {
       await this.getUsersRepository(manager).updateAndReload(id, updateUserDto);
       return await this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
-      // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
       throw this.handleError(error);
     }
   }
@@ -178,7 +182,6 @@ export class UsersService implements CrudService<User> {
     try {
       return await admin.auth().deleteUser(await this.findUid(id, manager));
     } catch (error) {
-      // TODO: Decide if error code must be analyzed to identify source of error (user not found or other cause)
       throw this.handleError(error);
     }
   }
@@ -221,12 +224,11 @@ export class UsersService implements CrudService<User> {
 
     if (uids.length) {
       const users = await this.getUsersRepository(manager).find({ where: { uid: In(uids) } });
-      const usersMap = new Map(users.map((user) => [user.uid, user]));
 
       if (userRecords.length === users.length) {
-        // TODO: Call mergeUserRecordsAndUsers method instead of creating Map here
-        return userRecords.map((userRecord) => this.mergeUserRecordAndUser(userRecord, usersMap.get(userRecord.uid)));
+        return this.mergeUserRecordsAndUsers(userRecords, users);
       } else {
+        const usersMap = buildMapBasedOnProperty(users, 'uid');
         userRecords.forEach((userRecord) => {
           if (!usersMap.has(userRecord.uid)) throw new UserNotFoundInDatabaseException(userRecord.uid);
         });
@@ -241,7 +243,7 @@ export class UsersService implements CrudService<User> {
   }
 
   private mergeUserRecordsAndUsers(userRecords: admin.auth.UserRecord[], users: User[]) {
-    const usersMap = new Map(users.map((user) => [user.uid, user]));
+    const usersMap = buildMapBasedOnProperty(users, 'uid');
     return userRecords.map((userRecord) => this.mergeUserRecordAndUser(userRecord, usersMap.get(userRecord.uid)));
   }
 
@@ -294,9 +296,8 @@ export class UsersService implements CrudService<User> {
 
   private handleError(error: Error) {
     if (error instanceof Error) {
-      // TODO: Try to remove 'unknown' casting
       const firebaseError = (error as unknown) as admin.FirebaseError;
-      return handleFirebaseError(firebaseError);
+      return this.firebaseErrorHandlerService.handleError(firebaseError);
     } else {
       return error;
     }

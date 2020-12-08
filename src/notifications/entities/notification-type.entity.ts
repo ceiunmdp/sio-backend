@@ -16,10 +16,10 @@ export class NotificationType extends BaseEntity {
   readonly titleTemplate!: string;
 
   @Column({ name: 'body_template', update: false })
-  readonly bodyTemplate!: string;
+  readonly bodyTemplate!: string; // TODO: Define if it's optional or required
 
   @Column({ name: 'image_url_template', update: false })
-  readonly imageUrlTemplate!: string;
+  readonly imageUrlTemplate!: string; // TODO: Define if it's optional or required
 
   @Column({ name: 'data_template', update: false })
   readonly dataTemplate!: string; //* Could be an embedded entity

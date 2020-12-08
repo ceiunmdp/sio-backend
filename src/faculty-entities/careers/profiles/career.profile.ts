@@ -13,13 +13,5 @@ export class CareerProfile extends ProfileBase {
 
   createMapFromCareerToResponseCareerDto(mapper: AutoMapper) {
     mapper.createMap(Career, ResponseCareerDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] });
-    // .forMember(
-    //   (responseCareerDto) => responseCareerDto.courses,
-    //   mapDefer((career) =>
-    //     career.careerCourseRelations
-    //       ? mapWith(ResponseCourseDto, (career) => career.careerCourseRelations.map((ternary) => ternary.course))
-    //       : fromValue(undefined),
-    //   ),
-    // );
   }
 }

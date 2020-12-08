@@ -5,7 +5,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { AutoMapper, InjectMapper } from 'nestjsx-automapper';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { isHttp } from '../utils/is-application-context-functions';
 
 @Injectable()

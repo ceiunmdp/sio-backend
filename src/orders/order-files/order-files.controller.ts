@@ -66,8 +66,6 @@ export class OrderFilesController {
     );
   }
 
-  // TODO: /order-files/:id OR /orders/:orderId/order-files/:id ?
-  // TODO: If we decide for the first option, a new controller would be necessary
   @GetById(Collection.ORDER_FILES, ResponseOrderFileDto)
   @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
   async findOne(

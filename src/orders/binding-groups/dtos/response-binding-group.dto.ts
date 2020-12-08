@@ -19,6 +19,10 @@ export class ResponseBindingGroupDto extends ResponseBaseEntityDto {
   //? Should sheets limit be denormalized?
   // sheetsLimit!: number
 
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @ApiProperty({ description: `Binding group's position` })
+  position!: number;
+
   @AutoMap(() => ResponseBindingGroupStateDto)
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
   @ApiProperty({ description: `Binding Group's state` })

@@ -292,7 +292,6 @@ export class FilesService extends GenericCrudService<File> {
     return join(this.basePath, path);
   }
 
-  // TODO: Verify this feature, it may not be necessary anymore
   async linkFilesToProfessorship(professorship: Professorship, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
 
@@ -301,28 +300,21 @@ export class FilesService extends GenericCrudService<File> {
       .leftJoin('file.courses', 'course')
       .where('file.type = :type', { type: FileType.SYSTEM_PROFESSORSHIP })
       .andWhere('course.id = :id', { id: professorship.courseId })
-      .andWhere('file.deleteDate IS NOT NULL')
       .withDeleted()
       .getMany();
 
     files.forEach((file) => (file.owner = professorship));
-    await filesRepository.save(files);
-
-    return filesRepository.recover(files);
+    return filesRepository.save(files);
   }
 
-  // TODO: Verify this feature, it may not be necessary the unlink part anymore
   async unlinkFilesFromProfessorship(professorship: Professorship, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
 
     const files = await filesRepository.find({ where: { owner: { id: professorship.id } } });
     files.forEach((file) => (file.owner = null));
     await filesRepository.save(files);
-
-    await filesRepository.softRemove(files);
   }
 
-  // TODO: Enable cron job during deployment
   @Cron(CronExpression.EVERY_DAY_AT_3AM, { name: 'fileEraser' })
   private async removeUnusedDeletedFiles() {
     const connection = getConnection();

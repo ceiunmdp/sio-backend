@@ -10,14 +10,15 @@ import { UserType } from '../enums/user-type.enum';
 @Index('IX_users_uid', ['uid'])
 @Index('IX_users_full_name', ['displayName'])
 @Index('IX_users_email', ['email'])
+@Index('IX_users_disabled', ['disabled'])
 export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 36, default: null }) //* Default value null, the tuple is first created and then reassigned this property with corresponding id
   uid!: string;
 
-  @Column({ name: 'full_name' })
+  @Column({ name: 'full_name' }) //* Also in Firebase
   displayName!: string;
 
-  @Column()
+  @Column() //* Also in Firebase
   email!: string;
 
   //* Firebase
@@ -29,7 +30,7 @@ export class User extends BaseEntity {
   //* Firebase
   photoURL!: string;
 
-  //* Firebase
+  @Column({ default: false }) //* Also in Firebase
   disabled!: boolean;
 
   //! Firebase (only in case of developing multi-tenant application)

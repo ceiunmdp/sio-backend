@@ -4,7 +4,7 @@ export enum EFileState {
   PRINTING = 'printing',
   PRINTED = 'printed',
 
-  // TODO: Another possible states
+  //* Another possible states
   // PENDING = 'pending',
   // CANCELLED = 'cancelled',
   // ABORTED = 'aborted',

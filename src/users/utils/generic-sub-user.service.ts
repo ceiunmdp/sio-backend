@@ -95,7 +95,6 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
     await this.beforeRemove(subUser, manager);
 
     if (options.softRemove) {
-      // TODO: Try to remove 'unknown' casting
       await usersRepository.softRemove((subUser as unknown) as DeepPartial<T>);
     } else {
       await this.usersService.remove(id, { softRemove: false }, manager);

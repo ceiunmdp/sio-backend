@@ -9,11 +9,6 @@ export class ResponseCareerDto extends ResponseBaseEntityDto {
   @ApiProperty({ description: 'Name of career', example: 'Software Engineering' })
   name!: string;
 
-  // @Expose({ groups: ALL_GROUPS })
-  // @AutoMap(() => ResponseCourseDto)
-  // @ApiProperty({ description: `Career's courses`, type: [ResponseCourseDto] })
-  // courses: ResponseCourseDto[];
-
   constructor(partial: Partial<ResponseCareerDto>) {
     super(partial);
     Object.assign(this, partial);

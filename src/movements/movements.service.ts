@@ -96,7 +96,7 @@ export class MovementsService extends GenericCrudService<Movement> {
   }
 
   private convertSourceAndTargetToUser(movement: Movement) {
-    // TODO: Caveat! The resulting user is missing all properties from Firebase database (for now it's only the email)
+    //! Caveat! The resulting user is missing all properties not denormalized from Firebase database: emailVerified and photoURL
     return new Movement({ ...movement, source: new User(movement.source), target: new User(movement.target) });
   }
 

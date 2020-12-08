@@ -23,5 +23,6 @@ const getLoggingEnvVariable = (logging: string) => {
     return logging;
   } else {
     return logging.split(',');
+    // return JSON.parse(logging);
   }
 };

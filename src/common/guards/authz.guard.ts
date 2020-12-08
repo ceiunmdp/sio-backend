@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { UserRole } from '../enums/user-role.enum';
 import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
 import { UserIdentity } from '../interfaces/user-identity.interface';

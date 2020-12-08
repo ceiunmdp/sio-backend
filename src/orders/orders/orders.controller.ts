@@ -27,7 +27,7 @@ import { AppConfigService } from 'src/config/app/app-config.service';
 import { FilesService } from 'src/files/files.service';
 import { BindingsService } from 'src/items/bindings/bindings.service';
 import { Connection, EntityManager } from 'typeorm';
-import { CreateBindingGroupDto } from '../order-files/dtos/create/create-binding-group.dto';
+import { CreateBindingGroupDto } from '../binding-groups/dtos/create-binding-group.dto';
 import { CreateOrderFileDto } from '../order-files/dtos/create/create-order-file.dto';
 import { CreateOrderDto } from './dtos/create/create-order.dto';
 import { ResponseOrderDto } from './dtos/response/response-order.dto';

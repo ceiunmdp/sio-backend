@@ -86,7 +86,7 @@ export class RelationsService extends GenericCrudService<Relation> {
   }
 
   protected getFindOneRelations() {
-    return ['careerCourseRelations'];
+    return ['careerCourseRelations', 'careerCourseRelations.career'];
   }
 
   private throwCustomConflictException() {

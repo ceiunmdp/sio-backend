@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
+import { Connection, EntityManager } from 'typeorm';
 import { CareersRepository } from './careers.repository';
 import { CreateCareerDto } from './dtos/create-career.dto';
 import { PartialUpdateCareerDto } from './dtos/partial-update-career.dto';
@@ -34,13 +34,6 @@ export class CareersService extends GenericCrudService<Career> {
         new Career({ name: 'Ingeniería Química' }),
       ]);
     }
-  }
-
-  //* findAll
-  // TODO: Check if 'course' is necessary
-  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Career>) {
-    return queryBuilder.leftJoinAndSelect(`${queryBuilder.alias}.careerCourseRelations`, 'careerCourseRelation');
-    // .leftJoinAndSelect('careerCourseRelation.course', 'course');
   }
 
   private async findCareerByName(name: string, careersRepository: CareersRepository) {
@@ -82,12 +75,6 @@ export class CareersService extends GenericCrudService<Career> {
 
   private getCareersRepository(manager: EntityManager) {
     return manager.getCustomRepository(CareersRepository);
-  }
-
-  // TODO: Check if 'course' is necessary
-  protected getFindOneRelations() {
-    return ['careerCourseRelations'];
-    // return ['careerCourseRelations', 'careerCourseRelations.course'];
   }
 
   private throwCustomConflictException() {

@@ -14,7 +14,7 @@ import { Path } from './common/enums/path.enum';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ApiConfigService } from './config/api/api-config.service';
 import { AppConfigService } from './config/app/app-config.service';
-import { CustomLoggerService } from './logger/custom-logger.service';
+import { CustomLoggerService } from './global/custom-logger.service';
 
 // const buildHttpsOptions = () => {
 //   return {

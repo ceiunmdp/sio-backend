@@ -1,4 +1,4 @@
-import { AutoMapper, fromValue, mapDefer, mapWith, Profile, ProfileBase } from 'nestjsx-automapper';
+import { AutoMapper, fromValue, mapDefer, mapFrom, mapWith, Profile, ProfileBase } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';
 import { ResponseOrderFileDto } from 'src/orders/order-files/dtos/response/response-order-file.dto';
@@ -22,6 +22,10 @@ export class BindingGroupProfile extends ProfileBase {
             ? mapWith(ResponseOrderFileDto, (bindingGroup) => bindingGroup.orderFile)
             : fromValue(undefined),
         ),
+      )
+      .forMember(
+        (responseBindingGroupDto) => responseBindingGroupDto.position,
+        mapFrom((bindingGroup) => bindingGroup.orderFile?.position),
       );
   }
 }

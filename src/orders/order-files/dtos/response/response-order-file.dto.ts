@@ -36,10 +36,6 @@ export class ResponseOrderFileDto extends ResponseBaseEntityDto {
   @ApiProperty({ name: 'binding_group', description: `Order file's binding group` })
   bindingGroup?: ResponseBindingGroupDto;
 
-  // TODO
-  //? Should 'position' be here or inside 'bindingGroup' object?
-  // position?: number
-
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
   @ApiProperty({ description: `Order file's price`, example: 7.5 })
   total!: number;

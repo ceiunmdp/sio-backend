@@ -11,7 +11,7 @@ import * as mdns from 'mdns';
 import { multirange } from 'multi-integer-range';
 import { PDFDocument } from 'pdf-lib';
 import { File } from 'src/files/entities/file.entity';
-import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { Configuration } from 'src/orders/order-files/entities/configuration.entity';
 import { Printer } from './entities/printer.entity';
 import { CUPSPrinterAttributes } from './interfaces/cups-printer-attributes.interface';
@@ -145,7 +145,6 @@ export class PrintersService {
         'printer-uri': 'ipp://raspberrypi.local.:631/printers/EPSON_L210_Series',
       },
       'job-attributes-tag': {
-        // TODO: See if files with same configuration can be printed at the same time
         // 'copies': 7,
         'print-color-mode': colour ? 'color' : 'monochrome',
         sides: doubleSided ? 'two-sided-long-edge' : 'one-sided',
@@ -178,7 +177,7 @@ export class PrintersService {
     }
   }
 
-  // TODO: Set method that checks every 10 seconds until job is completed, or not and rollbacks transition state
+  // TODO: Create method that checks every 10 seconds until job is completed, or not and rollbacks transition state
 
   async getJobState(id: string, jobId: number) {
     const printer = new ipp.Printer(this.findOne(id).getUrl());

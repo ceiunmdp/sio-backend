@@ -3,7 +3,7 @@ import { Request } from 'express';
 import { DateTime } from 'luxon';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
 import { isHttp } from '../utils/is-application-context-functions';
 

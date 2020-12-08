@@ -5,7 +5,7 @@ import { AutoMap } from 'nestjsx-automapper';
 import { PDFDocument } from 'pdf-lib';
 import { IsEntityExist } from 'src/common/decorators/is-entity-exist.decorator';
 import { File } from 'src/files/entities/file.entity';
-import { CreateBindingGroupDto } from './create-binding-group.dto';
+import { CreateBindingGroupDto } from '../../../binding-groups/dtos/create-binding-group.dto';
 import { CreateConfigurationDto } from './create-configuration.dto';
 import { CreateEncodedFileDto } from './create-encoded-file.dto';
 

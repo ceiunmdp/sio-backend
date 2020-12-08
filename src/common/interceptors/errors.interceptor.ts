@@ -12,7 +12,7 @@ import { WsException } from '@nestjs/websockets';
 import { MulterError } from 'multer';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { QueryFailedError } from 'typeorm';
 import { ErrorObject } from '../interfaces/error-object.interface';
 import { isHttp } from '../utils/is-application-context-functions';

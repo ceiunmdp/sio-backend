@@ -66,8 +66,6 @@ export class BindingGroupsController {
     );
   }
 
-  // TODO: /binding-groups/:id OR /orders/:orderId/binding-groups/:id ?
-  // TODO: If we decide for the first option, a new controller would be necessary
   @GetById(Collection.BINDING_GROUPS, ResponseBindingGroupDto)
   @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
   async findOne(

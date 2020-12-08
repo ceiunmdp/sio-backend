@@ -30,11 +30,12 @@ import databaseConfig from './database.config';
         }),
         TYPEORM_LOGGING: Joi.alternatives(
           Joi.boolean(),
-          // Joi.valid('all'),
-          // TODO: Temporal
-          Joi.valid('all', 'query'),
-          Joi.array().items('query', 'schema', 'error', 'warn', 'info', 'log', 'migration').default(false),
-        ),
+          Joi.valid('all'),
+          Joi.array()
+            .items(Joi.string().valid('query', 'schema', 'error', 'warn', 'info', 'log', 'migration'))
+            .min(1)
+            .single(), //* Single values are wrapped in brackets (array)
+        ).default(false),
         TYPEORM_LOGGER: Joi.when('TYPEORM_LOGGING', {
           is: Joi.not(false),
           then: Joi.when('NODE_ENV', {

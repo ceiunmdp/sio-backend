@@ -28,7 +28,7 @@ export class File extends BaseEntity {
   readonly ownerId?: string;
 
   @AutoMap(() => User)
-  @ManyToOne(() => User)
+  @ManyToOne(() => User) //* Could be null for system professorship files without professorship
   @JoinColumn({ name: 'owner_id' })
   owner?: User;
 

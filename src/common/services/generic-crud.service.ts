@@ -72,7 +72,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
 
     const newEntity = await entitiesRepository.save(createDto);
 
-    // TODO: Call this.findOne() instead of repository method
+    // TODO: Call this.findOne() instead of repository method, 'user' property is the problem
     return entitiesRepository.findOne(newEntity.id, {
       relations: this.getFindOneRelations(),
       loadEagerRelations: true,
@@ -105,8 +105,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
 
     const entitiesRepository = this.getRepository(manager);
     options?.softRemove
-      ? // TODO: Try to remove 'unknown' casting
-        await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
+      ? await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
       : await entitiesRepository.remove(entity);
     return;
   }

@@ -35,8 +35,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return this.getErrorAndMessageProperties(exception.getResponse());
     } else {
       //* WsException
-      // TODO: Remove unknown casting
-      const wsException = (exception as unknown) as WsException;
+      const wsException = exception as WsException;
       return this.getErrorAndMessageProperties(wsException.getError());
     }
   }

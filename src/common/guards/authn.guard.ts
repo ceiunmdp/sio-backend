@@ -2,18 +2,22 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { WsException } from '@nestjs/websockets';
 import { Request } from 'express';
 import * as admin from 'firebase-admin';
-import { CustomLoggerService } from 'src/logger/custom-logger.service';
+import { CustomLoggerService } from 'src/global/custom-logger.service';
+import { FirebaseErrorHandlerService } from '../../global/firebase-error-handler.service';
+import { Environment } from '../enums/environment.enum';
 import { UserRole } from '../enums/user-role.enum';
 import { InvalidIdTokenException } from '../exceptions/invalid-id-token.exception';
 import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
 import { DecodedIdToken } from '../interfaces/user-identity.interface';
-import { handleFirebaseError } from '../utils/firebase-handler';
 import { getToken } from '../utils/get-token';
 import { isHttp as isHttpFunction } from '../utils/is-application-context-functions';
 
 @Injectable()
 export class AuthNGuard implements CanActivate {
-  constructor(private readonly logger: CustomLoggerService) {
+  constructor(
+    private readonly logger: CustomLoggerService,
+    private readonly firebaseErrorHandlerService: FirebaseErrorHandlerService,
+  ) {
     this.logger.context = AuthNGuard.name;
   }
 
@@ -80,13 +84,14 @@ export class AuthNGuard implements CanActivate {
       if (decodedIdToken.email_verified) {
         return decodedIdToken;
       } else {
-        // throw new UnauthorizedException('Email not verified.');
-
-        //TODO: Momentarily
-        return decodedIdToken;
+        if (process.env.NODE_ENV === Environment.PRODUCTION) {
+          throw new UnauthorizedException('Email not verified.');
+        } else {
+          return decodedIdToken;
+        }
       }
     } catch (error) {
-      const exception = handleFirebaseError(error);
+      const exception = this.firebaseErrorHandlerService.handleError(error);
       if (exception instanceof InvalidIdTokenException) {
         if (isHttp) {
           throw new UnauthorizedException('Invalid token.');

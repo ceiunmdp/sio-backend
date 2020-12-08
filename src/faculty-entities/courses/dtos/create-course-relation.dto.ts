@@ -9,7 +9,6 @@ export class CreateCourseRelationDto {
   @ApiProperty({ description: `Relation's UUID`, example: '0de63cc8-d62d-4ea1-aa37-1846b6cf429d0' })
   id!: string;
 
-  // TODO: Analyze if instead of an array of strings, it should be an array of objects
   @IsEntitiesExist(Career)
   @ApiProperty({
     name: 'careers_ids',
