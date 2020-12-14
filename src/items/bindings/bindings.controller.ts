@@ -15,7 +15,7 @@ import { Limit, Page } from 'src/common/decorators/pagination.decorator';
 import { Sort } from 'src/common/decorators/sort.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { UserRole, UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
 import { Where } from 'src/common/interfaces/where.type';
@@ -43,7 +43,7 @@ export class BindingsController {
   }
 
   @GetAll(Collection.BINDINGS, ResponseBindingDto)
-  @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, ...UserRoleExpanded.STUDENT)
   async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<Binding>) {
     return this.bindingsService.findAll(
       {
@@ -57,7 +57,7 @@ export class BindingsController {
   }
 
   @GetById(Collection.BINDINGS, ResponseBindingDto)
-  @Auth(UserRole.ADMIN, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, ...UserRoleExpanded.STUDENT)
   async findOne(@Id() id: string) {
     return this.bindingsService.findOne(id);
   }

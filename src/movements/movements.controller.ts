@@ -12,7 +12,7 @@ import { Sort } from 'src/common/decorators/sort.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { UserRole, UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -53,7 +53,7 @@ export class MovementsController {
   }
 
   @GetAll(Collection.MOVEMENTS, ResponseMovementDto, Path.ME)
-  @Auth(UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(...UserRoleExpanded.STUDENT)
   async findAllOwn(
     @Limit() limit: number,
     @Page() page: number,
@@ -75,13 +75,13 @@ export class MovementsController {
   }
 
   @GetById(Collection.MOVEMENTS, ResponseMovementDto)
-  @Auth(UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.movementsService.findOne(id, undefined, user);
   }
 
   @PostAll(Collection.MOVEMENTS, ResponseMovementDto)
-  @Auth(UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async create(@Body() createMovementDto: CreateMovementDto, @User() user: UserIdentity) {
     return this.movementsService.create(createMovementDto, undefined, user);
   }

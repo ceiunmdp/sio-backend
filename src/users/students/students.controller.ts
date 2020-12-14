@@ -14,7 +14,7 @@ import { Sort } from 'src/common/decorators/sort.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { UserRole, UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -42,7 +42,7 @@ export class StudentsController {
   }
 
   @GetAll(Collection.STUDENTS, ResponseStudentDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<Student>) {
     return this.studentsService.findAll(
       {
@@ -56,7 +56,7 @@ export class StudentsController {
   }
 
   @GetById(Collection.STUDENTS, ResponseStudentDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.studentsService.findOne(id, undefined, user);
   }

@@ -4,6 +4,7 @@ import { MulterOptionsFactory } from '@nestjs/platform-express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as appRoot from 'app-root-path';
+import * as bytes from 'bytes';
 import { isUUID } from 'class-validator';
 import { Request } from 'express';
 import { existsSync, mkdirSync } from 'fs-extra';
@@ -100,10 +101,17 @@ export class MulterConfigService implements MulterOptionsFactory {
   }
 
   private async getLimits() {
-    return {
-      fileSize: (await this.parametersService.findByCode(ParameterType.FILES_MAX_SIZE_ALLOWED, this.connection.manager))
-        .value,
-    };
+    try {
+      return {
+        fileSize: (
+          await this.parametersService.findByCode(ParameterType.FILES_MAX_SIZE_ALLOWED, this.connection.manager)
+        ).value,
+      };
+    } catch (error) {
+      return {
+        fileSize: bytes('100MB'),
+      };
+    }
   }
 
   private async fileFilter(

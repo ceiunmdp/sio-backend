@@ -6,11 +6,11 @@ import { EBindingGroupState } from '../enums/e-binding-group-state.enum';
 
 @Exclude()
 export class ResponseBindingGroupStateDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Binding group state's name`, example: 'Ringed' })
   name!: string;
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Binding Group state's code`, example: EBindingGroupState.RINGED })
   code!: EBindingGroupState;
 

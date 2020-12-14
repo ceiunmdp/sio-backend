@@ -8,28 +8,28 @@ import { ResponseBindingGroupStateDto } from './response-binding-group-state.dto
 
 @Exclude()
 export class ResponseBindingGroupDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Binding group's name` })
   name!: string;
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Binding group's price` })
   price!: number;
 
   //? Should sheets limit be denormalized?
   // sheetsLimit!: number
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Binding group's position` })
   position!: number;
 
   @AutoMap(() => ResponseBindingGroupStateDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Binding Group's state` })
   state!: ResponseBindingGroupStateDto;
 
   @AutoMap(() => ResponseOrderFileDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: 'Order file' })
   orderFile!: ResponseOrderFileDto;
 

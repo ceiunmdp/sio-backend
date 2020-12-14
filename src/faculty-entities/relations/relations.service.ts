@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -9,11 +9,17 @@ import { Relation } from './entities/relation.entity';
 import { RelationsRepository } from './relations.repository';
 
 @Injectable()
-export class RelationsService extends GenericCrudService<Relation> {
-  constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
+export class RelationsService extends GenericCrudService<Relation> implements OnModuleInit {
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
+  ) {
     super(Relation);
-    if (!appConfigService.isProduction()) {
-      this.createRelations(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createRelations(this.connection.manager);
     }
   }
 

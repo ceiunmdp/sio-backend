@@ -7,7 +7,7 @@ export class MultiIntegerRange implements ValidatorConstraintInterface {
     // TODO: See if value is altered before reaching controller. Example: 1-5,2-4 => 1-5
     try {
       return !!multirange(range);
-    } catch (err) {
+    } catch (error) {
       return false;
     }
   }

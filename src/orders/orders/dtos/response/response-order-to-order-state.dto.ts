@@ -7,11 +7,11 @@ import { ResponseOrderStateDto } from './response-order-state.dto';
 @Exclude()
 export class ResponseOrderToOrderStateDto {
   @AutoMap(() => ResponseOrderStateDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order's state` })
   state!: ResponseOrderStateDto;
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: 'State transition date', example: '2020-09-01T16:56:23.089Z' })
   timestamp!: string;
 

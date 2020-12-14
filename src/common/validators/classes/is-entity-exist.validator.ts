@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { Injectable } from '@nestjs/common';
 import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 import { getManager } from 'typeorm';
@@ -10,7 +11,6 @@ export class IsEntityExistConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments): string {
-    // eslint-disable-next-line @typescript-eslint/ban-types
     return `${args.property} provided does not correspond to any existing ${(args.constraints[0] as Function).name}`;
   }
 }

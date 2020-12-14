@@ -5,7 +5,7 @@ import { ResponseItemDto } from 'src/items/items/dtos/response-item.dto';
 
 @Exclude()
 export class ResponseBindingDto extends ResponseItemDto {
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, ...Group.STUDENT] })
   @ApiProperty({ name: 'sheets_limit', description: `Binding's sheets limit`, example: 100 })
   sheetsLimit!: number;
 

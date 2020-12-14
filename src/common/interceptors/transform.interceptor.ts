@@ -14,7 +14,7 @@ export interface Response<T> {
 
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> {
-  intercept(context: ExecutionContext, next: CallHandler<T>): Observable<Response<T>> {
+  intercept(context: ExecutionContext, next: CallHandler<T>): Observable<Response<any>> {
     if (isHttp(context)) {
       const request = context.switchToHttp().getRequest<Request>();
       request.body = camelCaseKeys(request.body, { deep: true });

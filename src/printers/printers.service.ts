@@ -98,8 +98,8 @@ export class PrintersService {
         },
       });
       this.checkConfigurations(printerAttributes, mimetype, configuration);
-    } catch (err) {
-      throw this.handleError(err);
+    } catch (error) {
+      throw this.handleError(error);
     }
   }
 

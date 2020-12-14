@@ -11,30 +11,30 @@ import { ResponseOrderToOrderStateDto } from './response-order-to-order-state.dt
 @Exclude()
 export class ResponseOrderDto extends ResponseBaseEntityDto {
   @AutoMap(() => ResponseStudentDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: 'Student associated with order' })
   student!: ResponseStudentDto;
 
   @AutoMap(() => ResponseCampusDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: 'Campus where the order was placed' })
   campus!: ResponseCampusDto;
 
   @AutoMap(() => ResponseOrderStateDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order's state` })
   state!: ResponseOrderStateDto;
 
   @AutoMap(() => ResponseOrderToOrderStateDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Tracking of order's states`, type: [ResponseOrderToOrderStateDto] })
   tracking!: ResponseOrderToOrderStateDto[];
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order's deposit` })
   deposit?: number;
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order's total price` })
   total!: number;
 

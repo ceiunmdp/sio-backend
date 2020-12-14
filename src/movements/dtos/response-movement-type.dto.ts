@@ -6,11 +6,11 @@ import { EMovementType } from '../enums/e-movement-type.enum';
 
 @Exclude()
 export class ResponseMovementTypeDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Movement type's name`, example: 'Top Up' })
   name!: string;
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Movement type's code`, example: EMovementType.TOP_UP })
   code!: EMovementType;
 

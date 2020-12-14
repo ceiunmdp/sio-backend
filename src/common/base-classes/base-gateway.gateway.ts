@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { UseFilters, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { OnGatewayConnection, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Server } from 'socket.io';
@@ -16,7 +17,6 @@ export class BaseGateway implements OnGatewayConnection {
   @WebSocketServer()
   protected server: Server;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async handleConnection(_client: SocketWithUserData) {
     return;
   }

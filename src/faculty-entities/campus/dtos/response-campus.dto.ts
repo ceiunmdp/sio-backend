@@ -5,7 +5,7 @@ import { Group } from 'src/common/classes/group.class';
 
 @Exclude()
 export class ResponseCampusDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Campus's name`, example: 'Central' })
   name!: string;
 

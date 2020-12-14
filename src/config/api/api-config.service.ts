@@ -15,26 +15,26 @@ export class ApiConfigService {
   constructor(private readonly configService: ConfigService<ApiEnvironmentVariables>) {}
 
   get rateTimeframe() {
-    return this.configService.get<number>('api.rate.timeframe');
+    return +this.configService.get<number>('api.rate.timeframe');
   }
 
   get rateMaxConnections() {
-    return this.configService.get<number>('api.rate.maxConnections');
+    return +this.configService.get<number>('api.rate.maxConnections');
   }
 
   get speedTimeframe() {
-    return this.configService.get<number>('api.speed.timeframe');
+    return +this.configService.get<number>('api.speed.timeframe');
   }
 
   get speedDelayAfter() {
-    return this.configService.get<number>('api.speed.delayAfter');
+    return +this.configService.get<number>('api.speed.delayAfter');
   }
 
   get speedDelayMS() {
-    return this.configService.get<number>('api.speed.delayMS');
+    return +this.configService.get<number>('api.speed.delayMS');
   }
 
   get speedMaxDelayMS() {
-    return this.configService.get<number>('api.speed.maxDelayMS');
+    return +this.configService.get<number>('api.speed.maxDelayMS');
   }
 }

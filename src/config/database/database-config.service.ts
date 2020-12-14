@@ -38,7 +38,7 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
   }
 
   get port() {
-    return this.configService.get<number>('typeorm.port');
+    return +this.configService.get<number>('typeorm.port');
   }
 
   get username() {
@@ -66,7 +66,7 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
   }
 
   get maxQueryExecutionTime() {
-    return this.configService.get<number>('typeorm.maxQueryExecutionTime');
+    return +this.configService.get<number>('typeorm.maxQueryExecutionTime');
   }
 
   get synchronize() {
@@ -86,7 +86,7 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
   }
 
   get connectionLimit() {
-    return this.configService.get<number>('typeorm.connectionLimit');
+    return +this.configService.get<number>('typeorm.connectionLimit');
   }
 
   createTypeOrmOptions(connectionName?: string): TypeOrmModuleOptions {

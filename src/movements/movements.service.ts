@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { Order as Sort } from 'src/common/interfaces/order.type';
@@ -19,15 +19,18 @@ import { EMovementType } from './enums/e-movement-type.enum';
 import { MovementsRepository } from './movements.repository';
 
 @Injectable()
-export class MovementsService extends GenericCrudService<Movement> {
+export class MovementsService extends GenericCrudService<Movement> implements OnModuleInit {
   constructor(
-    @InjectConnection() connection: Connection,
-    appConfigService: AppConfigService,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
     private readonly studentsService: StudentsService,
   ) {
     super(Movement);
-    if (!appConfigService.isProduction()) {
-      this.createMovementTypes(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createMovementTypes(this.connection.manager);
     }
   }
 

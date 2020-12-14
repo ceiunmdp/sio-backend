@@ -5,5 +5,5 @@ export class Group {
   static CAMPUS = UserRole.CAMPUS.toString();
   static PROFESSORSHIP = UserRole.PROFESSORSHIP.toString();
   static SCHOLARSHIP = UserRole.SCHOLARSHIP.toString();
-  static STUDENT = UserRole.STUDENT.toString();
+  static STUDENT = [UserRole.STUDENT.toString(), Group.SCHOLARSHIP];
 }

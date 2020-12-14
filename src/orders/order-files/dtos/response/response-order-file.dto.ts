@@ -12,31 +12,31 @@ import { ResponseFileStateDto } from './response-file-state.dto';
 @Exclude()
 export class ResponseOrderFileDto extends ResponseBaseEntityDto {
   @AutoMap(() => ResponseOrderDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: 'Order' })
   order!: ResponseOrderDto;
 
   @AutoMap(() => ResponseFileDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: 'File' })
   file!: ResponseFileDto;
 
   @AutoMap(() => ResponseFileStateDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order file's state` })
   state!: ResponseFileStateDto;
 
   @AutoMap(() => ResponseConfigurationDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order file's configuration` })
   configuration!: ResponseConfigurationDto;
 
   @AutoMap(() => ResponseBindingGroupDto)
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ name: 'binding_group', description: `Order file's binding group` })
   bindingGroup?: ResponseBindingGroupDto;
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order file's price`, example: 7.5 })
   total!: number;
 

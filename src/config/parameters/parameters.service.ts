@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as bytes from 'bytes';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
@@ -8,11 +8,17 @@ import { Parameter } from './entities/parameter.entity';
 import { ParameterType } from './enums/parameter-type.enum';
 
 @Injectable()
-export class ParametersService extends GenericCrudService<Parameter> {
-  constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
+export class ParametersService extends GenericCrudService<Parameter> implements OnModuleInit {
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
+  ) {
     super(Parameter);
-    if (!appConfigService.isProduction()) {
-      this.createParameters(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createParameters(this.connection.manager);
     }
   }
 

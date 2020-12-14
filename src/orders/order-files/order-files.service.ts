@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { flatten } from 'lodash';
@@ -13,7 +14,7 @@ import { GenericInterface } from 'src/common/interfaces/generic.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { getSizeFromBase64String } from 'src/common/utils/get-size-from-base-64-string';
-import { isScholarship, isStudent, isStudentOrScholarship } from 'src/common/utils/is-role-functions';
+import { isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { CreateTemporaryFileDto } from 'src/files/dtos/create-temporary-file.dto';
 import { File } from 'src/files/entities/file.entity';
@@ -36,20 +37,23 @@ import { OrderFilesGateway } from './order-files.gateway';
 import { OrderFilesRepository } from './order-files.repository';
 
 @Injectable()
-export class OrderFilesService extends GenericCrudService<OrderFile> {
+export class OrderFilesService extends GenericCrudService<OrderFile> implements OnModuleInit {
   private readonly pdfMimeType = lookup('pdf') as string;
 
   constructor(
-    @InjectConnection() connection: Connection,
-    appConfigService: AppConfigService,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
     private readonly filesService: FilesService,
     @Inject(forwardRef(() => OrdersService)) private readonly ordersService: OrdersService,
     @Inject(forwardRef(() => OrderFilesGateway)) private readonly orderFilesGateway: OrderFilesGateway,
     private readonly printersService: PrintersService,
   ) {
     super(OrderFile);
-    if (!appConfigService.isProduction()) {
-      this.createFileStates(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createFileStates(this.connection.manager);
     }
   }
 
@@ -80,7 +84,7 @@ export class OrderFilesService extends GenericCrudService<OrderFile> {
       .innerJoinAndSelect(`${queryBuilder.alias}.configuration`, 'configuration')
       .leftJoinAndSelect(`${queryBuilder.alias}.bindingGroup`, 'bindingGroup');
 
-    if (isStudent(user) || isScholarship(user)) {
+    if (isStudentOrScholarship(user)) {
       queryBuilder.andWhere('order.student_id = :studentId', { studentId: user.id });
     }
 

@@ -5,12 +5,13 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericInterface } from 'src/common/interfaces/generic.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
-import { isScholarship, isStudent, isStudentOrScholarship } from 'src/common/utils/is-role-functions';
+import { isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Binding } from 'src/items/bindings/entities/binding.entity';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
@@ -28,17 +29,20 @@ import { BindingGroup } from './entities/binding-group.entity';
 import { EBindingGroupState } from './enums/e-binding-group-state.enum';
 
 @Injectable()
-export class BindingGroupsService extends GenericCrudService<BindingGroup> {
+export class BindingGroupsService extends GenericCrudService<BindingGroup> implements OnModuleInit {
   constructor(
-    @InjectConnection() connection: Connection,
-    appConfigService: AppConfigService,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
     @Inject(forwardRef(() => BindingGroupsGateway)) private readonly bindingGroupsGateway: BindingGroupsGateway,
     @Inject(forwardRef(() => OrdersService)) private readonly ordersService: OrdersService,
     private readonly orderFilesService: OrderFilesService,
   ) {
     super(BindingGroup);
-    if (!appConfigService.isProduction()) {
-      this.createBindingGroupStates(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createBindingGroupStates(this.connection.manager);
     }
   }
 
@@ -66,7 +70,7 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> {
       .andWhere('order.id = :orderId', { orderId: parentCollectionIds.orderId })
       .innerJoinAndSelect(`${queryBuilder.alias}.state`, 'state');
 
-    if (isStudent(user) || isScholarship(user)) {
+    if (isStudentOrScholarship(user)) {
       queryBuilder.andWhere('order.student_id = :studentId', { studentId: user.id });
     }
 

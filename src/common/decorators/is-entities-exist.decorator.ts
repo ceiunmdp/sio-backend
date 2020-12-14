@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { applyDecorators } from '@nestjs/common';
 import { ArrayNotEmpty, ArrayUnique, IsArray, IsUUID, Validate, ValidationOptions } from 'class-validator';
 import { IsEntityExistConstraint } from 'src/common/validators/classes/is-entity-exist.validator';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export const IsEntitiesExist = (entity: Function, validationOptions?: ValidationOptions) =>
   applyDecorators(
     IsArray(validationOptions),

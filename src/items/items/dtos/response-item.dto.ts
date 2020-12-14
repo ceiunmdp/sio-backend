@@ -7,19 +7,19 @@ import { ItemType } from '../enums/item-type.enum';
 
 @Exclude()
 export class ResponseItemDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, ...Group.STUDENT] })
   @ApiProperty({ description: `Item's name`, example: 'Double sided' })
   name!: string;
 
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, ...Group.STUDENT] })
   @ApiProperty({ description: `Item's code`, example: EItem.DOUBLE_SIDED })
   code!: EItem;
 
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, ...Group.STUDENT] })
   @ApiProperty({ description: `Item's price`, example: 2.5 })
   price!: number;
 
-  @Expose({ groups: [Group.ADMIN, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, ...Group.STUDENT] })
   @ApiProperty({ description: `Item's type`, example: ItemType.ITEM })
   type!: ItemType;
 

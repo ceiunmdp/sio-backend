@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -8,11 +8,17 @@ import { EItem } from './enums/e-item.enum';
 import { ItemsRepository } from './items.repository';
 
 @Injectable()
-export class ItemsService extends GenericCrudService<Item> {
-  constructor(@InjectConnection() connection: Connection, appConfigService: AppConfigService) {
+export class ItemsService extends GenericCrudService<Item> implements OnModuleInit {
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
+  ) {
     super(Item);
-    if (!appConfigService.isProduction()) {
-      this.createItems(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createItems(this.connection.manager);
     }
   }
 

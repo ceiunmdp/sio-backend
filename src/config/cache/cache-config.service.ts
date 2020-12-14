@@ -17,11 +17,11 @@ export class CacheConfigService implements CacheOptionsFactory {
   }
 
   get ttl() {
-    return this.configService.get<number>('cache.ttl');
+    return +this.configService.get<number>('cache.ttl');
   }
 
   get max() {
-    return this.configService.get<number>('cache.max');
+    return +this.configService.get<number>('cache.max');
   }
 
   createCacheOptions(): CacheModuleOptions {

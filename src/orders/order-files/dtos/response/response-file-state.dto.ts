@@ -6,11 +6,11 @@ import { EFileState } from 'src/orders/order-files/enums/e-file-state.enum';
 
 @Exclude()
 export class ResponseFileStateDto extends ResponseBaseEntityDto {
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order file state's name`, example: 'Printing' })
   name!: string;
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, Group.STUDENT, Group.SCHOLARSHIP] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order file state's code`, example: EFileState.PRINTING })
   code!: EFileState;
 

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { sortBy } from 'lodash';
 import { UserRole } from 'src/common/enums/user-role.enum';
@@ -9,14 +9,16 @@ import { Functionality } from './entities/functionality.entity';
 import { EFunctionality } from './enums/e-functionality.enum';
 
 @Injectable()
-export class MenuService {
+export class MenuService implements OnModuleInit {
   constructor(
-    @InjectConnection() connection: Connection,
-    appConfigService: AppConfigService,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
     private readonly rolesService: RolesService,
-  ) {
-    if (!appConfigService.isProduction()) {
-      this.createMenu(connection.manager);
+  ) {}
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createMenu(this.connection.manager);
     }
   }
 

@@ -17,7 +17,7 @@ import { Sort } from 'src/common/decorators/sort.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { UserRole, UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -72,7 +72,7 @@ export class OrdersController {
   }
 
   @GetAll(Collection.ORDERS, ResponseOrderDto, Path.ME)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findAllOwn(
     @Limit() limit: number,
     @Page() page: number,
@@ -94,13 +94,13 @@ export class OrdersController {
   }
 
   @GetById(Collection.ORDERS, ResponseOrderDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.ordersService.findOne(id, undefined, user);
   }
 
   @PostAll(Collection.ORDERS, ResponseOrderDto)
-  @Auth(UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(...UserRoleExpanded.STUDENT)
   async create(@Body() createOrderDto: CreateOrderDto, @User() user: UserIdentity) {
     return this.connection.transaction(async (manager) => {
       await this.validateDto(createOrderDto.orderFiles, manager);
@@ -256,13 +256,13 @@ export class OrdersController {
   }
 
   @PutById(Collection.ORDERS, ResponseOrderDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async update(@Id() id: string, @Body() updateOrderDto: UpdateOrderDto, @User() user: UserIdentity) {
     return this.ordersService.update(id, updateOrderDto, undefined, user);
   }
 
   @PatchById(Collection.ORDERS, ResponseOrderDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async partialUpdate(
     @Id() id: string,
     @Body() partialUpdateOrderDto: PartialUpdateOrderDto,

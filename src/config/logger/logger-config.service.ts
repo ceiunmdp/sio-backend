@@ -50,7 +50,7 @@ export class LoggerConfigService {
           zippedArchive: isTrue(this.configService.get('logger.zipped')),
           maxSize: this.configService.get<string>('logger.maxSize'),
           maxFiles:
-            this.configService.get<number>('logger.maxFiles') || this.configService.get<string>('logger.maxDays'),
+            +this.configService.get<number>('logger.maxFiles') || this.configService.get<string>('logger.maxDays'),
         }),
         // Write all logs with level `error` and below to `error.log`
         new transports.DailyRotateFile({
@@ -61,7 +61,7 @@ export class LoggerConfigService {
           zippedArchive: isTrue(this.configService.get('logger.zipped')),
           maxSize: this.configService.get<string>('logger.maxSize'),
           maxFiles:
-            this.configService.get<number>('logger.maxFiles') || this.configService.get<string>('logger.maxDays'),
+            +this.configService.get<number>('logger.maxFiles') || this.configService.get<string>('logger.maxDays'),
         }),
       ];
     }

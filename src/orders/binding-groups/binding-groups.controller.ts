@@ -14,7 +14,7 @@ import { Sort } from 'src/common/decorators/sort.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { UserRole, UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -43,7 +43,7 @@ export class BindingGroupsController {
   }
 
   @GetAll(Collection.BINDING_GROUPS, ResponseBindingGroupDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findAll(
     @ParentCollectionId('orderId', OrderEntity) orderId: string,
     @Limit() limit: number,
@@ -67,7 +67,7 @@ export class BindingGroupsController {
   }
 
   @GetById(Collection.BINDING_GROUPS, ResponseBindingGroupDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS, UserRole.STUDENT, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findOne(
     @ParentCollectionId('orderId', OrderEntity) orderId: string,
     @Id() id: string,

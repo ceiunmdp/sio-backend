@@ -1,4 +1,4 @@
-import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -31,10 +31,10 @@ import { OrdersRepository } from './orders.repository';
 import { isOrderFromStudent } from './utils/is-order-from-student';
 
 @Injectable()
-export class OrdersService extends GenericCrudService<Order> {
+export class OrdersService extends GenericCrudService<Order> implements OnModuleInit {
   constructor(
-    @InjectConnection() connection: Connection,
-    appConfigService: AppConfigService,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
     private readonly itemsService: ItemsService,
     private readonly bindingsService: BindingsService,
     @Inject(forwardRef(() => BindingGroupsService)) private readonly bindingGroupsService: BindingGroupsService,
@@ -45,8 +45,11 @@ export class OrdersService extends GenericCrudService<Order> {
     @Inject(forwardRef(() => OrdersGateway)) private readonly ordersGateway: OrdersGateway,
   ) {
     super(Order);
-    if (!appConfigService.isProduction()) {
-      this.createOrderStates(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createOrderStates(this.connection.manager);
     }
   }
 

@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as admin from 'firebase-admin';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -16,16 +16,19 @@ import { RegistrationToken } from './registration-tokens/entities/registration-t
 import { RegistrationTokensService } from './registration-tokens/registration-tokens.service';
 
 @Injectable()
-export class NotificationsService extends GenericCrudService<Notification> {
+export class NotificationsService extends GenericCrudService<Notification> implements OnModuleInit {
   constructor(
-    @InjectConnection() connection: Connection,
-    appConfigService: AppConfigService,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly appConfigService: AppConfigService,
     private readonly logger: CustomLoggerService,
     private readonly registrationTokensService: RegistrationTokensService,
   ) {
     super(Notification);
-    if (!appConfigService.isProduction()) {
-      this.createNotificationTypes(connection.manager);
+  }
+
+  async onModuleInit() {
+    if (!this.appConfigService.isProduction()) {
+      await this.createNotificationTypes(this.connection.manager);
     }
   }
 
