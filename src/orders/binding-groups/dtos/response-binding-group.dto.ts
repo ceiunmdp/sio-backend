@@ -19,10 +19,6 @@ export class ResponseBindingGroupDto extends ResponseBaseEntityDto {
   //? Should sheets limit be denormalized?
   // sheetsLimit!: number
 
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
-  @ApiProperty({ description: `Binding group's position` })
-  position!: number;
-
   @AutoMap(() => ResponseBindingGroupStateDto)
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Binding Group's state` })
@@ -30,8 +26,8 @@ export class ResponseBindingGroupDto extends ResponseBaseEntityDto {
 
   @AutoMap(() => ResponseOrderFileDto)
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
-  @ApiProperty({ description: 'Order file' })
-  orderFile!: ResponseOrderFileDto;
+  @ApiProperty({ description: `Binding group's order files`, type: [ResponseOrderFileDto] })
+  orderFiles!: ResponseOrderFileDto;
 
   constructor(partial: Partial<ResponseBindingGroupDto>) {
     super(partial);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { forwardRef, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
@@ -16,6 +17,7 @@ import { getToken } from 'src/common/utils/get-token';
 import { isCampus } from 'src/common/utils/is-role-functions';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { Connection } from 'typeorm';
+import { OrderFile } from '../order-files/entities/order-file.entity';
 import { BindingGroupsService } from './binding-groups.service';
 import { ResponseBindingGroupDto } from './dtos/response-binding-group.dto';
 import { UpdateBindingGroupDto } from './dtos/update-binding-group.dto';
@@ -66,12 +68,21 @@ export class BindingGroupsGateway extends BaseGateway {
   }
 
   @Mapper(ResponseBindingGroupDto)
-  async emitUpdatedBindingGroup(bindingGroup: BindingGroup) {
+  //! Exclude properties from object passed as parameter
+  async emitUpdatedBindingGroup({ fsm, orderFiles, ...bindingGroup }: BindingGroup) {
     // TODO: Check if mapping is made
     // TODO: bindingGroup must have 'orderFile.order' property inside
-    this.emitEvent(BindingGroupEvent.UPDATE_BINDING_GROUP, bindingGroup, {
-      namespace: Namespace.BINDING_GROUPS,
-      room: bindingGroup.orderFile.order.campusId,
-    });
+    this.emitEvent(
+      BindingGroupEvent.UPDATE_BINDING_GROUP,
+      { ...bindingGroup, orderFiles: this.removeUnnecesaryProperties(orderFiles) },
+      {
+        namespace: Namespace.BINDING_GROUPS,
+        room: orderFiles[0].order.campusId,
+      },
+    );
+  }
+
+  private removeUnnecesaryProperties(orderFiles: OrderFile[]) {
+    return orderFiles.map(({ fsm, order, ...orderFile }) => orderFile);
   }
 }

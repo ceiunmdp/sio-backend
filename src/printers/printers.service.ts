@@ -13,6 +13,7 @@ import { PDFDocument } from 'pdf-lib';
 import { File } from 'src/files/entities/file.entity';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { Configuration } from 'src/orders/order-files/entities/configuration.entity';
+import { OrderFile } from 'src/orders/order-files/entities/order-file.entity';
 import { Printer } from './entities/printer.entity';
 import { CUPSPrinterAttributes } from './interfaces/cups-printer-attributes.interface';
 import { getJobAttributes, getPrinterAttributes, printJob } from './utils/promisified-functions';
@@ -25,6 +26,13 @@ export class PrintersService {
   constructor(private readonly logger: CustomLoggerService) {
     this.logger.context = PrintersService.name;
     // this.setBrowserConfiguration();
+
+    // TODO: Momentary
+    const id = 'be279206-4fef-458a-bc11-4caded8cbc3e';
+    this.printersMap.set(
+      id,
+      new Printer({ id, name: 'Test printer', host: 'localhost', port: 631, path: '/printers/EPSON_L210' }),
+    );
   }
 
   private setBrowserConfiguration() {
@@ -68,18 +76,31 @@ export class PrintersService {
     }
   }
 
-  async printFile(printerId: string, file: File, configuration: Configuration) {
-    const printer = new ipp.Printer(this.findOne(printerId).getUrl());
+  // async printFile(printerId: string, file: File, configuration: Configuration) {
+  //   const printer = new ipp.Printer(this.findOne(printerId).getUrl());
 
-    // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_5500');
-    // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_8000');
-    // const printer = new ipp.Printer('http://localhost:631/printers/Savin_8060');
+  //   // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_5500');
+  //   // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_8000');
+  //   // const printer = new ipp.Printer('http://localhost:631/printers/Savin_8060');
 
-    await this.checkIfConfigurationIsSupported(printer, file.mimetype, configuration);
-    // await this.checkIfConfigurationIsSupported(printer, null, configuration);
+  //   await this.checkIfConfigurationIsSupported(printer, file.mimetype, configuration);
+  //   // await this.checkIfConfigurationIsSupported(printer, null, configuration);
 
-    return this.sendJob(printer, file, configuration);
-    // TODO: Once the job is finished, file state should change to "Printed"
+  //   return this.sendJob(printer, file, configuration);
+
+  //   // TODO: Once the job is finished, file state should change to "Printed"
+  // }
+
+  async printFile(printerId: string, file: File, configuration: Configuration, cb: () => Promise<OrderFile>) {
+    //* Once the job is finished, file state should change to "Printed"
+    setTimeout(async () => {
+      try {
+        await cb();
+      } catch (err) {
+        // TODO: Decide what to do
+        console.log(err);
+      }
+    }, 15 * 1000);
   }
 
   private async checkIfConfigurationIsSupported(printer: ipp.Printer, mimetype: string, configuration: Configuration) {

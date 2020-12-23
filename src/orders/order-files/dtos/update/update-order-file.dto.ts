@@ -1,12 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+import { IsOptional, IsUUID, ValidateNested } from 'class-validator';
 import { AutoMap } from 'nestjsx-automapper';
 import { UpdateFileStateDto } from './update-file-state.dto';
 
 export class UpdateOrderFileDto {
   @IsOptional()
-  @IsString()
   @IsUUID()
   @ApiProperty({
     description: `Order file's UUID`,
@@ -14,7 +13,6 @@ export class UpdateOrderFileDto {
   })
   id?: string;
 
-  @IsString()
   @IsUUID()
   @ApiProperty({
     name: 'printer_id',

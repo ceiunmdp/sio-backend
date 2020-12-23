@@ -8,7 +8,7 @@ export class ParseArrayUUIDPipe implements PipeTransform<string[], string[]> {
       if (isUUID(id)) {
         return id;
       } else {
-        throw new UnprocessableEntityException('Validation failed (uuid  is expected)');
+        throw new UnprocessableEntityException('Validation failed (UUID  is expected)');
       }
     });
   }

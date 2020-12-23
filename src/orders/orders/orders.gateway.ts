@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { forwardRef, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
@@ -81,12 +82,17 @@ export class OrdersGateway extends BaseGateway {
   }
 
   @Mapper(ResponseOrderDto)
-  emitNewPendingOrder(order: Order) {
-    this.emitEvent(OrderEvent.NEW_PENDING_ORDER, order, { namespace: Namespace.ORDERS, room: order.campusId });
+  //! Exclude both properties from object passed as parameter
+  emitNewPendingOrder({ fsmStaff, fsmStudent, ...order }: Order) {
+    this.emitEvent(OrderEvent.NEW_PENDING_ORDER, order, {
+      namespace: Namespace.ORDERS,
+      room: order.campusId,
+    });
   }
 
   @Mapper(ResponseOrderDto)
-  emitUpdatedOrder(order: Order) {
+  //! Exclude both properties from object passed as parameter
+  emitUpdatedOrder({ fsmStaff, fsmStudent, ...order }: Order) {
     this.emitEvent(OrderEvent.UPDATED_ORDER, order, {
       namespace: Namespace.ORDERS,
       room: order.campusId,

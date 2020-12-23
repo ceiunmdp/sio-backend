@@ -15,7 +15,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 36, default: null }) //* Default value null, the tuple is first created and then reassigned this property with corresponding id
   uid!: string;
 
-  @Column({ name: 'full_name' }) //* Also in Firebase
+  @Column({ name: 'full_name', default: null }) //* Also in Firebase. Defaults to null in case the initial user does not have any display name associated with his account.
   displayName!: string;
 
   @Column() //* Also in Firebase

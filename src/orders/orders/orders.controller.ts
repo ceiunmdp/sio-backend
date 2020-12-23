@@ -212,7 +212,6 @@ export class OrdersController {
       if (multiRange.max() > numberOfSheets) {
         throw new UnprocessableEntityException(`Range ${range} does not agree with file's number of sheets`);
       } else {
-        // TODO: See if it's necessary
         orderFile.configuration.range = multiRange.toString();
         orderFile.configuration.numberOfSheets = calculateNumberOfSheets(
           multiRange.length(),

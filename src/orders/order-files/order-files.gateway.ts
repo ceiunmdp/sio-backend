@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { forwardRef, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
@@ -16,6 +17,7 @@ import { getToken } from 'src/common/utils/get-token';
 import { isCampus } from 'src/common/utils/is-role-functions';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { Connection } from 'typeorm';
+import { BindingGroup } from '../binding-groups/entities/binding-group.entity';
 import { ResponseOrderFileDto } from './dtos/response/response-order-file.dto';
 import { UpdateOrderFileDto } from './dtos/update/update-order-file.dto';
 import { OrderFile } from './entities/order-file.entity';
@@ -61,12 +63,22 @@ export class OrderFilesGateway extends BaseGateway {
   }
 
   @Mapper(ResponseOrderFileDto)
-  emitUpdatedOrderFile(orderFile: OrderFile) {
+  //! Exclude properties from object passed as parameter
+  emitUpdatedOrderFile({ fsm, order, bindingGroup, ...orderFile }: OrderFile) {
     // TODO: Check if mapping is made
     // TODO: orderFile must have 'order' property inside
-    this.emitEvent(OrderFileEvent.UPDATED_ORDER_FILE, orderFile, {
+    this.emitEvent(OrderFileEvent.UPDATED_ORDER_FILE, this.buildData(orderFile, bindingGroup), {
       namespace: Namespace.ORDER_FILES,
-      room: orderFile.order.campusId,
+      room: order.campusId,
     });
+  }
+
+  private buildData(orderFile: Partial<OrderFile>, bindingGroup: BindingGroup) {
+    if (bindingGroup) {
+      const { fsm, ...bindingGroupExceptFsm } = bindingGroup;
+      return { ...orderFile, bindingGroup: bindingGroupExceptFsm };
+    } else {
+      return orderFile;
+    }
   }
 }

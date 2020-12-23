@@ -37,6 +37,10 @@ export class ResponseOrderFileDto extends ResponseBaseEntityDto {
   bindingGroup?: ResponseBindingGroupDto;
 
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
+  @ApiProperty({ description: `Order file's position inside binding group` })
+  position?: number;
+
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order file's price`, example: 7.5 })
   total!: number;
 

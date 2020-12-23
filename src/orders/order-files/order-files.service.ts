@@ -10,6 +10,7 @@ import {
 import { InjectConnection } from '@nestjs/typeorm';
 import { flatten } from 'lodash';
 import { lookup } from 'mime-types';
+import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { GenericInterface } from 'src/common/interfaces/generic.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
@@ -22,6 +23,7 @@ import { FilesService } from 'src/files/files.service';
 import { PrintersService } from 'src/printers/printers.service';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { BindingGroup } from '../binding-groups/entities/binding-group.entity';
+import { EBindingGroupState } from '../binding-groups/enums/e-binding-group-state.enum';
 import { EOrderState } from '../orders/enums/e-order-state.enum';
 import { OrdersService } from '../orders/orders.service';
 import { isOrderFromStudent } from '../orders/utils/is-order-from-student';
@@ -82,7 +84,8 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
       .innerJoinAndSelect(`${queryBuilder.alias}.file`, 'file')
       .innerJoinAndSelect(`${queryBuilder.alias}.state`, 'state')
       .innerJoinAndSelect(`${queryBuilder.alias}.configuration`, 'configuration')
-      .leftJoinAndSelect(`${queryBuilder.alias}.bindingGroup`, 'bindingGroup');
+      .leftJoinAndSelect(`${queryBuilder.alias}.bindingGroup`, 'bindingGroup')
+      .leftJoinAndSelect('bindingGroup.state', 'bindingGroupState');
 
     if (isStudentOrScholarship(user)) {
       queryBuilder.andWhere('order.student_id = :studentId', { studentId: user.id });
@@ -93,7 +96,7 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
 
   async findOrderFilesByOrderId(id: string, manager: EntityManager) {
     return this.getOrderFilesRepository(manager).find({
-      where: { orderId: id },
+      where: { order: { id } },
       relations: this.getFindOneRelations(),
       loadEagerRelations: true,
     });
@@ -226,14 +229,24 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
 
     await this.checkUpdateConditions(updateOrderFileDto, orderFile);
 
-    const desiredState = await this.findFileStateByCode(updateOrderFileDto.state.code, manager);
-    await this.transitionOrderState(updateOrderFileDto, orderFile, manager, user);
+    const updateState = !!updateOrderFileDto.state;
+    let desiredState: FileState;
+    if (updateState) {
+      desiredState = await this.findFileStateByCode(updateOrderFileDto.state.code, manager);
+    }
 
     const updatedOrderFile = await this.getOrderFilesRepository(manager).updateAndReload(
       id,
-      { ...updateOrderFileDto, state: desiredState },
+      { ...updateOrderFileDto, ...(updateOrderFileDto.state && { state: desiredState }) },
       this.getFindOneRelations(),
     );
+
+    //! Order must be updated AFTER saving updated orderFile in order for
+    //! 'checkAllOrderFilesFromBindingGroupArePrinted' method to work with all tuples updated in database
+    if (updateState) {
+      await this.transitionOrderState(updateOrderFileDto, orderFile, manager, user);
+    }
+
     this.orderFilesGateway.emitUpdatedOrderFile(updatedOrderFile);
     return updatedOrderFile;
   }
@@ -258,20 +271,59 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
 
   private async transitionOrderState(
     { state, printerId }: PartialUpdateOrderFileDto,
-    { order, file, configuration }: OrderFile,
+    { id, order, file, configuration }: OrderFile,
     manager: EntityManager,
     user: UserIdentity,
   ) {
     if (state.code === EFileState.PRINTING) {
-      await this.printersService.printFile(printerId, file, configuration);
+      //* Create callback with a new transaction built from the same connection as the original manager
+      const callback = () =>
+        manager.connection.transaction(
+          IsolationLevel.REPEATABLE_READ,
+          async (manager) => await this.transitionOrderFileToPrinted(id, manager, user),
+        );
+
+      await this.printersService.printFile(printerId, file, configuration, callback);
 
       if (order.state.code === EOrderState.REQUESTED) {
         await this.ordersService.update(order.id, { state: { code: EOrderState.IN_PROCESS } }, manager, user);
-      } else {
-        //* order.state = IN_PROCESS
-        // TODO: Only when the transition is finally made to 'Printed', the order could be transitioned to 'Ready'
+      }
+    } else {
+      //* state.code === EFileState.PRINTED
+      if (await this.areAllOrderFilesFromOrderPrintedAndRinged(order.id, manager)) {
+        await this.ordersService.update(order.id, { state: { code: EOrderState.READY } }, manager, user);
       }
     }
+  }
+
+  async transitionOrderFileToPrinted(id: string, manager: EntityManager, user: UserIdentity) {
+    return this.update(id, { state: { code: EFileState.PRINTED } }, manager, user);
+  }
+
+  async areAllOrderFilesFromOrderPrintedAndRinged(orderId: string, manager: EntityManager) {
+    const orderFiles = await this.findOrderFilesByOrderId(orderId, manager);
+
+    let i = 0;
+    while (i < orderFiles.length && this.isOrderFileReady(orderFiles[i])) {
+      i++;
+    }
+
+    return i === orderFiles.length;
+  }
+
+  private isOrderFileReady(orderFile: OrderFile) {
+    return (
+      this.isOrderFilePrinted(orderFile.state.code) &&
+      (!orderFile.bindingGroup || this.isBindingGroupRinged(orderFile.bindingGroup.state.code))
+    );
+  }
+
+  isOrderFilePrinted(code: EFileState) {
+    return code === EFileState.PRINTED;
+  }
+
+  private isBindingGroupRinged(code: EBindingGroupState) {
+    return code === EBindingGroupState.RINGED;
   }
 
   //! Implemented to avoid deletion of order files by error by other developers
@@ -302,6 +354,6 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
   }
 
   protected throwCustomNotFoundException(id: string): void {
-    throw new Error(`Pedido-archivo ${id} no encontrado.`);
+    throw new NotFoundException(`Pedido-archivo ${id} no encontrado.`);
   }
 }

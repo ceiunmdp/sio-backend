@@ -22,7 +22,7 @@ export abstract class BaseRepository<T extends BaseEntity> extends Repository<T>
     }
   }
 
-  async updateAndReload(id: string | number, partialEntity: DeepPartial<T>, relations?: string[]) {
+  async updateAndReload(id: string | number, partialEntity: DeepPartial<T>, relations: string[] = []) {
     await this.save({ ...partialEntity, id });
     return this.findOne(id, { relations, loadEagerRelations: true });
   }

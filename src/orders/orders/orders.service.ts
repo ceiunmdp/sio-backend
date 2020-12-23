@@ -319,14 +319,18 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
 
     const desiredState = await this.findOrderStateByCode(updateOrderDto.state.code, manager);
 
-    const updatedOrder = await this.getOrdersRepository(manager).updateAndReload(id, {
-      ...updateOrderDto,
-      state: desiredState,
-      orderToOrderStates: [
-        ...order.orderToOrderStates,
-        new OrderToOrderState({ state: desiredState, timestamp: new Date() }),
-      ],
-    });
+    const updatedOrder = await this.getOrdersRepository(manager).updateAndReload(
+      id,
+      {
+        ...updateOrderDto,
+        state: desiredState,
+        orderToOrderStates: [
+          ...order.orderToOrderStates,
+          new OrderToOrderState({ state: desiredState, timestamp: new Date() }),
+        ],
+      },
+      this.getFindOneRelations(),
+    );
     this.ordersGateway.emitUpdatedOrder(updatedOrder);
     return updatedOrder;
   }

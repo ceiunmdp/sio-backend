@@ -9,6 +9,7 @@ export class OrderFileFsm extends FiniteStateMachine<EFileState> {
 
   protected defineTransitions() {
     this.from(EFileState.TO_PRINT).to(EFileState.PRINTING);
+    this.from(EFileState.PRINTING).to(EFileState.PRINTED);
     //? this.from(EFileState.PRINTED).to(EFileState.TO_PRINT);
   }
 }

@@ -8,8 +8,9 @@ export class OrderFsmStaff extends FiniteStateMachine<EOrderState> {
   }
 
   protected defineTransitions() {
-    this.from(EOrderState.REQUESTED, EOrderState.IN_PROCESS).to(EOrderState.CANCELLED);
-    this.from(EOrderState.READY).to(EOrderState.UNDELIVERED);
-    this.from(EOrderState.READY, EOrderState.UNDELIVERED).to(EOrderState.DELIVERED);
+    this.from(EOrderState.REQUESTED).to(EOrderState.IN_PROCESS, EOrderState.CANCELLED);
+    this.from(EOrderState.IN_PROCESS).to(EOrderState.READY, EOrderState.CANCELLED);
+    this.from(EOrderState.READY).to(EOrderState.DELIVERED, EOrderState.UNDELIVERED);
+    this.from(EOrderState.UNDELIVERED).to(EOrderState.DELIVERED);
   }
 }

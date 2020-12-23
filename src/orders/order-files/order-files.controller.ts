@@ -1,4 +1,4 @@
-import { Body, Controller } from '@nestjs/common';
+import { Body, Controller, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { Auth } from 'src/common/decorators/auth.decorator';
@@ -21,6 +21,7 @@ import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
+import { PrintersService } from 'src/printers/printers.service';
 import { Connection } from 'typeorm';
 import { Order as OrderEntity } from '../orders/entities/order.entity';
 import { ResponseOrderFileDto } from './dtos/response/response-order-file.dto';
@@ -38,6 +39,7 @@ export class OrderFilesController {
     @InjectConnection() connection: Connection,
     private readonly appConfigService: AppConfigService,
     orderFilesService: OrderFilesService,
+    private readonly printersService: PrintersService,
   ) {
     this.orderFilesService = new ProxyCrudService(connection, orderFilesService);
   }
@@ -79,6 +81,7 @@ export class OrderFilesController {
   @PutById(Collection.ORDER_FILES, ResponseOrderFileDto)
   @Auth(UserRole.ADMIN, UserRole.CAMPUS)
   async update(@Id() id: string, @Body() updateOrderFileDto: UpdateOrderFileDto, @User() user: UserIdentity) {
+    this.checkPrinterExists(updateOrderFileDto.printerId);
     return this.orderFilesService.update(id, updateOrderFileDto, undefined, user);
   }
 
@@ -89,6 +92,19 @@ export class OrderFilesController {
     @Body() partialUpdateOrderFileDto: PartialUpdateOrderFileDto & Pick<UpdateOrderFileDto, 'printerId'>,
     @User() user: UserIdentity,
   ) {
+    this.checkPrinterExists(partialUpdateOrderFileDto.printerId);
     return this.orderFilesService.update(id, partialUpdateOrderFileDto, undefined, user);
+  }
+
+  private checkPrinterExists(printerId: string) {
+    try {
+      this.printersService.findOne(printerId);
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw new UnprocessableEntityException('printer_id provided does not correspond to any existing Printer');
+      } else {
+        throw err;
+      }
+    }
   }
 }

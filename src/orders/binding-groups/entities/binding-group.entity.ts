@@ -29,7 +29,7 @@ export class BindingGroup extends BaseEntity {
 
   @AutoMap(() => OrderFile)
   @OneToMany(() => OrderFile, (orderFile) => orderFile.bindingGroup)
-  orderFile!: OrderFile;
+  orderFiles!: OrderFile[];
 
   constructor(partial: Partial<BindingGroup>) {
     super(partial);

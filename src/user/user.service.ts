@@ -19,12 +19,9 @@ export class UserService {
       //* User found in Firebase but not in database
       //* First login of student
 
-      // Retrieve displayName to store it in local database
-      const user = await this.usersService.findByUid(id);
-      const student = await this.studentsService.create(
-        new CreateStudentDto({ displayName: user.displayName, uid: id }),
-        manager,
-      );
+      //* Retrieve 'displayName' and 'email' to store them in local database
+      const { displayName, email } = await this.usersService.findByUid(id);
+      const student = await this.studentsService.create(new CreateStudentDto({ uid: id, displayName, email }), manager);
       return new User(student);
     }
   }

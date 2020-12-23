@@ -15,7 +15,6 @@ import { isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Binding } from 'src/items/bindings/entities/binding.entity';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
-import { EFileState } from '../order-files/enums/e-file-state.enum';
 import { OrderFilesService } from '../order-files/order-files.service';
 import { Order } from '../orders/entities/order.entity';
 import { EOrderState } from '../orders/enums/e-order-state.enum';
@@ -65,8 +64,8 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
     parentCollectionIds: GenericInterface,
   ) {
     queryBuilder
-      .innerJoin(`${queryBuilder.alias}.orderFile`, 'orderFile')
-      .innerJoin('orderFile.order', 'order')
+      .innerJoin(`${queryBuilder.alias}.orderFiles`, 'orderFiles')
+      .innerJoin('orderFiles.order', 'order')
       .andWhere('order.id = :orderId', { orderId: parentCollectionIds.orderId })
       .innerJoinAndSelect(`${queryBuilder.alias}.state`, 'state');
 
@@ -80,7 +79,7 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
   //* findOne
   protected async checkFindOneConditions(bindingGroup: BindingGroup, _manager: EntityManager, user: UserIdentity) {
     // TODO: Still remaining verify that bindingGroupId belongs to orderId (param)
-    if (isStudentOrScholarship(user) && !isOrderFromStudent(user.id, bindingGroup.orderFile.order)) {
+    if (isStudentOrScholarship(user) && !isOrderFromStudent(user.id, bindingGroup.orderFiles[0].order)) {
       throw new ForbiddenException('Prohibido el acceso al recurso.');
     }
   }
@@ -95,10 +94,15 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
     manager: EntityManager,
   ) {
     const bindingGroupsRepository = this.getBindingGroupsRepository(manager);
+    const bindingGroupStateToRing = await this.findBindingGroupStateByCode(EBindingGroupState.TO_RING, manager);
+
     const bindingGroupsMapWithBindingGroup = new Map<number, BindingGroup>();
 
     for (const [bindingGroupId, { name, price }] of bindingGroupsMapWithMostAppropiateBinding.entries()) {
-      bindingGroupsMapWithBindingGroup.set(bindingGroupId, await bindingGroupsRepository.save({ name, price }));
+      bindingGroupsMapWithBindingGroup.set(
+        bindingGroupId,
+        await bindingGroupsRepository.save({ name, price, state: bindingGroupStateToRing }),
+      );
     }
 
     return bindingGroupsMapWithBindingGroup;
@@ -114,14 +118,24 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
 
     await this.checkUpdateConditions(updateBindingGroupDto, bindingGroup, manager);
 
-    const desiredState = await this.findBindingGroupStateByCode(updateBindingGroupDto.state.code, manager);
-    await this.transitionOrderState(desiredState, bindingGroup.orderFile.order, manager, user);
+    const updateState = !!updateBindingGroupDto.state;
+    let desiredState: BindingGroupState;
+    if (updateState) {
+      desiredState = await this.findBindingGroupStateByCode(updateBindingGroupDto.state.code, manager);
+    }
 
     const updatedBindingGroup = await this.getBindingGroupsRepository(manager).updateAndReload(
       id,
-      { ...updateBindingGroupDto, state: desiredState },
+      { ...updateBindingGroupDto, ...(updateState && { state: desiredState }) },
       this.getFindOneRelations(),
     );
+
+    //! Order must be updated AFTER saving updated binding group in order for
+    //! 'checkAllOrderFilesFromBindingGroupArePrinted' method to work with all tuples updated in database
+    if (updateState) {
+      await this.transitionOrderState(desiredState, bindingGroup.orderFiles[0].order, manager, user);
+    }
+
     this.bindingGroupsGateway.emitUpdatedBindingGroup(updatedBindingGroup);
     return updatedBindingGroup;
   }
@@ -134,7 +148,7 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
     //* Only Admin and Campus roles have access to update binding group
     if (updateBindingGroupDto.state) {
       bindingGroup.fsm.checkTransitionIsValid(updateBindingGroupDto.state.code);
-      this.checkBindingGroupCanBeUpdatedBasedOnOrderState(bindingGroup.orderFile.order.state.code);
+      this.checkBindingGroupCanBeUpdatedBasedOnOrderState(bindingGroup.orderFiles[0].order.state.code);
 
       if (updateBindingGroupDto.state.code === EBindingGroupState.RINGED) {
         await this.checkAllOrderFilesFromBindingGroupArePrinted(bindingGroup.id, manager);
@@ -156,7 +170,7 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
     const orderFiles = await this.orderFilesService.findOrderFilesByBindingGroupId(bindingGroupId, manager);
 
     let i = 0;
-    while (i < orderFiles.length && orderFiles[i].state.code === EFileState.PRINTED) {
+    while (i < orderFiles.length && this.orderFilesService.isOrderFilePrinted(orderFiles[i].state.code)) {
       i++;
     }
 
@@ -175,25 +189,10 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
   ) {
     if (
       desiredState.code === EBindingGroupState.RINGED &&
-      this.areAllOrderFilesFromOrderPrintedAndRinged(order.id, manager)
+      (await this.orderFilesService.areAllOrderFilesFromOrderPrintedAndRinged(order.id, manager))
     ) {
       await this.ordersService.update(order.id, { state: { code: EOrderState.READY } }, manager, user);
     }
-  }
-
-  private async areAllOrderFilesFromOrderPrintedAndRinged(orderId: string, manager: EntityManager) {
-    const orderFiles = await this.orderFilesService.findOrderFilesByOrderId(orderId, manager);
-
-    let i = 0;
-    while (
-      i < orderFiles.length &&
-      orderFiles[i].state.code === EFileState.PRINTED &&
-      orderFiles[i].bindingGroup?.state.code === EBindingGroupState.RINGED
-    ) {
-      i++;
-    }
-
-    return i === orderFiles.length;
   }
 
   //! Implemented to avoid deletion of binding groups by error by other developers
@@ -220,10 +219,10 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
   }
 
   protected getFindOneRelations(): string[] {
-    return ['orderFile.order'];
+    return ['orderFiles', 'orderFiles.order'];
   }
 
   protected throwCustomNotFoundException(id: string): void {
-    throw new Error(`Anillado ${id} no encontrado.`);
+    throw new NotFoundException(`Anillado ${id} no encontrado.`);
   }
 }
