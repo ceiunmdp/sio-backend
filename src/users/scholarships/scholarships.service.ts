@@ -86,7 +86,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
 
   async promoteStudentToScholarship(studentId: string, manager: EntityManager) {
     //! Raw query executed. Didn't found any other workaround
-    await manager.query(`UPDATE users SET type = '${UserType.SCHOLARSHIP}' WHERE id = ?`, [studentId]);
+    await manager.query(`UPDATE users SET type = '${UserType.SCHOLARSHIP}' WHERE id = $1`, [studentId]);
 
     const initialAvailableCopies = await this.getInitialAvailableCopies(manager);
     const updatedScholarship = await this.getScholarshipsRepository(manager).updateAndReload(studentId, {
@@ -110,7 +110,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     });
 
     //! Raw query executed. Didn't found any other workaround
-    await manager.query(`UPDATE users SET type = '${UserType.STUDENT}' WHERE id = ?`, [scholarshipId]);
+    await manager.query(`UPDATE users SET type = '${UserType.STUDENT}' WHERE id = $1`, [scholarshipId]);
 
     const student = await manager.getCustomRepository(StudentsRepository).findOne(scholarshipId);
     await this.usersService.setRole(student, manager);

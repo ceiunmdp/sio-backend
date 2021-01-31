@@ -2,9 +2,9 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   DiskHealthIndicator,
-  DNSHealthIndicator,
   HealthCheck,
   HealthCheckService,
+  HttpHealthIndicator,
   MemoryHealthIndicator,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
@@ -15,7 +15,7 @@ import * as bytes from 'bytes';
 export class HealthController {
   constructor(
     private health: HealthCheckService,
-    private dns: DNSHealthIndicator,
+    private http: HttpHealthIndicator,
     private typeOrm: TypeOrmHealthIndicator,
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator,
@@ -26,7 +26,7 @@ export class HealthController {
   healthcheck() {
     return this.health.check([
       // DNS Healthcheck
-      () => this.dns.pingCheck('google', 'https://google.com', { timeout: 300 }),
+      () => this.http.pingCheck('google', 'https://google.com', { timeout: 300 }),
 
       // Database Healthcheck
       () => this.typeOrm.pingCheck('database', { timeout: 300 }),
