@@ -3,7 +3,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { flatten } from 'lodash';
 import { multirange } from 'multi-integer-range';
-import { PDFDocument } from 'pdf-lib';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Filter } from 'src/common/decorators/filter.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
@@ -117,26 +116,7 @@ export class OrdersController {
 
   private async validateFilesOfEachOrderFile(orderFiles: CreateOrderFileDto[], manager: EntityManager) {
     for (const orderFile of orderFiles) {
-      if (orderFile.encodedFile) {
-        if (orderFile.fileId) {
-          throw new UnprocessableEntityException(
-            'Cannot place an order referencing a valid file and also providing a base64 string.',
-          );
-        } else {
-          const buffer = await PDFDocument.load(orderFile.encodedFile.content);
-          if (buffer) {
-            orderFile.pdfDocument = buffer;
-          } else {
-            throw new UnprocessableEntityException('Base64 string does not correspond to a valid pdf file.');
-          }
-        }
-      } else {
-        if (!orderFile.fileId) {
-          throw new UnprocessableEntityException('File id or base64 string not provided.');
-        } else {
-          orderFile.file = await this.filesService.findOne(orderFile.fileId, manager);
-        }
-      }
+      orderFile.file = await this.filesService.findOne(orderFile.fileId, manager);
     }
   }
 
@@ -207,9 +187,8 @@ export class OrdersController {
     for (const orderFile of orderFiles) {
       const { doubleSided, range, slidesPerSheet } = orderFile.configuration;
       const multiRange = multirange(range);
-      const numberOfSheets = orderFile.fileId ? orderFile.file.numberOfSheets : orderFile.pdfDocument.getPageCount();
 
-      if (multiRange.max() > numberOfSheets) {
+      if (multiRange.max() > orderFile.file.numberOfSheets) {
         throw new UnprocessableEntityException(`Range ${range} does not agree with file's number of sheets`);
       } else {
         orderFile.configuration.range = multiRange.toString();

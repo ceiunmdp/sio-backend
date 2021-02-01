@@ -14,10 +14,8 @@ import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { GenericInterface } from 'src/common/interfaces/generic.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
-import { getSizeFromBase64String } from 'src/common/utils/get-size-from-base-64-string';
 import { isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { CreateTemporaryFileDto } from 'src/files/dtos/create-temporary-file.dto';
 import { File } from 'src/files/entities/file.entity';
 import { FilesService } from 'src/files/files.service';
 import { PrintersService } from 'src/printers/printers.service';
@@ -154,11 +152,8 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
     createOrderFiles: CreateOrderFileDto[],
     bindingGroupsMap: Map<number, BindingGroup>,
     toPrintState: FileState,
-    ownerId: string,
     manager: EntityManager,
   ) {
-    await this.createTemporaryFiles(createOrderFiles, ownerId, manager);
-
     const orderFiles: OrderFile[] = [];
 
     for (const orderFile of createOrderFiles) {
@@ -166,30 +161,6 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
     }
 
     return flatten(orderFiles);
-  }
-
-  private async createTemporaryFiles(orderFiles: CreateOrderFileDto[], ownerId: string, manager: EntityManager) {
-    for (const orderFile of orderFiles) {
-      if (orderFile.encodedFile) {
-        orderFile.fileId = (await this.createTemporaryFile(orderFile, ownerId, manager)).id;
-      }
-    }
-  }
-
-  private createTemporaryFile(orderFile: CreateOrderFileDto, ownerId: string, manager: EntityManager) {
-    const pdf = orderFile.pdfDocument;
-
-    return this.filesService.createTemporaryFile(
-      new CreateTemporaryFileDto({
-        name: orderFile.encodedFile.name,
-        mimetype: this.pdfMimeType,
-        numberOfSheets: pdf.getPageCount(),
-        ownerId,
-        size: getSizeFromBase64String(orderFile.encodedFile.content),
-        content: orderFile.encodedFile.content,
-      }),
-      manager,
-    );
   }
 
   private async createOrderFile(

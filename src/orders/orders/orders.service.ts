@@ -18,6 +18,7 @@ import { StudentsService } from 'src/users/students/students.service';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { BindingGroupsService } from '../binding-groups/binding-groups.service';
 import { BindingGroup } from '../binding-groups/entities/binding-group.entity';
+import { CreateOrderFileDto } from '../order-files/dtos/create/create-order-file.dto';
 import { EFileState } from '../order-files/enums/e-file-state.enum';
 import { OrderFilesService } from '../order-files/order-files.service';
 import { CreateOrderDto } from './dtos/create/create-order.dto';
@@ -129,7 +130,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     );
     await this.calculateTotalAndSubTotals(createOrderDto, bindingGroupsMapWithMostAppropiateBinding, manager);
 
-    const numberOfSheetsFromOrder = this.getNumberOfSheetsFromOrder(bindingGroupsMapWithNumberOfSheetsOfBG);
+    const numberOfSheetsFromOrder = this.getNumberOfSheetsFromOrder(createOrderDto.orderFiles);
     createOrderDto.deposit = await this.calculateDeposit(createOrderDto.total, numberOfSheetsFromOrder, manager);
     await this.payOrder(createOrderDto, numberOfSheetsFromOrder, user, manager);
 
@@ -146,8 +147,11 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     return order;
   }
 
-  private getNumberOfSheetsFromOrder(bindingGroupsMap: Map<number, number>) {
-    return Array.from(bindingGroupsMap.values()).reduce((total, numberOfSheets) => total + numberOfSheets, 0);
+  private getNumberOfSheetsFromOrder(orderFiles: CreateOrderFileDto[]) {
+    return orderFiles.reduce(
+      (total, orderFile) => total + orderFile.configuration.numberOfSheets * orderFile.copies,
+      0,
+    );
   }
 
   private async buildBindingGroupsMapWithMostAppropiateBinding(
@@ -306,7 +310,6 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
         createOrderDto.orderFiles,
         bindingGroupsMap,
         toPrintState,
-        userId,
         manager,
       ),
     });

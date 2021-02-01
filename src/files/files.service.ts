@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { existsSync, mkdirSync, moveSync, readFile, remove, writeFileSync } from 'fs-extra';
+import { existsSync, mkdirSync, moveSync, readFile, remove } from 'fs-extra';
 import { flatten } from 'lodash';
 import { basename, dirname, join } from 'path';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
@@ -24,7 +24,6 @@ import { ProfessorshipsService } from 'src/users/professorships/professorships.s
 import { User } from 'src/users/users/entities/user.entity';
 import { DeepPartial, EntityManager, getConnection, SelectQueryBuilder } from 'typeorm';
 import { CreateFileDto } from './dtos/create-file.dto';
-import { CreateTemporaryFileDto } from './dtos/create-temporary-file.dto';
 import { PartialUpdateFileDto } from './dtos/partial-update-file.dto';
 import { File } from './entities/file.entity';
 import { FileType } from './enums/file-type.enum';
@@ -107,23 +106,6 @@ export class FilesService extends GenericCrudService<File> {
       }
       throw error;
     }
-  }
-
-  async createTemporaryFile(createTemporaryFileDto: CreateTemporaryFileDto, manager: EntityManager) {
-    const path = join(
-      this.temporaryFilesDirectory,
-      buildFilename(createTemporaryFileDto.name, createTemporaryFileDto.mimetype),
-    );
-
-    const temporaryFile = await this.getFilesRepository(manager).saveAndReload({
-      ...createTemporaryFileDto,
-      path,
-      owner: new User({ id: createTemporaryFileDto.ownerId }),
-      type: FileType.TEMPORARY,
-    });
-
-    writeFileSync(this.getFullPath(path), createTemporaryFileDto.content);
-    return temporaryFile;
   }
 
   private async checkIfUserCanUploadFiles(user: UserIdentity, createFileDtos: CreateFileDto[], manager: EntityManager) {
