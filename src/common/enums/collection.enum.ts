@@ -5,8 +5,12 @@ export enum Collection {
 
   FILES = 'Files',
 
+  HEALTH = 'Health',
+
   ITEMS = 'Items',
   BINDINGS = 'Bindings',
+
+  MENU = 'Menu',
 
   MOVEMENTS = 'Movements',
 
@@ -26,10 +30,21 @@ export enum Collection {
 
   TASKS = 'Tasks',
 
+  USER = 'User',
   USERS = 'Users',
-  ADMINS = 'Admin users',
-  CAMPUS_USERS = 'Campus users',
-  PROFESSORSHIPS = 'Professorship users',
-  SCHOLARSHIPS = 'Scholarship users',
-  STUDENTS = 'Student users',
+
+  ADMIN = 'Admin',
+  ADMINS = 'Admins',
+
+  CAMPUS_USER = 'Campus User',
+  CAMPUS_USERS = 'Campus Users',
+
+  PROFESSORSHIP = 'Professorship',
+  PROFESSORSHIPS = 'Professorships',
+
+  SCHOLARSHIP = 'Scholarship',
+  SCHOLARSHIPS = 'Scholarships',
+
+  STUDENT = 'Student',
+  STUDENTS = 'Students',
 }

@@ -28,7 +28,7 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
 import { StudentsService } from './students.service';
 
-@ApiTags('Students')
+@ApiTags(Collection.STUDENTS)
 @Controller()
 export class StudentsController {
   private readonly studentsService: CrudService<Student>;

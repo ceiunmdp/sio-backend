@@ -31,7 +31,7 @@ import { ResponseAdminDto } from './dtos/response-admin.dto';
 import { UpdateAdminDto } from './dtos/update-admin.dto';
 import { Admin } from './entities/admin.entity';
 
-@ApiTags('Admins')
+@ApiTags(Collection.ADMINS)
 @Controller()
 export class AdminsController {
   private readonly adminsService: CrudService<Admin>;

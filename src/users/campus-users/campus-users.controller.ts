@@ -31,7 +31,7 @@ import { ResponseCampusUserDto } from './dtos/response-campus-user.dto';
 import { UpdateCampusUserDto } from './dtos/update-campus-user.dto';
 import { CampusUser } from './entities/campus-user.entity';
 
-@ApiTags('Campus Users')
+@ApiTags(Collection.CAMPUS_USERS)
 @Controller()
 export class CampusUsersController {
   private readonly campusUsersService: CrudService<CampusUser>;

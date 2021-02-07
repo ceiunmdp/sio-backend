@@ -28,7 +28,7 @@ import { UpdateScholarshipDto } from './dtos/update-scholarship.dto';
 import { Scholarship } from './entities/scholarship.entity';
 import { ScholarshipsService } from './scholarships.service';
 
-@ApiTags('Scholarships')
+@ApiTags(Collection.SCHOLARSHIPS)
 @Controller()
 export class ScholarshipsController {
   private readonly scholarshipsService: CrudService<Scholarship>;
@@ -60,13 +60,13 @@ export class ScholarshipsController {
     );
   }
 
-  @GetById(Collection.STUDENTS, ResponseScholarshipDto)
+  @GetById(Collection.SCHOLARSHIPS, ResponseScholarshipDto)
   @Auth(UserRole.ADMIN)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.scholarshipsService.findOne(id, undefined, user);
   }
 
-  @PutById(Collection.STUDENTS, ResponseScholarshipDto)
+  @PutById(Collection.SCHOLARSHIPS, ResponseScholarshipDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user.', type: CustomError })
   @ApiConflictResponse({ description: 'DNI already assigned to another user.', type: CustomError })
@@ -74,7 +74,7 @@ export class ScholarshipsController {
     return this.scholarshipsService.update(id, updateScholarshipDto, undefined, user);
   }
 
-  @PatchById(Collection.STUDENTS, ResponseScholarshipDto)
+  @PatchById(Collection.SCHOLARSHIPS, ResponseScholarshipDto)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user.', type: CustomError })
   @ApiConflictResponse({ description: 'DNI already assigned to another user.', type: CustomError })

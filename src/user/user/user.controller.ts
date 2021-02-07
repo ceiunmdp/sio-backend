@@ -7,6 +7,7 @@ import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-body-responses.decorator';
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { Connection } from 'typeorm';
 import { ResponseUserDto } from '../../users/users/dtos/response-user.dto';
@@ -14,7 +15,7 @@ import { PartialUpdateLoggedInUserDto } from './dto/partial-update-logged-in-use
 import { UpdateLoggedInUserDto } from './dto/update-logged-in-user.dto';
 import { UserService } from './user.service';
 
-@ApiTags('User')
+@ApiTags(Collection.USER)
 @Controller()
 export class UserController {
   constructor(@InjectConnection() private readonly connection: Connection, private readonly userService: UserService) {}

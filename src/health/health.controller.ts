@@ -9,8 +9,9 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import * as bytes from 'bytes';
+import { Collection } from 'src/common/enums/collection.enum';
 
-@ApiTags('Health')
+@ApiTags(Collection.HEALTH)
 @Controller()
 export class HealthController {
   constructor(

@@ -7,6 +7,7 @@ import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-body-responses.decorator';
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { ResponseStudentDto } from 'src/users/students/dto/response-student.dto';
@@ -15,7 +16,7 @@ import { PartialUpdateLoggedInStudentDto } from './dto/partial-update-logged-in-
 import { UpdateLoggedInStudentDto } from './dto/update-logged-in-student.dto';
 import { StudentService } from './student.service';
 
-@ApiTags('Student')
+@ApiTags(Collection.STUDENT)
 @Controller()
 export class StudentController {
   constructor(

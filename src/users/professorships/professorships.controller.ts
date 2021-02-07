@@ -31,7 +31,7 @@ import { UpdateProfessorshipDto } from './dtos/update-professorship.dto';
 import { Professorship } from './entities/professorship.entity';
 import { ProfessorshipsService } from './professorships.service';
 
-@ApiTags('Professorships')
+@ApiTags(Collection.PROFESSORSHIPS)
 @Controller()
 export class ProfessorshipsController {
   private readonly professorshipsService: CrudService<Professorship>;

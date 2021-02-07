@@ -6,6 +6,7 @@ import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-body-responses.decorator';
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
+import { Collection } from 'src/common/enums/collection.enum';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { ResponseScholarshipDto } from 'src/users/scholarships/dtos/response-scholarship.dto';
@@ -14,7 +15,7 @@ import { Connection } from 'typeorm';
 import { PartialUpdateLoggedInScholarshipDto } from './dto/partial-update-logged-in-scholarship.dto';
 import { UpdateLoggedInScholarshipDto } from './dto/update-logged-in-scholarship.dto';
 
-@ApiTags('Scholarship')
+@ApiTags(Collection.SCHOLARSHIP)
 @Controller()
 export class ScholarshipController {
   constructor(
