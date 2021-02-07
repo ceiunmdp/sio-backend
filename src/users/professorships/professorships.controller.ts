@@ -64,7 +64,7 @@ export class ProfessorshipsController {
   }
 
   @GetById(Collection.PROFESSORSHIPS, ResponseProfessorshipDto)
-  @Auth(UserRole.ADMIN, UserRole.PROFESSORSHIP)
+  @Auth(UserRole.ADMIN)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.professorshipsService.findOne(id, undefined, user);
   }

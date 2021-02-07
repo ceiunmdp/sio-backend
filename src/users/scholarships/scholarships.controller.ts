@@ -61,7 +61,7 @@ export class ScholarshipsController {
   }
 
   @GetById(Collection.STUDENTS, ResponseScholarshipDto)
-  @Auth(UserRole.ADMIN, UserRole.SCHOLARSHIP)
+  @Auth(UserRole.ADMIN)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.scholarshipsService.findOne(id, undefined, user);
   }

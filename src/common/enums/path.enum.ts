@@ -35,11 +35,19 @@ export enum Path {
   TASKS = '/tasks',
 
   USER = '/user',
-
   USERS = '/users',
+
+  ADMIN = '/admin',
   ADMINS = '/admins',
+
   CAMPUS_USERS = '/campus',
+
+  PROFESSORSHIP = '/professorship',
   PROFESSORSHIPS = '/professorships',
+
+  SCHOLARSHIP = '/scholarship',
   SCHOLARSHIPS = '/scholarships',
+
+  STUDENT = '/student',
   STUDENTS = '/students',
 }

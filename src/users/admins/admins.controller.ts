@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller } from '@nestjs/common';
+import { Body, Controller } from '@nestjs/common';
 import { ApiConflictResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { CustomError } from 'src/common/classes/custom-error.class';
@@ -92,10 +92,6 @@ export class AdminsController {
   @DeleteById(Collection.ADMINS)
   @Auth(UserRole.ADMIN)
   async remove(@Id() id: string, @User() user: UserIdentity) {
-    if (user.id !== id) {
-      return this.adminsService.remove(id, { softRemove: false }, undefined, user);
-    } else {
-      throw new BadRequestException('No es posible eliminarse a sí mismo como administrador.');
-    }
+    return this.adminsService.remove(id, { softRemove: false }, undefined, user);
   }
 }

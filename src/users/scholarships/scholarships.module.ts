@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
 import { ParametersModule } from 'src/config/parameters/parameters.module';
 import { ItemsModule } from 'src/items/items/items.module';
-import { SharedModule } from 'src/shared/shared.module';
 import { StudentsModule } from '../students/students.module';
 import { UsersModule } from '../users/users.module';
 import { Scholarship } from './entities/scholarship.entity';
@@ -15,7 +14,6 @@ import { ScholarshipsService } from './scholarships.service';
 
 @Module({
   imports: [
-    SharedModule,
     AppConfigModule,
     ParametersModule,
     UsersModule,

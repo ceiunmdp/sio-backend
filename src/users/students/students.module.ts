@@ -1,7 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
-import { SharedModule } from 'src/shared/shared.module';
 import { ScholarshipsModule } from '../scholarships/scholarships.module';
 import { UsersModule } from '../users/users.module';
 import { Student } from './entities/student.entity';
@@ -13,7 +12,6 @@ import { StudentsService } from './students.service';
 
 @Module({
   imports: [
-    SharedModule,
     AppConfigModule,
     UsersModule,
     forwardRef(() => ScholarshipsModule),

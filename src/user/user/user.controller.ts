@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Put } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { ALL_ROLES } from 'src/common/constants/all-roles.constant';
@@ -9,8 +9,9 @@ import { BaseResponses } from 'src/common/decorators/methods/responses/base-resp
 import { User } from 'src/common/decorators/user.decorator';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { Connection } from 'typeorm';
-import { ResponseUserDto } from '../users/users/dtos/response-user.dto';
+import { ResponseUserDto } from '../../users/users/dtos/response-user.dto';
 import { PartialUpdateLoggedInUserDto } from './dto/partial-update-logged-in-user.dto';
+import { UpdateLoggedInUserDto } from './dto/update-logged-in-user.dto';
 import { UserService } from './user.service';
 
 @ApiTags('User')
@@ -23,9 +24,21 @@ export class UserController {
   @Mapper(ResponseUserDto)
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in user', type: ResponseUserDto })
-  async find(@User('id') id: string) {
+  async findOne(@User('id') id: string) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.userService.findOne(id, manager);
+    });
+  }
+
+  @Put()
+  @Auth(...ALL_ROLES)
+  @Mapper(ResponseUserDto)
+  @BaseResponses()
+  @BaseBodyResponses()
+  @ApiOkResponse({ description: 'Currently logged in user updated successfully', type: ResponseUserDto })
+  async update(@User('id') id: string, @Body() updateLoggedInUserDto: UpdateLoggedInUserDto) {
+    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
+      return this.userService.update(id, updateLoggedInUserDto, manager);
     });
   }
 
@@ -34,7 +47,7 @@ export class UserController {
   @Mapper(ResponseUserDto)
   @BaseResponses()
   @BaseBodyResponses()
-  @ApiOkResponse({ description: 'Currently user partially updated successfully', type: ResponseUserDto })
+  @ApiOkResponse({ description: 'Currently logged in user partially updated successfully', type: ResponseUserDto })
   async partialUpdate(@User('id') id: string, @Body() partialUpdateLoggedInUserDto: PartialUpdateLoggedInUserDto) {
     return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
       return this.userService.update(id, partialUpdateLoggedInUserDto, manager);

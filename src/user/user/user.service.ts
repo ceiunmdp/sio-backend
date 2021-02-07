@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { CreateStudentDto } from 'src/users/students/dto/create-student.dto';
+import { StudentsService } from 'src/users/students/students.service';
 import { User } from 'src/users/users/entities/user.entity';
+import { UsersService } from 'src/users/users/users.service';
 import { EntityManager } from 'typeorm';
-import { StudentsService } from '../users/students/students.service';
-import { UsersService } from '../users/users/users.service';
 import { PartialUpdateLoggedInUserDto } from './dto/partial-update-logged-in-user.dto';
 
 @Injectable()
@@ -16,9 +16,7 @@ export class UserService {
     if (isUUID(id)) {
       return await this.usersService.findOne(id, manager);
     } else {
-      //* User found in Firebase but not in database
-      //* First login of student
-
+      //* Student's first login
       //* Retrieve 'displayName' and 'email' to store them in local database
       const { displayName, email } = await this.usersService.findByUid(id);
       const student = await this.studentsService.create(new CreateStudentDto({ uid: id, displayName, email }), manager);

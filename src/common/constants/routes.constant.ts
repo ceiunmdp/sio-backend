@@ -16,7 +16,12 @@ import { OrderFilesModule } from 'src/orders/order-files/order-files.module';
 import { OrdersModule } from 'src/orders/orders/orders.module';
 import { PrintersModule } from 'src/printers/printers.module';
 import { TasksModule } from 'src/tasks/tasks.module';
-import { UserModule } from 'src/user/user.module';
+import { AdminModule } from 'src/user/admin/admin.module';
+import { CampusUserModule } from 'src/user/campus-user/campus-user.module';
+import { ProfessorshipModule } from 'src/user/professorship/professorship.module';
+import { ScholarshipModule } from 'src/user/scholarship/scholarship.module';
+import { StudentModule } from 'src/user/student/student.module';
+import { UserModule } from 'src/user/user/user.module';
 import { AdminsModule } from 'src/users/admins/admins.module';
 import { CampusUsersModule } from 'src/users/campus-users/campus-users.module';
 import { ProfessorshipsModule } from 'src/users/professorships/professorships.module';
@@ -106,6 +111,28 @@ export const routes: Routes = [
   {
     path: Path.USER,
     module: UserModule,
+    children: [
+      {
+        path: Path.ADMIN,
+        module: AdminModule,
+      },
+      {
+        path: Path.CAMPUS_USERS,
+        module: CampusUserModule,
+      },
+      {
+        path: Path.PROFESSORSHIP,
+        module: ProfessorshipModule,
+      },
+      {
+        path: Path.SCHOLARSHIP,
+        module: ScholarshipModule,
+      },
+      {
+        path: Path.STUDENT,
+        module: StudentModule,
+      },
+    ],
   },
   {
     path: Path.USERS,

@@ -101,6 +101,10 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
     return manager.getCustomRepository(ProfessorshipsRepository);
   }
 
+  protected getFindOneRelations(): string[] {
+    return ['course'];
+  }
+
   protected throwCustomNotFoundException(id: string) {
     throw new NotFoundException(`Usuario cátedra ${id} no encontrado.`);
   }

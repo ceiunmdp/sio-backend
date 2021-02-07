@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
 import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
-import { isAdmin } from 'src/common/utils/is-role-functions';
 import { filterQuery } from 'src/common/utils/query-builder';
 import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -37,8 +36,11 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
     return qb;
   }
 
-  async findOne(id: string, manager: EntityManager, user: UserIdentity) {
-    const subUser = await this.getRepository(manager).findOne(id);
+  async findOne(id: string, manager: EntityManager, user?: UserIdentity) {
+    const subUser = await this.getRepository(manager).findOne(id, {
+      relations: this.getFindOneRelations(),
+      loadEagerRelations: true,
+    });
 
     if (subUser) {
       await this.checkFindOneConditions(subUser, manager, user);
@@ -48,10 +50,8 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
     }
   }
 
-  protected async checkFindOneConditions(entity: T, _manager: EntityManager, user: UserIdentity) {
-    if (!(isAdmin(user) || entity.id === user.id)) {
-      throw new ForbiddenException('Prohibido el acceso al recurso.');
-    }
+  protected async checkFindOneConditions(_entity: T, _manager: EntityManager, _user?: UserIdentity) {
+    return;
   }
 
   async create(createDto: DeepPartial<T>, manager: EntityManager) {
@@ -68,7 +68,7 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
     return this.userMerger.mergeSubUser(user, newSubUser);
   }
 
-  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, userIdentity: UserIdentity) {
+  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, userIdentity?: UserIdentity) {
     const subUser = await this.findOne(id, manager, userIdentity);
 
     await this.checkUpdateConditions(updateDto, subUser, manager, userIdentity);
@@ -88,7 +88,7 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
     return;
   }
 
-  async remove(id: string, options: RemoveOptions, manager: EntityManager, user: UserIdentity) {
+  async remove(id: string, options: RemoveOptions, manager: EntityManager, user?: UserIdentity) {
     const usersRepository = this.getRepository(manager);
     const subUser = await this.findOne(id, manager, user);
 
@@ -110,6 +110,10 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
 
   private getRepository(manager: EntityManager) {
     return manager.getRepository<T>(this.type);
+  }
+
+  protected getFindOneRelations(): string[] {
+    return [];
   }
 
   protected abstract throwCustomNotFoundException(id: string): void;

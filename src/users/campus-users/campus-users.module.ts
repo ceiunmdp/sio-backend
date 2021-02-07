@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
-import { SharedModule } from 'src/shared/shared.module';
 import { UsersModule } from '../users/users.module';
 import { CampusUsersController } from './campus-users.controller';
 import { CampusUsersRepository } from './campus-users.repository';
@@ -11,7 +10,7 @@ import { CampusUser } from './entities/campus-user.entity';
 import './profiles/campus-user.profile';
 
 @Module({
-  imports: [SharedModule, AppConfigModule, UsersModule, TypeOrmModule.forFeature([CampusUser, CampusUsersRepository])],
+  imports: [AppConfigModule, UsersModule, TypeOrmModule.forFeature([CampusUser, CampusUsersRepository])],
   controllers: [CampusUsersController],
   providers: [CampusUsersService],
   exports: [CampusUsersService],

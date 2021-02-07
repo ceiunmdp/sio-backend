@@ -38,7 +38,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     id: string,
     updateStudentDto: PartialUpdateStudentDto,
     manager: EntityManager,
-    userIdentity: UserIdentity,
+    userIdentity?: UserIdentity,
   ) {
     const student = await this.findOne(id, manager, userIdentity);
 
@@ -61,7 +61,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     manager: EntityManager,
   ) {
     if (updateStudentDto.dni && (await this.usersService.isDniRepeated(updateStudentDto.dni, manager))) {
-      throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
+      throw new ConflictException(`Ya existe un usuario con el DNI elegido.`);
     }
   }
 

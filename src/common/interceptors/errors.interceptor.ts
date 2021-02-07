@@ -83,9 +83,9 @@ export class ErrorsInterceptor implements NestInterceptor {
 
     let message;
     if (error.code === 'LIMIT_FILE_SIZE') {
-      message = 'Archivo demasiado grande. Solo es posible subir archivos hasta 100 MB';
+      message = 'Archivo demasiado grande. Solo es posible subir archivos hasta 100 MB.';
     } else {
-      message = 'Evaluate rest of cases';
+      message = 'Evaluate rest of cases.';
     }
 
     const errorObject = this.buildErrorObject(error.name, message);
@@ -102,7 +102,7 @@ export class ErrorsInterceptor implements NestInterceptor {
     this.logError(error, HttpStatus.INTERNAL_SERVER_ERROR);
     const errorObject = this.buildErrorObject(
       'Internal Server Error',
-      'Unexpected Error. Please add handler in ErrorsInterceptor',
+      'Unexpected Error. Please add handler in ErrorsInterceptor.',
     );
     return isHttp ? new InternalServerErrorException(errorObject) : new WsException(errorObject);
   }

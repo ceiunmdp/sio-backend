@@ -22,7 +22,7 @@ import { OrdersModule } from './orders/orders/orders.module';
 import { PrintersModule } from './printers/printers.module';
 import { RolesModule } from './roles/roles.module';
 import { TasksModule } from './tasks/tasks.module';
-import { UserModule } from './user/user.module';
+import { GeneralUserModule } from './user/general-user.module';
 import { GeneralUsersModule } from './users/general-users.module';
 
 // export const ENV = process.env.NODE_ENV;
@@ -33,6 +33,7 @@ import { GeneralUsersModule } from './users/general-users.module';
     FacultyEntitiesModule,
     FilesModule,
     GeneralItemsModule,
+    GeneralUserModule,
     GeneralUsersModule,
     MenuModule,
     MovementsModule,
@@ -42,7 +43,6 @@ import { GeneralUsersModule } from './users/general-users.module';
     PrintersModule,
     RolesModule,
     TasksModule,
-    UserModule,
   ],
   providers: [
     // Request -> Middlewares -> Guards -> Interceptors -> Pipes -> Request Handler -> Interceptors -> Filters -> Middlewares -> Response

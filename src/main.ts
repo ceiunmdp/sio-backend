@@ -130,7 +130,7 @@ const enableValidationPipeGlobally = (app: NestExpressApplication) => {
       // disableErrorMessages: true, // Useful in production
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
-      // TODO: Add 'stopAtFirstError' when available in NestJS common library
+      // TODO: Add 'stopAtFirstError' when it's available in NestJS common library
     }),
   );
 };

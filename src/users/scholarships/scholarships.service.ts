@@ -40,7 +40,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     id: string,
     updateScholarshipDto: PartialUpdateScholarshipDto,
     manager: EntityManager,
-    userIdentity: UserIdentity,
+    userIdentity?: UserIdentity,
   ) {
     const scholarship = await this.findOne(id, manager, userIdentity);
 
@@ -69,7 +69,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
       this.checkIfRemainingCopiesSurpassesAvailableCopies(updateScholarshipDto, scholarship);
     }
     if (updateScholarshipDto.dni && (await this.usersService.isDniRepeated(updateScholarshipDto.dni, manager))) {
-      throw new ConflictException(`Ya existe un usuario con el dni elegido.`);
+      throw new ConflictException(`Ya existe un usuario con el DNI elegido.`);
     }
   }
 

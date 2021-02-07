@@ -64,7 +64,7 @@ export class CampusUsersController {
   }
 
   @GetById(Collection.CAMPUS_USERS, ResponseCampusUserDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS)
+  @Auth(UserRole.ADMIN)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.campusUsersService.findOne(id, undefined, user);
   }

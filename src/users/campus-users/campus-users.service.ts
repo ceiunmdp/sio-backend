@@ -41,6 +41,10 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
     return manager.getCustomRepository(CampusUsersRepository);
   }
 
+  protected getFindOneRelations(): string[] {
+    return ['campus'];
+  }
+
   protected throwCustomNotFoundException(id: string) {
     throw new NotFoundException(`Usuario sede ${id} no encontrado.`);
   }

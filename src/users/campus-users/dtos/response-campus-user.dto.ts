@@ -8,7 +8,7 @@ import { ResponseUserDto } from 'src/users/users/dtos/response-user.dto';
 @Exclude()
 export class ResponseCampusUserDto extends ResponseUserDto {
   @AutoMap(() => ResponseCampusDto)
-  @Expose({ groups: [Group.ADMIN] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS] })
   @ApiProperty({ description: `User's campus` })
   campus!: ResponseCampusDto;
 
