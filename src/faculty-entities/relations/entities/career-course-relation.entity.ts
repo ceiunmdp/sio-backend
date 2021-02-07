@@ -13,7 +13,7 @@ export class CareerCourseRelation extends BaseEntity {
   career!: Career;
 
   @AutoMap(() => Course)
-  @ManyToOne(() => Course, (course) => course.careerCourseRelations, { nullable: false })
+  @ManyToOne(() => Course, (course) => course.careerCourseRelations, { nullable: false, orphanedRowAction: 'delete' })
   @JoinColumn({ name: 'course_id' })
   course!: Course;
 

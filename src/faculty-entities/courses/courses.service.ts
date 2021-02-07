@@ -44,7 +44,12 @@ export class CoursesService extends GenericCrudService<Course> {
         careerCourseRelations: this.transformRelationsToTernary(createCourseDto.relations),
       });
     } else if (course.deleteDate) {
-      return coursesRepository.recover(course);
+      //* Recover course and update its relations based on request body
+      const { id } = await coursesRepository.recover(course);
+      return coursesRepository.saveAndReload({
+        id,
+        careerCourseRelations: this.transformRelationsToTernary(createCourseDto.relations),
+      });
     } else {
       this.throwCustomConflictException();
     }
@@ -54,19 +59,10 @@ export class CoursesService extends GenericCrudService<Course> {
     const course = await this.findOne(id, manager);
 
     await this.checkUpdateConditions(updateCourseDto, course, manager);
-
-    await this.removeRelatedEntitiesFromTernary(course, manager);
-
     return this.getCoursesRepository(manager).updateAndReload(id, {
       ...updateCourseDto,
       careerCourseRelations: this.transformRelationsToTernary(updateCourseDto.relations),
     });
-  }
-
-  // TODO: Temporary method. Check for future fix -> https://github.com/typeorm/typeorm/pull/6704
-  private async removeRelatedEntitiesFromTernary(course: Course, manager: EntityManager) {
-    const ternaryRepository = manager.getRepository(CareerCourseRelation);
-    return ternaryRepository.remove(course.careerCourseRelations);
   }
 
   protected async checkUpdateConditions(
@@ -108,6 +104,11 @@ export class CoursesService extends GenericCrudService<Course> {
   protected async beforeRemove(course: Course, manager: EntityManager) {
     await this.removeRelatedEntitiesFromTernary(course, manager);
     await this.filesService.softRemoveByCourseId(course.id, manager);
+  }
+
+  private async removeRelatedEntitiesFromTernary(course: Course, manager: EntityManager) {
+    const ternaryRepository = manager.getRepository(CareerCourseRelation);
+    return ternaryRepository.remove(course.careerCourseRelations);
   }
 
   private getCoursesRepository(manager: EntityManager) {

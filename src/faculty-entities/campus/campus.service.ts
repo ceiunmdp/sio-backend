@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { EntityManager } from 'typeorm';
 import { CampusRepository } from './campus.repository';
@@ -41,6 +41,17 @@ export class CampusService extends GenericCrudService<Campus> {
   ) {
     if (updateCampusDto.name && (await this.isNameRepeated(updateCampusDto.name, this.getCampusRepository(manager)))) {
       this.throwCustomConflictException();
+    }
+  }
+
+  //* remove
+  protected async checkRemoveConditions({ id }: Campus, manager: EntityManager) {
+    const course = await this.getCampusRepository(manager).findOne(id, { relations: ['campusUsers'] });
+
+    if (course.campusUsers.length) {
+      throw new BadRequestException(
+        `No es posible eliminar la sede ya que existen uno o más usuarios vinculados a la misma.`,
+      );
     }
   }
 
