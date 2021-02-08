@@ -8,7 +8,9 @@ import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
-import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
+import { User as UserEntity } from 'src/users/users/entities/user.entity';
 import { Connection } from 'typeorm';
 import { ResponseUserDto } from '../../users/users/dtos/response-user.dto';
 import { PartialUpdateLoggedInUserDto } from './dto/partial-update-logged-in-user.dto';
@@ -18,7 +20,11 @@ import { UserService } from './user.service';
 @ApiTags(Collection.USER)
 @Controller()
 export class UserController {
-  constructor(@InjectConnection() private readonly connection: Connection, private readonly userService: UserService) {}
+  private readonly userService: CrudService<UserEntity>;
+
+  constructor(@InjectConnection() connection: Connection, userService: UserService) {
+    this.userService = new ProxyCrudService(connection, userService);
+  }
 
   @Get()
   @Auth(...ALL_ROLES)
@@ -26,9 +32,7 @@ export class UserController {
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in user', type: ResponseUserDto })
   async findOne(@User('id') id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.userService.findOne(id, manager);
-    });
+    return this.userService.findOne(id, undefined);
   }
 
   @Put()
@@ -38,9 +42,7 @@ export class UserController {
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently logged in user updated successfully', type: ResponseUserDto })
   async update(@User('id') id: string, @Body() updateLoggedInUserDto: UpdateLoggedInUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.userService.update(id, updateLoggedInUserDto, manager);
-    });
+    return this.userService.update(id, updateLoggedInUserDto, undefined);
   }
 
   @Patch()
@@ -50,8 +52,6 @@ export class UserController {
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently logged in user partially updated successfully', type: ResponseUserDto })
   async partialUpdate(@User('id') id: string, @Body() partialUpdateLoggedInUserDto: PartialUpdateLoggedInUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.userService.update(id, partialUpdateLoggedInUserDto, manager);
-    });
+    return this.userService.update(id, partialUpdateLoggedInUserDto, undefined);
   }
 }

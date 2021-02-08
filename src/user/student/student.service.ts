@@ -1,14 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { CreateStudentDto } from 'src/users/students/dto/create-student.dto';
+import { Student } from 'src/users/students/entities/student.entity';
 import { StudentsService } from 'src/users/students/students.service';
 import { UsersService } from 'src/users/users/users.service';
+import { GenericSubUserService } from 'src/users/utils/generic-sub-user.service';
 import { EntityManager } from 'typeorm';
 import { PartialUpdateLoggedInStudentDto } from './dto/partial-update-logged-in-student.dto';
 
 @Injectable()
-export class StudentService {
-  constructor(private readonly usersService: UsersService, private readonly studentsService: StudentsService) {}
+export class StudentService extends GenericSubUserService<Student> {
+  constructor(usersService: UsersService, private readonly studentsService: StudentsService) {
+    super(usersService, Student);
+  }
 
   //! 'id' is Firebase's uid in case it's first student login
   async findOne(id: string, manager: EntityManager) {
@@ -24,5 +28,9 @@ export class StudentService {
 
   async update(id: string, partialUpdateLoggedInStudentDto: PartialUpdateLoggedInStudentDto, manager: EntityManager) {
     return this.studentsService.update(id, partialUpdateLoggedInStudentDto, manager);
+  }
+
+  protected throwCustomNotFoundException(id: string) {
+    throw new NotFoundException(`Usuario estudiante ${id} no encontrado.`);
   }
 }

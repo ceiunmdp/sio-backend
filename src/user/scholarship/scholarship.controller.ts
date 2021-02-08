@@ -7,9 +7,11 @@ import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
-import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { ResponseScholarshipDto } from 'src/users/scholarships/dtos/response-scholarship.dto';
+import { Scholarship } from 'src/users/scholarships/entities/scholarship.entity';
 import { ScholarshipsService } from 'src/users/scholarships/scholarships.service';
 import { Connection } from 'typeorm';
 import { PartialUpdateLoggedInScholarshipDto } from './dto/partial-update-logged-in-scholarship.dto';
@@ -18,10 +20,11 @@ import { UpdateLoggedInScholarshipDto } from './dto/update-logged-in-scholarship
 @ApiTags(Collection.SCHOLARSHIP)
 @Controller()
 export class ScholarshipController {
-  constructor(
-    @InjectConnection() private readonly connection: Connection,
-    private readonly scholarshipsService: ScholarshipsService,
-  ) {}
+  private readonly scholarshipsService: CrudService<Scholarship>;
+
+  constructor(@InjectConnection() connection: Connection, scholarshipsService: ScholarshipsService) {
+    this.scholarshipsService = new ProxyCrudService(connection, scholarshipsService);
+  }
 
   @Get()
   @Auth(UserRole.SCHOLARSHIP)
@@ -29,9 +32,7 @@ export class ScholarshipController {
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in scholarship', type: ResponseScholarshipDto })
   async findOne(@User('id') id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.scholarshipsService.findOne(id, manager);
-    });
+    return this.scholarshipsService.findOne(id, undefined);
   }
 
   @Put()
@@ -44,9 +45,7 @@ export class ScholarshipController {
     type: ResponseScholarshipDto,
   })
   async update(@User('id') id: string, @Body() updateLoggedInScholarshipDto: UpdateLoggedInScholarshipDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.scholarshipsService.update(id, updateLoggedInScholarshipDto, manager);
-    });
+    return this.scholarshipsService.update(id, updateLoggedInScholarshipDto, undefined);
   }
 
   @Patch()
@@ -62,8 +61,6 @@ export class ScholarshipController {
     @User('id') id: string,
     @Body() partialUpdateLoggedInScholarshipDto: PartialUpdateLoggedInScholarshipDto,
   ) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.scholarshipsService.update(id, partialUpdateLoggedInScholarshipDto, manager);
-    });
+    return this.scholarshipsService.update(id, partialUpdateLoggedInScholarshipDto, undefined);
   }
 }

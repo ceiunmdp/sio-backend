@@ -7,10 +7,12 @@ import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
-import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { ResponseCampusUserDto } from 'src/users/campus-users/dtos/response-campus-user.dto';
+import { CampusUser } from 'src/users/campus-users/entities/campus-user.entity';
 import { Connection } from 'typeorm';
 import { PartialUpdateLoggedInCampusUserDto } from './dto/partial-update-logged-in-campus-user.dto';
 import { UpdateLoggedInCampusUserDto } from './dto/update-logged-in-campus-user.dto';
@@ -18,10 +20,11 @@ import { UpdateLoggedInCampusUserDto } from './dto/update-logged-in-campus-user.
 @ApiTags(Collection.CAMPUS_USER)
 @Controller()
 export class CampusUserController {
-  constructor(
-    @InjectConnection() private readonly connection: Connection,
-    private readonly campusUsersService: CampusUsersService,
-  ) {}
+  private readonly campusUsersService: CrudService<CampusUser>;
+
+  constructor(@InjectConnection() connection: Connection, campusUsersService: CampusUsersService) {
+    this.campusUsersService = new ProxyCrudService(connection, campusUsersService);
+  }
 
   @Get()
   @Auth(UserRole.CAMPUS)
@@ -29,9 +32,7 @@ export class CampusUserController {
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in campus user', type: ResponseCampusUserDto })
   async findOne(@User('id') id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.campusUsersService.findOne(id, manager);
-    });
+    return this.campusUsersService.findOne(id, undefined);
   }
 
   @Put()
@@ -41,9 +42,7 @@ export class CampusUserController {
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently logged in campus user updated successfully', type: ResponseCampusUserDto })
   async update(@User('id') id: string, @Body() updateLoggedInCampusUserDto: UpdateLoggedInCampusUserDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.campusUsersService.update(id, updateLoggedInCampusUserDto, manager);
-    });
+    return this.campusUsersService.update(id, updateLoggedInCampusUserDto, undefined);
   }
 
   @Patch()
@@ -59,8 +58,6 @@ export class CampusUserController {
     @User('id') id: string,
     @Body() partialUpdateLoggedInCampusUserDto: PartialUpdateLoggedInCampusUserDto,
   ) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.campusUsersService.update(id, partialUpdateLoggedInCampusUserDto, manager);
-    });
+    return this.campusUsersService.update(id, partialUpdateLoggedInCampusUserDto, undefined);
   }
 }

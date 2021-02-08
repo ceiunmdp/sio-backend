@@ -7,9 +7,11 @@ import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-
 import { BaseResponses } from 'src/common/decorators/methods/responses/base-responses.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
-import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
+import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { ResponseProfessorshipDto } from 'src/users/professorships/dtos/response-professorship.dto';
+import { Professorship } from 'src/users/professorships/entities/professorship.entity';
 import { ProfessorshipsService } from 'src/users/professorships/professorships.service';
 import { Connection } from 'typeorm';
 import { PartialUpdateLoggedInProfessorshipDto } from './dto/partial-update-logged-in-professorship.dto';
@@ -18,10 +20,11 @@ import { UpdateLoggedInProfessorshipDto } from './dto/update-logged-in-professor
 @ApiTags(Collection.PROFESSORSHIP)
 @Controller()
 export class ProfessorshipController {
-  constructor(
-    @InjectConnection() private readonly connection: Connection,
-    private readonly professorshipsService: ProfessorshipsService,
-  ) {}
+  private readonly professorshipsService: CrudService<Professorship>;
+
+  constructor(@InjectConnection() connection: Connection, professorshipsService: ProfessorshipsService) {
+    this.professorshipsService = new ProxyCrudService(connection, professorshipsService);
+  }
 
   @Get()
   @Auth(UserRole.PROFESSORSHIP)
@@ -29,9 +32,7 @@ export class ProfessorshipController {
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in professorship', type: ResponseProfessorshipDto })
   async findOne(@User('id') id: string) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.professorshipsService.findOne(id, manager);
-    });
+    return this.professorshipsService.findOne(id, undefined);
   }
 
   @Put()
@@ -44,9 +45,7 @@ export class ProfessorshipController {
     type: ResponseProfessorshipDto,
   })
   async update(@User('id') id: string, @Body() updateLoggedInProfessorshipDto: UpdateLoggedInProfessorshipDto) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.professorshipsService.update(id, updateLoggedInProfessorshipDto, manager);
-    });
+    return this.professorshipsService.update(id, updateLoggedInProfessorshipDto, undefined);
   }
 
   @Patch()
@@ -62,8 +61,6 @@ export class ProfessorshipController {
     @User('id') id: string,
     @Body() partialUpdateLoggedInProfessorshipDto: PartialUpdateLoggedInProfessorshipDto,
   ) {
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      return this.professorshipsService.update(id, partialUpdateLoggedInProfessorshipDto, manager);
-    });
+    return this.professorshipsService.update(id, partialUpdateLoggedInProfessorshipDto, undefined);
   }
 }
