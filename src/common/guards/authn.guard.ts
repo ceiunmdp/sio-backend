@@ -5,7 +5,7 @@ import * as admin from 'firebase-admin';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { FirebaseErrorHandlerService } from '../../global/firebase-error-handler.service';
 import { Environment } from '../enums/environment.enum';
-import { UserRole } from '../enums/user-role.enum';
+import { ExpiredIdTokenException } from '../exceptions/expired-id-token.exception';
 import { InvalidIdTokenException } from '../exceptions/invalid-id-token.exception';
 import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
 import { DecodedIdToken } from '../interfaces/user-identity.interface';
@@ -81,14 +81,12 @@ export class AuthNGuard implements CanActivate {
   async verifyAndDecodeToken(idToken: string, isHttp: boolean): Promise<DecodedIdToken> {
     try {
       const decodedIdToken = await this.verifyAndDecodeIdToken(idToken);
-      if (decodedIdToken.email_verified) {
-        return decodedIdToken;
+      if (!decodedIdToken.role) {
+        throw new UnauthorizedException('Request new Id Token with custom claims.');
+      } else if (!decodedIdToken.email_verified && process.env.NODE_ENV === Environment.PRODUCTION) {
+        throw new UnauthorizedException('Email not verified.');
       } else {
-        if (process.env.NODE_ENV === Environment.PRODUCTION) {
-          throw new UnauthorizedException('Email not verified.');
-        } else {
-          return decodedIdToken;
-        }
+        return decodedIdToken;
       }
     } catch (error) {
       const exception = this.firebaseErrorHandlerService.handleError(error);
@@ -98,6 +96,12 @@ export class AuthNGuard implements CanActivate {
         } else {
           throw new WsException('Invalid token.');
         }
+      } else if (exception instanceof ExpiredIdTokenException) {
+        if (isHttp) {
+          throw new UnauthorizedException('Expired token.');
+        } else {
+          throw new WsException('Expired token.');
+        }
       } else {
         throw error;
       }
@@ -105,12 +109,7 @@ export class AuthNGuard implements CanActivate {
   }
 
   private async verifyAndDecodeIdToken(idToken: string) {
-    // TODO: Evaluate if the additional verification is required to the authentication flow (mostly of students)
-    // const decodedIdToken = await admin.auth().verifyIdToken(idToken);
-    const decodedIdToken = await admin.auth().verifyIdToken(idToken, true);
-    return {
-      ...decodedIdToken,
-      ...(!decodedIdToken.id && { id: decodedIdToken.uid, role: UserRole.STUDENT }),
-    } as DecodedIdToken;
+    // TODO: Evaluate if the additional verification is required to the authentication flow
+    return (admin.auth().verifyIdToken(idToken, true) as unknown) as DecodedIdToken;
   }
 }

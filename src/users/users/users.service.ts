@@ -82,9 +82,18 @@ export class UsersService implements CrudService<User> {
     }
   }
 
-  async findByUid(uid: string) {
+  async findUserRecord(uid: string) {
     try {
-      return await admin.auth().getUser(uid);
+      return admin.auth().getUser(uid);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async findByUid(uid: string, manager: EntityManager) {
+    try {
+      const userRecord = await admin.auth().getUser(uid);
+      return await this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
       throw this.handleError(error);
     }
@@ -280,7 +289,8 @@ export class UsersService implements CrudService<User> {
 
     try {
       await admin.auth().setCustomUserClaims(uid, payload);
-      return await this.revokeRefreshToken(uid);
+      await this.revokeRefreshToken(uid);
+      return;
     } catch (error) {
       throw this.handleError(error);
     }

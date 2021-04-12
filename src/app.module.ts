@@ -9,6 +9,7 @@ import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 import { SerializerInterceptor } from './common/interceptors/serializer.interceptor';
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { UserIdentitySetterInterceptor } from './common/interceptors/user-identity-setter.interceptor';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { ParametersModule } from './config/parameters/parameters.module';
 import { CoreModule } from './core/core.module';
@@ -69,6 +70,12 @@ import { GeneralUsersModule } from './users/general-users.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: TimeoutInterceptor,
+    },
+
+    // Enable UserIdentitySetterInterceptor globally
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: UserIdentitySetterInterceptor,
     },
 
     // Enable TransformInterceptor globally

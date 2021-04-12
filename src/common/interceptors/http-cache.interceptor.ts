@@ -4,6 +4,7 @@ import { Request } from 'express';
 @Injectable()
 export class HttpCacheInterceptor extends CacheInterceptor {
   trackBy(context: ExecutionContext): string | undefined {
+    // TODO: check if context identification (HTTP|WS) is needed
     const request = context.switchToHttp().getRequest<Request>();
     const isGetRequest = request.method === 'GET';
 

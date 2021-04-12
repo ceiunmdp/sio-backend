@@ -26,10 +26,6 @@ export class StudentsService extends GenericSubUserService<Student> {
 
     const student = await studentsRepository.saveAndReload({ ...createStudentDto, balance: 0 });
 
-    //! Do not create user in Firebase, but instead set its custom claims
-    await this.usersService.setRole(student, manager);
-    //! Important: student must ask for a new ID Token with custom claims updated
-
     const user = await this.usersService.findOne(student.id, manager);
     return this.userMerger.mergeSubUser(user, student);
   }

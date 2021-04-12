@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import admin from 'firebase-admin';
+import { ExpiredIdTokenException } from 'src/common/exceptions/expired-id-token.exception';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { UserNotFoundInFirebaseException } from 'src/users/users/exceptions/user-not-found-in-firebase.exception';
 import { FirebaseError } from '../common/enums/firebase-error';
@@ -16,8 +17,9 @@ export class FirebaseErrorHandlerService {
     if (!!error.code) {
       //* We're dealing with a Firebase error
       switch (error.code) {
-        case FirebaseError.ARGUMENT_ERROR:
         case FirebaseError.ID_TOKEN_EXPIRED:
+          return new ExpiredIdTokenException();
+        case FirebaseError.ARGUMENT_ERROR:
         case FirebaseError.ID_TOKEN_REVOKED:
         case FirebaseError.INVALID_ID_TOKEN:
           return new InvalidIdTokenException();
