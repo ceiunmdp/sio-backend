@@ -12,7 +12,7 @@ updates:
       interval: 'daily'
     ignore:
       - dependency-name: '@nestjs/cli'
-      - dependency-name: '@types/express'
+      - dependency-name: 'husky'
       - dependency-name: 'typescript'
       - dependency-name: 'webpack'
 
