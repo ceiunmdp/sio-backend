@@ -155,7 +155,7 @@ const setupSwaggerUI = (app: NestExpressApplication) => {
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('api/docs', app, document);
+    SwaggerModule.setup(Path.DOCS, app, document);
   }
 };
 

@@ -24,6 +24,8 @@ export enum Collection {
 
   PRINTERS = 'Printers',
 
+  PROCESSES = 'Processes',
+
   REGISTRATION_TOKENS = 'Registration Tokens',
 
   RELATIONS = 'Relations',

@@ -1,9 +1,13 @@
 export enum Path {
   API = '/api/v1',
 
+  AVAILABLE_COPIES_RELOADER = '/available-copies-reloader',
+
   CAMPUS = '/campus',
   CAREERS = '/careers',
   COURSES = '/courses',
+
+  DOCS = '/api/docs',
 
   FILES = '/files',
 

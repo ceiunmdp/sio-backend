@@ -141,6 +141,19 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     return scholarshipsRepository.save(scholarship);
   }
 
+  async reloadAvailableCopies(manager: EntityManager) {
+    const scholarshipsRepository = this.getScholarshipsRepository(manager);
+
+    const scholarshipStudents: Scholarship[] = await scholarshipsRepository.find();
+
+    scholarshipStudents.forEach((scholarship) => {
+      scholarship.remainingCopies = scholarship.availableCopies;
+    });
+
+    await scholarshipsRepository.save(scholarshipStudents);
+    return;
+  }
+
   private getScholarshipsRepository(manager: EntityManager) {
     return manager.getCustomRepository(ScholarshipsRepository);
   }

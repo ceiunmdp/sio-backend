@@ -21,9 +21,11 @@ import { MovementsModule } from './movements/movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OrdersModule } from './orders/orders/orders.module';
 import { PrintersModule } from './printers/printers.module';
+import { ProcessesModule } from './processes/processes.module';
 import { RolesModule } from './roles/roles.module';
 import { TasksModule } from './tasks/tasks.module';
 import { GeneralUserModule } from './user/general-user.module';
+import { UserModule } from './user/user/user.module';
 import { GeneralUsersModule } from './users/general-users.module';
 
 // export const ENV = process.env.NODE_ENV;
@@ -42,8 +44,10 @@ import { GeneralUsersModule } from './users/general-users.module';
     OrdersModule,
     ParametersModule,
     PrintersModule,
+    ProcessesModule,
     RolesModule,
     TasksModule,
+    UserModule,
   ],
   providers: [
     // Request -> Middlewares -> Guards -> Interceptors -> Pipes -> Request Handler -> Interceptors -> Filters -> Middlewares -> Response

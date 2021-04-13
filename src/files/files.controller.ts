@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  HttpStatus,
   Res,
   UploadedFile,
   UploadedFiles,
@@ -118,7 +119,7 @@ export class FilesController {
 
       response.setHeader('Content-Type', lookup('pdf') as string);
       response.setHeader('Content-Length', buffer.length);
-      response.status(200).send(buffer);
+      response.status(HttpStatus.OK).send(buffer);
     });
   }
 

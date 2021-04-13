@@ -5,14 +5,19 @@ import { BaseBodyResponses } from './responses/base-body-responses.decorator';
 import { BaseResponses } from './responses/base-responses.decorator';
 import { ApiPostOkResponseCustom } from './responses/custom-responses.decorator';
 
-export const PostAll = (collection: string, type: Function, path?: string | string[]) => {
+export const PostAll = (
+  collection: string,
+  type: Function,
+  path: string | string[] = ':id',
+  options?: { withoutOk?: boolean; withoutMapper?: boolean },
+) => {
   const item = collection.slice(0, -1);
 
-  return applyDecorators(
-    Post(path),
-    Mapper(type),
-    BaseResponses(),
-    BaseBodyResponses(),
-    ApiPostOkResponseCustom(item, type),
-  );
+  let decoratorsCombination = applyDecorators(Post(path), BaseResponses(), BaseBodyResponses());
+
+  decoratorsCombination = options?.withoutOk
+    ? decoratorsCombination
+    : applyDecorators(decoratorsCombination, ApiPostOkResponseCustom(item, type));
+
+  return options?.withoutMapper ? decoratorsCombination : applyDecorators(decoratorsCombination, Mapper(type));
 };
