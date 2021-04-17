@@ -8,7 +8,7 @@ import { ApiPostOkResponseCustom } from './responses/custom-responses.decorator'
 export const PostAll = (
   collection: string,
   type: Function,
-  path: string | string[] = ':id',
+  path?: string | string[],
   options?: { withoutOk?: boolean; withoutMapper?: boolean },
 ) => {
   const item = collection.slice(0, -1);
