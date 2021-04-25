@@ -1,7 +1,6 @@
-import { BadRequestException, Body, Controller, Get, Patch, Put } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Put } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
-import { isUUID } from 'class-validator';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
 import { BaseBodyResponses } from 'src/common/decorators/methods/responses/base-body-responses.decorator';
@@ -46,11 +45,7 @@ export class StudentController {
     type: ResponseStudentDto,
   })
   async update(@User('id') id: string, @Body() updateLoggedInStudentDto: UpdateLoggedInStudentDto) {
-    if (isUUID(id)) {
-      return this.studentService.update(id, updateLoggedInStudentDto, undefined);
-    } else {
-      throw new BadRequestException('Debe primero solicitar sus datos para poder operar luego con la entidad.');
-    }
+    return this.studentService.update(id, updateLoggedInStudentDto, undefined);
   }
 
   @Patch()
@@ -66,10 +61,6 @@ export class StudentController {
     @User('id') id: string,
     @Body() partialUpdateLoggedInStudentDto: PartialUpdateLoggedInStudentDto,
   ) {
-    if (isUUID(id)) {
-      return this.studentService.update(id, partialUpdateLoggedInStudentDto, undefined);
-    } else {
-      throw new BadRequestException('Debe primero solicitar sus datos para poder operar luego con la entidad.');
-    }
+    return this.studentService.update(id, partialUpdateLoggedInStudentDto, undefined);
   }
 }

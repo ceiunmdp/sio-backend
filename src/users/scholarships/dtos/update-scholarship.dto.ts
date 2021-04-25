@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { IsIn, IsInt, IsPositive, Min } from 'class-validator';
 import { UpdateStudentDto } from 'src/users/students/dto/update-student.dto';
 import { UserType } from 'src/users/users/enums/user-type.enum';
 
-export class UpdateScholarshipDto extends UpdateStudentDto {
+export class UpdateScholarshipDto extends OmitType(UpdateStudentDto, ['type']) {
   @IsInt()
   @IsPositive()
   @ApiProperty({ name: 'available_copies', description: `Scholarship's available copies per quarter`, example: 500 })

@@ -16,6 +16,7 @@ import { StudentsService } from '../students/students.service';
 import { UserType } from '../users/enums/user-type.enum';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
+import { PartialUpdateScholarshipBulkDto } from './dtos/partial-update-scholarship-bulk.dto';
 import { PartialUpdateScholarshipDto } from './dtos/partial-update-scholarship.dto';
 import { Scholarship } from './entities/scholarship.entity';
 import { ScholarshipsRepository } from './scholarships.repository';
@@ -58,6 +59,16 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
 
     const user = await this.usersService.update(id, updateScholarshipDto, manager);
     return this.userMerger.mergeSubUser(user, updatedScholarship);
+  }
+
+  async updateBulk(
+    partialUpdateScholarshipsBulkDto: PartialUpdateScholarshipBulkDto[],
+    manager: EntityManager,
+    user?: UserIdentity,
+  ) {
+    return Promise.all(
+      partialUpdateScholarshipsBulkDto.map((scholarship) => this.update(scholarship.id, scholarship, manager, user)),
+    );
   }
 
   protected async checkUpdateConditions(

@@ -1,7 +1,7 @@
 import { Body, Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
-import { UUID_V4 } from 'src/common/constants/regular-expressions.constant';
+import { ID_AS_UUID_V4 } from 'src/common/constants/regular-expressions.constant';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Filter } from 'src/common/decorators/filter.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
@@ -51,13 +51,13 @@ export class ItemsController {
     );
   }
 
-  @GetById(Collection.ITEMS, ResponseItemDto, `:id(${UUID_V4})`)
+  @GetById(Collection.ITEMS, ResponseItemDto, ID_AS_UUID_V4)
   @Auth(UserRole.ADMIN, ...UserRoleExpanded.STUDENT)
   async findOne(@Id() id: string) {
     return this.itemsService.findOne(id);
   }
 
-  @PatchById(Collection.ITEMS, ResponseItemDto, `:id(${UUID_V4})`)
+  @PatchById(Collection.ITEMS, ResponseItemDto, ID_AS_UUID_V4)
   @Auth(UserRole.ADMIN)
   async partialUpdate(@Id() id: string, @Body() partialUpdateItemDto: PartialUpdateItemDto) {
     return this.itemsService.update(id, partialUpdateItemDto);

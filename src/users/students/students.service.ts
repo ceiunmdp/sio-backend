@@ -5,6 +5,7 @@ import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { PartialUpdateStudentBulkDto } from './dto/partial-update-student-bulk.dto';
 import { PartialUpdateStudentDto } from './dto/partial-update-student.dto';
 import { Student } from './entities/student.entity';
 import { InsufficientMoneyException } from './exceptions/insufficient-money.exception';
@@ -49,6 +50,14 @@ export class StudentsService extends GenericSubUserService<Student> {
 
     const user = await this.usersService.update(id, updateStudentDto, manager);
     return this.userMerger.mergeSubUser(user, updatedStudent);
+  }
+
+  async updateBulk(
+    partialUpdateStudentsBulkDto: PartialUpdateStudentBulkDto[],
+    manager: EntityManager,
+    user?: UserIdentity,
+  ) {
+    return Promise.all(partialUpdateStudentsBulkDto.map((student) => this.update(student.id, student, manager, user)));
   }
 
   protected async checkUpdateConditions(

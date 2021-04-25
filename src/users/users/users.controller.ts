@@ -2,7 +2,7 @@ import { Body, Controller } from '@nestjs/common';
 import { ApiConflictResponse, ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { CustomError } from 'src/common/classes/custom-error.class';
-import { UUID_V4 } from 'src/common/constants/regular-expressions.constant';
+import { ID_AS_UUID_V4 } from 'src/common/constants/regular-expressions.constant';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Filter } from 'src/common/decorators/filter.decorator';
 import { Id } from 'src/common/decorators/id.decorator';
@@ -54,20 +54,20 @@ export class UsersController {
     );
   }
 
-  @GetById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)
+  @GetById(Collection.USERS, ResponseUserDto, ID_AS_UUID_V4)
   @Auth(UserRole.ADMIN)
   async findOne(@Id() id: string) {
     return this.usersService.findOne(id);
   }
 
-  @PutById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)
+  @PutById(Collection.USERS, ResponseUserDto, ID_AS_UUID_V4)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async update(@Id() id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @PatchById(Collection.USERS, ResponseUserDto, `:id(${UUID_V4})`)
+  @PatchById(Collection.USERS, ResponseUserDto, ID_AS_UUID_V4)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
   async partialUpdate(@Id() id: string, @Body() partialUpdateUserDto: PartialUpdateUserDto) {
