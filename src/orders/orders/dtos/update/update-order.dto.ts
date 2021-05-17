@@ -1,18 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsUUID, ValidateNested } from 'class-validator';
+import { ValidateNested } from 'class-validator';
 import { AutoMap } from 'nestjsx-automapper';
 import { UpdateOrderStateDto } from './update-order-state.dto';
 
 export class UpdateOrderDto {
-  @IsOptional()
-  @IsUUID()
-  @ApiProperty({
-    description: `Order's UUID`,
-    example: 'be279206-4fef-458a-bc11-4caded8cbc3e',
-  })
-  id?: string;
-
   @AutoMap(() => UpdateOrderStateDto)
   @ValidateNested()
   @Type(() => UpdateOrderStateDto)

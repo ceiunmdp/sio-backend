@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { forwardRef, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
-import { MessageBody, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
 import { defer, from, Observable } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { BaseGateway } from 'src/common/base-classes/base-gateway.gateway';
@@ -20,7 +20,6 @@ import { isCampus } from 'src/common/utils/is-role-functions';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { Connection } from 'typeorm';
 import { ResponseOrderDto } from './dtos/response/response-order.dto';
-import { UpdateOrderDto } from './dtos/update/update-order.dto';
 import { Order } from './entities/order.entity';
 import { OrderEvent } from './enums/order-event.enum';
 import { OrdersService } from './orders.service';
@@ -68,17 +67,6 @@ export class OrdersGateway extends BaseGateway {
         from(orders).pipe(map((order) => this.buildWsResponse(OrderEvent.PENDING_ORDERS, order))),
       ),
     );
-  }
-
-  @Auth(UserRole.CAMPUS)
-  @SubscribeMessage(OrderEvent.UPDATE_ORDER)
-  @Mapper(ResponseOrderDto)
-  update(@MessageBody() updateOrderDto: UpdateOrderDto, @User() user: UserIdentity) {
-    // TODO: Check if validation is run
-    return this.connection.transaction(IsolationLevel.REPEATABLE_READ, async (manager) => {
-      const order = await this.ordersService.update(updateOrderDto.id, updateOrderDto, manager, user);
-      return this.buildWsResponse(OrderEvent.UPDATE_ORDER, order);
-    });
   }
 
   @Mapper(ResponseOrderDto)
