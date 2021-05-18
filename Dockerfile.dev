@@ -5,7 +5,7 @@ WORKDIR /home/node/app
 
 RUN apk --no-cache add \
   openrc=0.42.1-r19 \
-  python3=3.8.8-r0 \
+  python3=3.8.10-r0 \
   make=4.3-r0 \
   g++=10.2.1_pre1-r3 \
   avahi=0.8-r2 \
@@ -40,7 +40,7 @@ WORKDIR /home/node/app
 
 RUN apk --no-cache add \
   openrc=0.42.1-r19 \
-  python3=3.8.8-r0 \
+  python3=3.8.10-r0 \
   make=4.3-r0 \
   g++=10.2.1_pre1-r3 \
   avahi=0.8-r2 \

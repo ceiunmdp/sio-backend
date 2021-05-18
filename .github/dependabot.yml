@@ -12,7 +12,10 @@ updates:
       interval: 'daily'
     ignore:
       - dependency-name: '@nestjs/cli'
+      - dependency-name: 'clean-webpack-plugin'
       - dependency-name: 'husky'
+      - dependency-name: 'rxjs'
+      - dependency-name: 'ts-loader'
       - dependency-name: 'typescript'
       - dependency-name: 'webpack'
 
