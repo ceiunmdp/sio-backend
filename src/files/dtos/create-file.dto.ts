@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import * as bytes from 'bytes';
+import bytes from 'bytes';
 import { Allow, IsInt, IsMimeType, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 import { UpdateFileDto } from './update-file.dto';
 
