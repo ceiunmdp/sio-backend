@@ -306,7 +306,7 @@ export class UsersService implements CrudService<User> {
 
   private handleError(error: Error) {
     if (error instanceof Error) {
-      const firebaseError = (error as unknown) as admin.FirebaseError;
+      const firebaseError = error as unknown as admin.FirebaseError;
       return this.firebaseErrorHandlerService.handleError(firebaseError);
     } else {
       return error;

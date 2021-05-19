@@ -26,7 +26,7 @@ export class MapperInterceptor implements NestInterceptor {
           return this.mapData(response, destination);
         } else {
           //* WS
-          const res = (response as unknown) as WsResponse;
+          const res = response as unknown as WsResponse;
           res.data = this.mapData(res.data, destination);
           return res;
         }

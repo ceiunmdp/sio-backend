@@ -12,6 +12,7 @@ updates:
       interval: 'daily'
     ignore:
       - dependency-name: '@nestjs/cli'
+      - dependency-name: '@types/socket.io '
       - dependency-name: 'clean-webpack-plugin'
       - dependency-name: 'husky'
       - dependency-name: 'rxjs'

@@ -105,7 +105,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
 
     const entitiesRepository = this.getRepository(manager);
     options?.softRemove
-      ? await entitiesRepository.softRemove((entity as unknown) as DeepPartial<T>)
+      ? await entitiesRepository.softRemove(entity as unknown as DeepPartial<T>)
       : await entitiesRepository.remove(entity);
     return;
   }

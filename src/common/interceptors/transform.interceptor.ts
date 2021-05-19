@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { isObject } from 'lodash';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as snakeCaseKeys from 'snakecase-keys';
+import snakeCaseKeys from 'snakecase-keys';
 import { isHttp } from '../utils/is-application-context-functions';
 
 export interface Response<T> {
@@ -30,7 +30,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
           return { data: this.snakeCaseProperties(response) };
         } else {
           //* WS
-          const res = (response as unknown) as WsResponse;
+          const res = response as unknown as WsResponse;
           res.data = this.snakeCaseProperties(res.data);
           return res;
         }

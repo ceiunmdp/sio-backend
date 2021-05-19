@@ -32,8 +32,8 @@ export class AuthenticatedWsIoAdapter extends IoAdapter {
     };
 
     options.handlePreflightRequest = (req, res) => {
-      const request = (req as unknown) as IncomingMessage;
-      const response = (res as unknown) as ServerResponse;
+      const request = req as unknown as IncomingMessage;
+      const response = res as unknown as ServerResponse;
 
       const headers: OutgoingHttpHeaders = {
         'Access-Control-Allow-Headers': ['Content-Type', 'Authorization'],
