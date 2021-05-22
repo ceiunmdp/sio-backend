@@ -23,6 +23,7 @@ import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { BindingGroup } from '../binding-groups/entities/binding-group.entity';
 import { EBindingGroupState } from '../binding-groups/enums/e-binding-group-state.enum';
 import { EOrderState } from '../orders/enums/e-order-state.enum';
+import { OrdersGateway } from '../orders/orders.gateway';
 import { OrdersService } from '../orders/orders.service';
 import { isOrderFromStudent } from '../orders/utils/is-order-from-student';
 import { CreateConfigurationDto } from './dtos/create/create-configuration.dto';
@@ -33,7 +34,6 @@ import { FileState } from './entities/file-state.entity';
 import { OrderFile } from './entities/order-file.entity';
 import { EFileState } from './enums/e-file-state.enum';
 import { Prices } from './interfaces/prices.interface';
-import { OrderFilesGateway } from './order-files.gateway';
 import { OrderFilesRepository } from './order-files.repository';
 
 @Injectable()
@@ -45,7 +45,8 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
     private readonly appConfigService: AppConfigService,
     private readonly filesService: FilesService,
     @Inject(forwardRef(() => OrdersService)) private readonly ordersService: OrdersService,
-    @Inject(forwardRef(() => OrderFilesGateway)) private readonly orderFilesGateway: OrderFilesGateway,
+    private readonly ordersGateway: OrdersGateway,
+    // private readonly orderFilesGateway: OrderFilesGateway,
     private readonly printersService: PrintersService,
   ) {
     super(OrderFile);
@@ -218,7 +219,7 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
       await this.transitionOrderState(updateOrderFileDto, orderFile, manager, user);
     }
 
-    this.orderFilesGateway.emitUpdatedOrderFile(updatedOrderFile);
+    this.ordersGateway.emitUpdatedOrderFile(updatedOrderFile);
     return updatedOrderFile;
   }
 

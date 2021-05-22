@@ -18,9 +18,9 @@ import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { OrderFilesService } from '../order-files/order-files.service';
 import { Order } from '../orders/entities/order.entity';
 import { EOrderState } from '../orders/enums/e-order-state.enum';
+import { OrdersGateway } from '../orders/orders.gateway';
 import { OrdersService } from '../orders/orders.service';
 import { isOrderFromStudent } from '../orders/utils/is-order-from-student';
-import { BindingGroupsGateway } from './binding-groups.gateway';
 import { BindingGroupsRepository } from './binding-groups.repository';
 import { PartialUpdateBindingGroupDto } from './dtos/partial-update-binding-group.dto';
 import { BindingGroupState } from './entities/binding-group-state.entity';
@@ -32,7 +32,8 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
   constructor(
     @InjectConnection() private readonly connection: Connection,
     private readonly appConfigService: AppConfigService,
-    @Inject(forwardRef(() => BindingGroupsGateway)) private readonly bindingGroupsGateway: BindingGroupsGateway,
+    private readonly ordersGateway: OrdersGateway,
+    // private readonly bindingGroupsGateway: BindingGroupsGateway,
     @Inject(forwardRef(() => OrdersService)) private readonly ordersService: OrdersService,
     private readonly orderFilesService: OrderFilesService,
   ) {
@@ -136,7 +137,7 @@ export class BindingGroupsService extends GenericCrudService<BindingGroup> imple
       await this.transitionOrderState(desiredState, bindingGroup.orderFiles[0].order, manager, user);
     }
 
-    this.bindingGroupsGateway.emitUpdatedBindingGroup(updatedBindingGroup);
+    this.ordersGateway.emitUpdatedBindingGroup(updatedBindingGroup);
     return updatedBindingGroup;
   }
 

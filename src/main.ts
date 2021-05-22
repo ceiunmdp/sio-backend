@@ -9,7 +9,6 @@ import * as slowDown from 'express-slow-down';
 import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
 import { AppModule } from './app.module';
-import { AuthenticatedWsIoAdapter } from './common/classes/authenticated-ws-io-adapter.class';
 import { Path } from './common/enums/path.enum';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ApiConfigService } from './config/api/api-config.service';
@@ -159,9 +158,9 @@ const setupSwaggerUI = (app: NestExpressApplication) => {
   }
 };
 
-const setupWebSocketAdapter = (app: NestExpressApplication) => {
-  app.useWebSocketAdapter(new AuthenticatedWsIoAdapter(app));
-};
+// const setupWebSocketAdapter = (app: NestExpressApplication) => {
+//   app.useWebSocketAdapter(new AuthenticatedWsIoAdapter(app));
+// };
 
 const setupFirebaseAdminSDK = (logger: LoggerService) => {
   if (!admin.apps.length) {
@@ -213,7 +212,7 @@ const enableHotReload = (app: NestExpressApplication) => {
 
   setupSwaggerUI(app);
 
-  setupWebSocketAdapter(app);
+  // setupWebSocketAdapter(app);
 
   setupFirebaseAdminSDK(logger);
 

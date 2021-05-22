@@ -39,6 +39,7 @@ lerna-debug.log*
 .env
 
 # Static Content
+/client
 /public
 
 # Files

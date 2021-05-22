@@ -6,7 +6,7 @@ import { UserType } from 'src/users/users/enums/user-type.enum';
 export class UpdateStudentDto extends UpdateUserDto {
   @IsNumber()
   @Min(0)
-  @Max(9999.99)
+  @Max(100000)
   @ApiProperty({ description: `Student's balance`, example: 100 })
   balance!: number;
 

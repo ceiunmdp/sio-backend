@@ -6,7 +6,6 @@ import { CampusUsersModule } from 'src/users/campus-users/campus-users.module';
 import { OrderFilesModule } from '../order-files/order-files.module';
 import { OrdersModule } from '../orders/orders.module';
 import { BindingGroupsController } from './binding-groups.controller';
-import { BindingGroupsGateway } from './binding-groups.gateway';
 import { BindingGroupsService } from './binding-groups.service';
 import { BindingGroupState } from './entities/binding-group-state.entity';
 import { BindingGroup } from './entities/binding-group.entity';
@@ -22,7 +21,8 @@ import './profiles/binding-group.profile';
     OrderFilesModule,
     TypeOrmModule.forFeature([BindingGroup, BindingGroupState]),
   ],
-  providers: [BindingGroupsService, BindingGroupsGateway],
+  providers: [BindingGroupsService],
+  // providers: [BindingGroupsService, BindingGroupsGateway],
   controllers: [BindingGroupsController],
   exports: [BindingGroupsService],
 })

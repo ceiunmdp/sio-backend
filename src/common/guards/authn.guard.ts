@@ -29,17 +29,17 @@ export class AuthNGuard implements CanActivate {
       const authorization = request.headers.authorization;
 
       if (authorization) {
-        await this.verifyDecodeAndAttachTokenPayload(authorization, request, isHttp);
+        await this.verifyDecodeAndAttachTokenPayload(getToken(authorization), request, isHttp);
       } else {
         throw new UnauthorizedException('Id token not provided.');
       }
     } else {
       //* WS
       const client = context.switchToWs().getClient<SocketWithUserData>();
-      const authorization = client.handshake.headers.authorization;
+      const token = client.handshake.query.token;
 
-      if (authorization) {
-        await this.verifyDecodeAndAttachTokenPayload(authorization, client, isHttp);
+      if (token) {
+        await this.verifyDecodeAndAttachTokenPayload(token, client, isHttp);
       } else {
         throw new WsException('Id token not provided.');
       }
@@ -49,11 +49,11 @@ export class AuthNGuard implements CanActivate {
   }
 
   private async verifyDecodeAndAttachTokenPayload(
-    authorization: string,
+    token: string,
     requestOrSocket: Request | SocketWithUserData,
     isHttp: boolean,
   ) {
-    requestOrSocket.user = await this.verifyAndDecodeToken(getToken(authorization), isHttp);
+    requestOrSocket.user = await this.verifyAndDecodeToken(token, isHttp);
   }
 
   //! Firebase idToken's payload

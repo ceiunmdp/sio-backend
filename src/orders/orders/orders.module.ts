@@ -37,6 +37,7 @@ import './profiles/order.profile';
   ],
   providers: [OrdersService, OrdersGateway],
   controllers: [OrdersController],
-  exports: [OrdersService],
+  // TODO: Remove OrdersGateway after NestJS v8 release
+  exports: [OrdersService, OrdersGateway],
 })
 export class OrdersModule {}

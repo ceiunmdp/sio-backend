@@ -10,7 +10,6 @@ import { Configuration } from './entities/configuration.entity';
 import { FileState } from './entities/file-state.entity';
 import { OrderFile } from './entities/order-file.entity';
 import { OrderFilesController } from './order-files.controller';
-import { OrderFilesGateway } from './order-files.gateway';
 import { OrderFilesService } from './order-files.service';
 //! Profiles
 import './profiles/order-file.profile';
@@ -25,7 +24,8 @@ import './profiles/order-file.profile';
     PrintersModule,
     TypeOrmModule.forFeature([OrderFile, FileState, Configuration]),
   ],
-  providers: [OrderFilesService, OrderFilesGateway],
+  providers: [OrderFilesService],
+  // providers: [OrderFilesService, OrderFilesGateway],
   controllers: [OrderFilesController],
   exports: [OrderFilesService],
 })
