@@ -1,5 +1,5 @@
 import { Injectable, PipeTransform } from '@nestjs/common';
-import camelcaseKeys from 'camelcase-keys';
+import * as camelcaseKeys from 'camelcase-keys';
 import { isObject } from 'lodash';
 
 @Injectable()

@@ -5,7 +5,7 @@ import { MulterOptionsFactory } from '@nestjs/platform-express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as appRoot from 'app-root-path';
-import bytes from 'bytes';
+import * as bytes from 'bytes';
 import { isUUID } from 'class-validator';
 import { Request } from 'express';
 import { existsSync, mkdirSync } from 'fs-extra';

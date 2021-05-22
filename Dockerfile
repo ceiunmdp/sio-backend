@@ -1,5 +1,5 @@
 # Build stage
-FROM node:14.16.1-alpine3.13 AS build
+FROM node:14.17.0-alpine3.13 AS build
 
 WORKDIR /home/node/app
 
@@ -30,7 +30,7 @@ RUN yarn build
 
 
 # Run-time stage
-FROM node:14.16.1-alpine3.13 AS production
+FROM node:14.17.0-alpine3.13 AS production
 
 ARG NODE_ENV=production
 ARG APP_PORT=3000

@@ -213,7 +213,7 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
     );
 
     //! Order must be updated AFTER saving updated orderFile in order for
-    //! 'checkAllOrderFilesFromBindingGroupArePrinted' method to work with all records updated in database
+    //! 'checkAllOrderFilesFromBindingGroupArePrinted' method to work with all tuples updated in database
     if (updateState) {
       await this.transitionOrderState(updateOrderFileDto, orderFile, manager, user);
     }

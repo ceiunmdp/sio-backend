@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import bytes from 'bytes';
+import * as bytes from 'bytes';
 import { Exclude, Expose } from 'class-transformer';
 import { AutoMap } from 'nestjsx-automapper';
 import { ResponseBaseEntityDto } from 'src/common/base-classes/response-base-entity.dto';

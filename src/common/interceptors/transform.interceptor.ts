@@ -1,11 +1,11 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { WsResponse } from '@nestjs/websockets';
-import camelCaseKeys from 'camelcase-keys';
+import * as camelcaseKeys from 'camelcase-keys';
 import { Request } from 'express';
 import { isObject } from 'lodash';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import snakecaseKeys from 'snakecase-keys';
+import * as snakecaseKeys from 'snakecase-keys';
 import { isHttp } from '../utils/is-application-context-functions';
 
 export interface Response<T> {
@@ -17,11 +17,11 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
   intercept(context: ExecutionContext, next: CallHandler<T>): Observable<Response<any>> {
     if (isHttp(context)) {
       const request = context.switchToHttp().getRequest<Request>();
-      request.body = camelCaseKeys(request.body, { deep: true });
+      request.body = camelcaseKeys(request.body, { deep: true });
     } else {
       //* WS
       const data = context.switchToWs().getData();
-      camelCaseKeys(data, { deep: true });
+      camelcaseKeys(data, { deep: true });
     }
 
     return next.handle().pipe(
@@ -39,6 +39,6 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
   }
 
   private snakeCaseProperties(data: T) {
-    return isObject(data) ? snakecaseKeys(data) : data;
+    return isObject(data) ? snakecaseKeys(data, { deep: true }) : data;
   }
 }

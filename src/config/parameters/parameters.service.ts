@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
-import bytes from 'bytes';
+import * as bytes from 'bytes';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { Connection, EntityManager } from 'typeorm';
 import { AppConfigService } from '../app/app-config.service';

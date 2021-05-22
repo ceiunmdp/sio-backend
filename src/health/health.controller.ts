@@ -8,7 +8,7 @@ import {
   MemoryHealthIndicator,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
-import bytes from 'bytes';
+import * as bytes from 'bytes';
 import { Collection } from 'src/common/enums/collection.enum';
 
 @ApiTags(Collection.HEALTH)

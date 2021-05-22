@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import bytes from 'bytes';
+import * as bytes from 'bytes';
 import { IsInt, Max, Min } from 'class-validator';
 import { UpdateUserDto } from 'src/users/users/dtos/update-user.dto';
 
