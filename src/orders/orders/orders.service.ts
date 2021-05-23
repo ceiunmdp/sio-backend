@@ -12,6 +12,7 @@ import { BindingsService } from 'src/items/bindings/bindings.service';
 import { Binding } from 'src/items/bindings/entities/binding.entity';
 import { EItem } from 'src/items/items/enums/e-item.enum';
 import { ItemsService } from 'src/items/items/items.service';
+import { MovementsService } from 'src/movements/movements.service';
 import { ScholarshipsService } from 'src/users/scholarships/scholarships.service';
 import { Student } from 'src/users/students/entities/student.entity';
 import { StudentsService } from 'src/users/students/students.service';
@@ -40,6 +41,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     private readonly bindingsService: BindingsService,
     @Inject(forwardRef(() => BindingGroupsService)) private readonly bindingGroupsService: BindingGroupsService,
     @Inject(forwardRef(() => OrderFilesService)) private readonly orderFilesService: OrderFilesService,
+    private readonly movementsService: MovementsService,
     private readonly parametersService: ParametersService,
     private readonly studentsService: StudentsService,
     private readonly scholarshipsService: ScholarshipsService,
@@ -143,6 +145,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
       await this.createOrder(createOrderDto, user.id, bindingGroupsMapWithBindingGroup, manager),
     );
 
+    await this.movementsService.createNewOrderMovement(order, manager);
     this.ordersGateway.emitNewPendingOrder(order);
     return order;
   }

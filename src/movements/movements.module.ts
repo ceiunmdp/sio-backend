@@ -14,5 +14,6 @@ import './profiles/movement.profile';
   imports: [AppConfigModule, StudentsModule, TypeOrmModule.forFeature([Movement, MovementType, MovementsRepository])],
   controllers: [MovementsController],
   providers: [MovementsService],
+  exports: [MovementsService],
 })
 export class MovementsModule {}

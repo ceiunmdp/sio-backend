@@ -6,6 +6,7 @@ import { ParametersModule } from 'src/config/parameters/parameters.module';
 import { FilesModule } from 'src/files/files.module';
 import { BindingsModule } from 'src/items/bindings/bindings.module';
 import { ItemsModule } from 'src/items/items/items.module';
+import { MovementsModule } from 'src/movements/movements.module';
 import { CampusUsersModule } from 'src/users/campus-users/campus-users.module';
 import { ScholarshipsModule } from 'src/users/scholarships/scholarships.module';
 import { StudentsModule } from 'src/users/students/students.module';
@@ -29,14 +30,15 @@ import './profiles/order.profile';
     ItemsModule,
     FilesModule,
     GuardsModule,
+    MovementsModule,
     forwardRef(() => OrderFilesModule),
     ParametersModule,
     ScholarshipsModule,
     StudentsModule,
     TypeOrmModule.forFeature([Order, OrderToOrderState, OrderState]),
   ],
-  providers: [OrdersService, OrdersGateway],
   controllers: [OrdersController],
+  providers: [OrdersService, OrdersGateway],
   // TODO: Remove OrdersGateway after NestJS v8 release
   exports: [OrdersService, OrdersGateway],
 })
