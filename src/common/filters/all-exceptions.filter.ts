@@ -25,8 +25,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     } else {
       //* WS
       const client = host.switchToWs().getClient<SocketWithUserData>();
-      return this.buildWsError(client, { error, message });
-      // super.catch(null, host);
+      throw new WsException(this.buildWsError(client, { error, message }));
     }
   }
 

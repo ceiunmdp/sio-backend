@@ -94,12 +94,14 @@ export class AuthNGuard implements CanActivate {
         if (isHttp) {
           throw new UnauthorizedException('Invalid token.');
         } else {
+          //* WS
           throw new WsException('Invalid token.');
         }
       } else if (exception instanceof ExpiredIdTokenException) {
         if (isHttp) {
           throw new UnauthorizedException('Expired token.');
         } else {
+          //* WS
           throw new WsException('Expired token.');
         }
       } else {

@@ -8,6 +8,7 @@ import * as rateLimit from 'express-rate-limit';
 import * as slowDown from 'express-slow-down';
 import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
+import { types } from 'pg';
 import { AppModule } from './app.module';
 import { Path } from './common/enums/path.enum';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -172,6 +173,11 @@ const setupFirebaseAdminSDK = (logger: LoggerService) => {
   }
 };
 
+const configureToParseFloatValuesFromPostgreSQL = () => {
+  //* Converti all float values from PostgreSQL to numeric type
+  types.setTypeParser(1700, (value) => parseFloat(value));
+};
+
 const startApplication = async (app: NestExpressApplication, logger: LoggerService) => {
   await app.listen(app.get(AppConfigService).port);
   logger.log(`Application is running on: ${await app.getUrl()}`, 'NestApplication');
@@ -215,6 +221,8 @@ const enableHotReload = (app: NestExpressApplication) => {
   // setupWebSocketAdapter(app);
 
   setupFirebaseAdminSDK(logger);
+
+  configureToParseFloatValuesFromPostgreSQL();
 
   startApplication(app, logger);
 

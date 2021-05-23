@@ -180,9 +180,9 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     bindingGroupsMap: Map<number, Binding>,
     manager: EntityManager,
   ) {
-    const simpleSidedPrice = +(await this.itemsService.findByCode(EItem.SIMPLE_SIDED, manager)).price;
-    const doubleSidedPrice = +(await this.itemsService.findByCode(EItem.DOUBLE_SIDED, manager)).price;
-    const colourPrice = +(await this.itemsService.findByCode(EItem.COLOUR, manager)).price;
+    const simpleSidedPrice = (await this.itemsService.findByCode(EItem.SIMPLE_SIDED, manager)).price;
+    const doubleSidedPrice = (await this.itemsService.findByCode(EItem.DOUBLE_SIDED, manager)).price;
+    const colourPrice = (await this.itemsService.findByCode(EItem.COLOUR, manager)).price;
 
     let total = 0;
     createOrderDto.orderFiles.forEach((orderFile) => {
@@ -198,7 +198,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
   }
 
   private calculateBindingGroupsPrice(bindingGroupsMap: Map<number, Binding>) {
-    return Array.from(bindingGroupsMap.values()).reduce((total, binding) => total + +binding.price, 0);
+    return Array.from(bindingGroupsMap.values()).reduce((total, binding) => total + binding.price, 0);
   }
 
   private async calculateDeposit(total: number, numberOfSheetsFromOrder: number, manager: EntityManager) {

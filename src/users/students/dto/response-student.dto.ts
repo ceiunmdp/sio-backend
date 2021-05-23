@@ -4,7 +4,7 @@ import { Group } from 'src/common/classes/group.class';
 import { ResponseUserDto } from 'src/users/users/dtos/response-user.dto';
 @Exclude()
 export class ResponseStudentDto extends ResponseUserDto {
-  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS] })
   @ApiProperty({ description: `Student's balance`, example: 151.5 })
   balance!: number;
 
