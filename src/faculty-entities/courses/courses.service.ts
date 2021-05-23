@@ -67,10 +67,14 @@ export class CoursesService extends GenericCrudService<Course> {
 
   protected async checkUpdateConditions(
     updateCourseDto: PartialUpdateCourseDto,
-    _course: Course,
+    course: Course,
     manager: EntityManager,
   ) {
-    if (updateCourseDto.name && (await this.isNameRepeated(updateCourseDto.name, this.getCoursesRepository(manager)))) {
+    if (
+      updateCourseDto.name &&
+      updateCourseDto.name != course.name &&
+      (await this.isNameRepeated(updateCourseDto.name, this.getCoursesRepository(manager)))
+    ) {
       this.throwCustomConflictException();
     }
   }

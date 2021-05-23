@@ -36,10 +36,14 @@ export class CampusService extends GenericCrudService<Campus> {
   //* update
   protected async checkUpdateConditions(
     updateCampusDto: PartialUpdateCampusDto,
-    _campus: Campus,
+    campus: Campus,
     manager: EntityManager,
   ) {
-    if (updateCampusDto.name && (await this.isNameRepeated(updateCampusDto.name, this.getCampusRepository(manager)))) {
+    if (
+      updateCampusDto.name &&
+      updateCampusDto.name != campus.name &&
+      (await this.isNameRepeated(updateCampusDto.name, this.getCampusRepository(manager)))
+    ) {
       this.throwCustomConflictException();
     }
   }

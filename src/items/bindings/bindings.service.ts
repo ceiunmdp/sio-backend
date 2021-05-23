@@ -43,11 +43,12 @@ export class BindingsService extends GenericCrudService<Binding> {
   //* update
   protected async checkUpdateConditions(
     updateBindingDto: PartialUpdateBindingDto,
-    _binding: Binding,
+    binding: Binding,
     manager: EntityManager,
   ) {
     if (
       updateBindingDto.name &&
+      updateBindingDto.name != binding.name &&
       (await this.itemsService.isNameRepeated(updateBindingDto.name, this.itemsService.getItemsRepository(manager)))
     ) {
       this.throwCustomConflictException();

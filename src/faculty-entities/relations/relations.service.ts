@@ -67,11 +67,12 @@ export class RelationsService extends GenericCrudService<Relation> implements On
   //* update
   protected async checkUpdateConditions(
     updateRelationDto: PartialUpdateRelationDto,
-    _relation: Relation,
+    relation: Relation,
     manager: EntityManager,
   ) {
     if (
       updateRelationDto.name &&
+      updateRelationDto.name != relation.name &&
       (await this.isNameRepeated(updateRelationDto.name, this.getRelationsRepository(manager)))
     ) {
       this.throwCustomConflictException();

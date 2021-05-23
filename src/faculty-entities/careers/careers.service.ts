@@ -64,10 +64,14 @@ export class CareersService extends GenericCrudService<Career> implements OnModu
   //* update
   protected async checkUpdateConditions(
     updateCareerDto: PartialUpdateCareerDto,
-    _career: Career,
+    career: Career,
     manager: EntityManager,
   ) {
-    if (updateCareerDto.name && (await this.isNameRepeated(updateCareerDto.name, this.getCareersRepository(manager)))) {
+    if (
+      updateCareerDto.name &&
+      updateCareerDto.name != career.name &&
+      (await this.isNameRepeated(updateCareerDto.name, this.getCareersRepository(manager)))
+    ) {
       this.throwCustomConflictException();
     }
   }
