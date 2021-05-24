@@ -1,4 +1,4 @@
 export interface InternalErrorWs {
-  error: string;
+  name: string;
   message: string;
 }

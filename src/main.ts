@@ -10,8 +10,9 @@ import * as admin from 'firebase-admin';
 import * as helmet from 'helmet';
 import { types } from 'pg';
 import { AppModule } from './app.module';
+import { SocketIoAdapter } from './common/classes/socket-io-adapter.class';
 import { Path } from './common/enums/path.enum';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ApiConfigService } from './config/api/api-config.service';
 import { AppConfigService } from './config/app/app-config.service';
 import { CustomLoggerService } from './global/custom-logger.service';
@@ -58,7 +59,7 @@ const setupCORS = (app: NestExpressApplication) => {
   const appConfigService = app.get(AppConfigService);
 
   app.enableCors({
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
     origin: appConfigService.isProduction() ? appConfigService.origin : true,
     credentials: true,
     maxAge: 86400,
@@ -81,9 +82,9 @@ const setupRateLimiting = (app: NestExpressApplication) => {
     max: apiConfigService.rateMaxConnections, // limit each IP to X requests per timeframe
     handler: (req, res) => {
       res.status(HttpStatus.TOO_MANY_REQUESTS).send(
-        app.get(AllExceptionsFilter).buildHttpError(req, {
+        app.get(HttpExceptionFilter).buildHttpError(req, {
           status: HttpStatus.TOO_MANY_REQUESTS,
-          error: 'Too Many Requests',
+          name: 'Too Many Requests',
           message: `Demasiadas consultas realizadas a partir de esta IP, intente nuevamente después de ${apiConfigService.rateTimeframe} minutos`,
         }),
       );
@@ -159,9 +160,9 @@ const setupSwaggerUI = (app: NestExpressApplication) => {
   }
 };
 
-// const setupWebSocketAdapter = (app: NestExpressApplication) => {
-//   app.useWebSocketAdapter(new AuthenticatedWsIoAdapter(app));
-// };
+const setupWebSocketAdapter = (app: NestExpressApplication) => {
+  app.useWebSocketAdapter(new SocketIoAdapter(app, true));
+};
 
 const setupFirebaseAdminSDK = (logger: LoggerService) => {
   if (!admin.apps.length) {
@@ -218,7 +219,7 @@ const enableHotReload = (app: NestExpressApplication) => {
 
   setupSwaggerUI(app);
 
-  // setupWebSocketAdapter(app);
+  setupWebSocketAdapter(app);
 
   setupFirebaseAdminSDK(logger);
 

@@ -5,7 +5,7 @@ export class CustomError {
   status_code?: number;
 
   @ApiProperty({ description: `Error's name`, example: 'Not Found' })
-  error!: string;
+  name!: string;
 
   @ApiProperty({ description: `Error's message`, example: 'User not found' })
   message!: string;

@@ -14,7 +14,6 @@ import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { QueryFailedError } from 'typeorm';
-import { ErrorObject } from '../interfaces/error-object.interface';
 import { isHttp } from '../utils/is-application-context-functions';
 
 @Injectable()
@@ -52,8 +51,8 @@ export class ErrorsInterceptor implements NestInterceptor {
     }
   }
 
-  private buildErrorObject(error: string, message: string): ErrorObject {
-    return { error, message };
+  private buildError(name: string, message: string): Error {
+    return { name, message };
   }
 
   private handleHttpException(error: HttpException) {
@@ -66,44 +65,35 @@ export class ErrorsInterceptor implements NestInterceptor {
     return error;
   }
 
-  private handleTimeoutError(error: TimeoutError, isHttp: boolean) {
-    this.logError(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    const errorObject = this.buildErrorObject('Internal Server Error', 'Server Timeout');
-    return isHttp ? new InternalServerErrorException(errorObject) : new WsException(errorObject);
+  private handleTimeoutError(timeoutError: TimeoutError, isHttp: boolean) {
+    this.logError(timeoutError, HttpStatus.INTERNAL_SERVER_ERROR);
+    const error = this.buildError('Internal Server Error', 'Server Timeout');
+    return isHttp ? new InternalServerErrorException(error) : new WsException(timeoutError);
   }
 
-  // private handleEntityNotFoundError(error: EntityNotFoundError) {
-  //   this.logError(error, HttpStatus.NOT_FOUND);
-  //   const errorObject = this.buildErrorObject(error.name, error.message);
-  //   return isHttp ? new NotFoundException(errorObject) : new WsException(errorObject);
-  // }
-
-  private handleMulterError(error: MulterError, isHttp: boolean) {
-    this.logError(error, HttpStatus.BAD_REQUEST);
+  private handleMulterError(multerError: MulterError, isHttp: boolean) {
+    this.logError(multerError, HttpStatus.BAD_REQUEST);
 
     let message;
-    if (error.code === 'LIMIT_FILE_SIZE') {
+    if (multerError.code === 'LIMIT_FILE_SIZE') {
       message = 'Archivo demasiado grande. Solo es posible subir archivos hasta 100 MB.';
     } else {
       message = 'Evaluate rest of cases.';
     }
 
-    const errorObject = this.buildErrorObject(error.name, message);
-    return isHttp ? new BadRequestException(errorObject) : new WsException(errorObject);
+    const error = this.buildError(multerError.name, message);
+    return isHttp ? new BadRequestException(error) : new WsException(error);
   }
 
-  private handleQueryFailedError(error: QueryFailedError, isHttp: boolean) {
-    this.logError(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    const errorObject = this.buildErrorObject('Internal Server Error', 'Internal Server Error');
-    return isHttp ? new InternalServerErrorException(errorObject) : new WsException(errorObject);
+  private handleQueryFailedError(queryFailedError: QueryFailedError, isHttp: boolean) {
+    this.logError(queryFailedError, HttpStatus.INTERNAL_SERVER_ERROR);
+    const error = this.buildError('Internal Server Error', 'Internal Server Error');
+    return isHttp ? new InternalServerErrorException(error) : new WsException(error);
   }
 
   private handleError(error: Error, isHttp: boolean) {
     this.logError(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    const errorObject = this.buildErrorObject(
-      'Internal Server Error',
-      'Unexpected Error. Please add handler in ErrorsInterceptor.',
-    );
-    return isHttp ? new InternalServerErrorException(errorObject) : new WsException(errorObject);
+    const err = this.buildError('Internal Server Error', 'Unexpected Error. Please add handler in ErrorsInterceptor.');
+    return isHttp ? new InternalServerErrorException(err) : new WsException(err);
   }
 }

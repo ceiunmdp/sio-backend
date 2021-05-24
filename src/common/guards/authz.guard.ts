@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { Namespace } from 'socket.io';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { UserRole } from '../enums/user-role.enum';
 import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
@@ -21,7 +22,7 @@ export class AuthZGuard implements CanActivate {
     }
 
     let request: Request;
-    let nsp: SocketIO.Namespace;
+    let nsp: Namespace;
     let user: UserIdentity;
 
     if (isHttp(context)) {
@@ -50,7 +51,7 @@ export class AuthZGuard implements CanActivate {
     this.logger.warn(`User ${user.id} tried to access ${request.method} ${request.url}`);
   }
 
-  private logWsError(user: UserIdentity, nsp: SocketIO.Namespace) {
+  private logWsError(user: UserIdentity, nsp: Namespace) {
     this.logger.warn(`User ${user.id} tried to access namespace ${nsp.name}, path ${nsp.server.path()}`);
   }
 }

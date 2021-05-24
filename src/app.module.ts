@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 //! Profiles
 import './common/base-classes/base-entity.profile';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ErrorsInterceptor } from './common/interceptors/errors.interceptor';
 import { HttpCacheInterceptor } from './common/interceptors/http-cache.interceptor';
 import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
@@ -112,7 +112,7 @@ import { GeneralUsersModule } from './users/general-users.module';
     // Enable AllExceptionsFilter globally
     {
       provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
+      useClass: HttpExceptionFilter,
     },
   ],
 })

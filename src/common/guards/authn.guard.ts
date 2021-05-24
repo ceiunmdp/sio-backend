@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
 import { Request } from 'express';
 import * as admin from 'firebase-admin';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
@@ -7,6 +6,7 @@ import { FirebaseErrorHandlerService } from '../../global/firebase-error-handler
 import { Environment } from '../enums/environment.enum';
 import { ExpiredIdTokenException } from '../exceptions/expired-id-token.exception';
 import { InvalidIdTokenException } from '../exceptions/invalid-id-token.exception';
+import { UnauthorizedWsException } from '../exceptions/unauthorized-ws-exception';
 import { SocketWithUserData } from '../interfaces/socket-with-user-data.interface';
 import { DecodedIdToken } from '../interfaces/user-identity.interface';
 import { getToken } from '../utils/get-token';
@@ -36,12 +36,12 @@ export class AuthNGuard implements CanActivate {
     } else {
       //* WS
       const client = context.switchToWs().getClient<SocketWithUserData>();
-      const token = client.handshake.query.token;
+      const token = client.handshake.auth.token;
 
       if (token) {
         await this.verifyDecodeAndAttachTokenPayload(token, client, isHttp);
       } else {
-        throw new WsException('Id token not provided.');
+        throw new UnauthorizedWsException('Id token not provided.');
       }
     }
 
@@ -95,14 +95,14 @@ export class AuthNGuard implements CanActivate {
           throw new UnauthorizedException('Invalid token.');
         } else {
           //* WS
-          throw new WsException('Invalid token.');
+          throw new UnauthorizedWsException('Invalid token.');
         }
       } else if (exception instanceof ExpiredIdTokenException) {
         if (isHttp) {
           throw new UnauthorizedException('Expired token.');
         } else {
           //* WS
-          throw new WsException('Expired token.');
+          throw new UnauthorizedWsException('Expired token.');
         }
       } else {
         throw error;

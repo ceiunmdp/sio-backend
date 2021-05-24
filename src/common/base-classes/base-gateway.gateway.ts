@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { UseFilters, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
-import { OnGatewayConnection, WebSocketServer, WsResponse } from '@nestjs/websockets';
+import { OnGatewayConnection, WebSocketServer, WsException, WsResponse } from '@nestjs/websockets';
 import { Namespace } from 'socket.io';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { Connection } from 'typeorm';
-import { AllExceptionsFilter } from '../filters/all-exceptions.filter';
+import { CustomError } from '../classes/custom-error.class';
+import { WsExceptionFilter } from '../filters/ws-exception.filter';
 import { AuthNGuard } from '../guards/authn.guard';
 import { ErrorsInterceptor } from '../interceptors/errors.interceptor';
 import { LoggerInterceptor } from '../interceptors/logger.interceptor';
@@ -16,7 +17,7 @@ import { isCampus } from '../utils/is-role-functions';
 
 @UseInterceptors(ErrorsInterceptor, LoggerInterceptor, TimeoutInterceptor, TransformInterceptor, SerializerInterceptor)
 @UsePipes(ValidationPipe)
-@UseFilters(AllExceptionsFilter)
+@UseFilters(WsExceptionFilter)
 export abstract class BaseGateway implements OnGatewayConnection {
   @WebSocketServer()
   protected namespace: Namespace;
@@ -27,21 +28,36 @@ export abstract class BaseGateway implements OnGatewayConnection {
     protected readonly campusUsersService: CampusUsersService,
   ) {}
 
+  //! IMPORTANT!
   //* Cannot use Guards or Filters (catch exceptions) with this method
+  //*
   async handleConnection(client: SocketWithUserData) {
-    const token = client.handshake.query.token;
+    const token = client.handshake.auth.token;
 
     if (token) {
-      client.user = await this.authNGuard.verifyAndDecodeToken(token, false);
-      if (!isCampus(client.user)) {
-        client.disconnect(true);
-      } else {
-        const campusUser = await this.campusUsersService.findOne(client.user.id, this.connection.manager, client.user);
-        client.join(campusUser.campusId);
+      try {
+        client.user = await this.authNGuard.verifyAndDecodeToken(token, false);
+        if (!isCampus(client.user)) {
+          client.disconnect(true);
+        } else {
+          const campusUser = await this.campusUsersService.findOne(
+            client.user.id,
+            this.connection.manager,
+            client.user,
+          );
+          client.join(campusUser.campusId);
+        }
+      } catch (exception) {
+        const { name, message } = (exception as WsException).getError() as Error;
+        this.emitException(client, { name, message });
       }
     } else {
-      client.disconnect(true);
+      this.emitException(client, { name: 'Unauthorized', message: 'Token not provided' });
     }
+  }
+
+  private emitException(client: SocketWithUserData, { name, message }: { name: string; message: string }) {
+    client.emit('exception', new CustomError({ name, message }));
   }
 
   protected buildWsResponse<T>(event: string, data: T): WsResponse<T> {
