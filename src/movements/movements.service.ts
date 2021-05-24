@@ -66,9 +66,9 @@ export class MovementsService extends GenericCrudService<Movement> implements On
     );
   }
 
-  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Movement>, user?: UserIdentity) {
+  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Movement>, user: UserIdentity) {
     queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.source`, 'source');
-    queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.target`, 'target');
+    queryBuilder.leftJoinAndSelect(`${queryBuilder.alias}.target`, 'target');
     queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.type`, 'type');
 
     if (!isAdmin(user)) {
@@ -186,8 +186,8 @@ export class MovementsService extends GenericCrudService<Movement> implements On
 
     const movementType = await movementTypesRepository.findOne({ where: { code: EMovementType.ORDER_PLACED } });
     return movementsRepository.saveAndReload({
-      source: new User({ id: order.student.id }),
-      target: new User({ id: order.campus.id }),
+      source: new User({ id: order.studentId }),
+      target: null,
       type: movementType,
       amount: order.total,
     });

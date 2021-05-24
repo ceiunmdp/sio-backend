@@ -11,10 +11,10 @@ updates:
     schedule:
       interval: 'daily'
     ignore:
-      - dependency-name: '@types/socket.io '
       - dependency-name: 'husky'
       - dependency-name: 'rxjs'
       - dependency-name: 'snakecase-keys'
+      - dependency-name: 'socket.io'
 
   # Enable version updates for Docker
   - package-ecosystem: 'docker'

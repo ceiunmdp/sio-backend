@@ -40,7 +40,13 @@ export class MovementsController {
 
   @GetAll(Collection.MOVEMENTS, ResponseMovementDto)
   @Auth(UserRole.ADMIN, UserRole.CAMPUS)
-  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<Movement>) {
+  async findAll(
+    @Limit() limit: number,
+    @Page() page: number,
+    @Filter() where: Where,
+    @Sort() order: Order<Movement>,
+    @User() user: UserIdentity,
+  ) {
     return this.movementsService.findAll(
       {
         limit,
@@ -49,6 +55,8 @@ export class MovementsController {
       },
       where,
       order,
+      undefined,
+      user,
     );
   }
 
