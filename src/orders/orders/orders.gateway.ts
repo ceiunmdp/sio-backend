@@ -2,6 +2,7 @@
 import { forwardRef, Inject } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
+import { AutoMapper, InjectMapper } from 'nestjsx-automapper';
 import { defer, from, Observable } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { Socket } from 'socket.io';
@@ -31,11 +32,13 @@ import { OrdersService } from './orders.service';
 @WebSocketGateway({
   namespace: Namespace.ORDERS,
   // path: Path.ORDERS
+  serveClient: false,
 })
 export class OrdersGateway extends BaseGateway {
   constructor(
     private readonly logger: CustomLoggerService,
     @InjectConnection() connection: Connection,
+    @InjectMapper() private readonly mapper: AutoMapper,
     authNGuard: AuthNGuard,
     campusUsersService: CampusUsersService,
     @Inject(forwardRef(() => OrdersService)) private readonly ordersService: OrdersService,
@@ -64,20 +67,18 @@ export class OrdersGateway extends BaseGateway {
     );
   }
 
-  @Mapper(ResponseOrderDto)
-  //! Exclude both properties from object passed as parameter
-  emitNewPendingOrder({ fsmStaff, fsmStudent, ...order }: Order) {
-    this.logger.log('Emit event NEW_PENDING_ORDER');
-    this.emitEvent(OrderEvent.NEW_PENDING_ORDER, order, {
+  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  emitNewPendingOrder(order: Order) {
+    this.logger.log(`Emit event NEW_PENDING_ORDER: ${order.id}`);
+    this.emitEvent(OrderEvent.NEW_PENDING_ORDER, this.mapper.map(order, ResponseOrderDto), {
       room: order.campusId,
     });
   }
 
-  @Mapper(ResponseOrderDto)
-  //! Exclude both properties from object passed as parameter
-  emitUpdatedOrder({ fsmStaff, fsmStudent, ...order }: Order) {
-    this.logger.log('Emit event UPDATED_ORDER');
-    this.emitEvent(OrderEvent.UPDATED_ORDER, order, {
+  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  emitUpdatedOrder(order: Order) {
+    this.logger.log(`Emit event UPDATED_ORDER: ${order.id}`);
+    this.emitEvent(OrderEvent.UPDATED_ORDER, this.mapper.map(order, ResponseOrderDto), {
       room: order.campusId,
     });
   }
@@ -85,7 +86,7 @@ export class OrdersGateway extends BaseGateway {
   @Auth(UserRole.CAMPUS)
   @SubscribeMessage(OrderEvent.JOIN_ORDER_ROOM)
   joinOrderRoom(client: Socket, { orderId }: { orderId: string }) {
-    this.logger.log('Triggered event JOINED_ORDER_ROOM');
+    this.logger.log(`Triggered event JOINED_ORDER_ROOM: ${orderId}`);
     client.join(orderId);
     return this.buildWsResponse(OrderEvent.JOINED_ORDER_ROOM, { orderId });
   }
@@ -93,7 +94,7 @@ export class OrdersGateway extends BaseGateway {
   @Auth(UserRole.CAMPUS)
   @SubscribeMessage(OrderEvent.LEAVE_ORDER_ROOM)
   leaveOrderRoom(client: Socket, { orderId }: { orderId: string }) {
-    this.logger.log('Triggered event LEFT_ORDER_ROOM');
+    this.logger.log(`Triggered event LEFT_ORDER_ROOM: ${orderId}`);
     client.leave(orderId);
     return this.buildWsResponse(OrderEvent.LEFT_ORDER_ROOM, { orderId });
   }
@@ -101,43 +102,22 @@ export class OrdersGateway extends BaseGateway {
 
   // TODO: Migrate logic to appropiate gateway after NestJS v8 release
   //* OrderFilesGateway
-  @Mapper(ResponseOrderFileDto)
-  //! Exclude properties from object passed as parameter
-  emitUpdatedOrderFile({ fsm, order, bindingGroup, ...orderFile }: OrderFile) {
-    this.logger.log('Emit event UPDATED_ORDER_FILE');
-    // TODO: Check if mapping is made
-    this.emitEvent(OrderFileEvent.UPDATED_ORDER_FILE, this.buildData(orderFile, bindingGroup), {
-      room: order.id,
+  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  emitUpdatedOrderFile(orderFile: OrderFile) {
+    this.logger.log(`Emit event UPDATED_ORDER_FILE: ${orderFile.id}`);
+    this.emitEvent(OrderFileEvent.UPDATED_ORDER_FILE, this.mapper.map(orderFile, ResponseOrderFileDto), {
+      room: orderFile.order.id,
     });
-  }
-
-  private buildData(orderFile: Partial<OrderFile>, bindingGroup: BindingGroup) {
-    if (bindingGroup) {
-      const { fsm, ...bindingGroupExceptFsm } = bindingGroup;
-      return { ...orderFile, bindingGroup: bindingGroupExceptFsm };
-    } else {
-      return orderFile;
-    }
   }
   //* ---
 
   //* BindingGroupsGateway
-  @Mapper(ResponseBindingGroupDto)
-  //! Exclude properties from object passed as parameter
-  async emitUpdatedBindingGroup({ fsm, orderFiles, ...bindingGroup }: BindingGroup) {
-    this.logger.log('Emit event UPDATED_BINDING_GROUP');
-    // TODO: Check if mapping is made
-    this.emitEvent(
-      BindingGroupEvent.UPDATED_BINDING_GROUP,
-      { ...bindingGroup, orderFiles: this.removeUnnecesaryProperties(orderFiles) },
-      {
-        room: orderFiles[0].order.id,
-      },
-    );
-  }
-
-  private removeUnnecesaryProperties(orderFiles: OrderFile[]) {
-    return orderFiles.map(({ fsm, order, ...orderFile }) => orderFile);
+  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  async emitUpdatedBindingGroup(bindingGroup: BindingGroup) {
+    this.logger.log(`Emit event UPDATED_BINDING_GROUP: ${bindingGroup.id}`);
+    this.emitEvent(BindingGroupEvent.UPDATED_BINDING_GROUP, this.mapper.map(bindingGroup, ResponseBindingGroupDto), {
+      room: bindingGroup.orderFiles[0].order.id,
+    });
   }
   //* ---
 }

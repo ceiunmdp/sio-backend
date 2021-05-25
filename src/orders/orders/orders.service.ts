@@ -142,7 +142,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     );
 
     const order = await this.getOrdersRepository(manager).saveAndReload(
-      await this.createOrder(createOrderDto, user.id, bindingGroupsMapWithBindingGroup, manager),
+      await this.createOrder(createOrderDto, user.id, bindingGroupsMapWithBindingGroup, manager), this.getFindOneRelations()
     );
 
     await this.movementsService.createNewOrderMovement(order, manager);
