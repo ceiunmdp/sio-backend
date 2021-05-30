@@ -28,10 +28,35 @@ export class PrintersService {
     // this.setBrowserConfiguration();
 
     // TODO: Momentary
-    const id = 'be279206-4fef-458a-bc11-4caded8cbc3e';
+    const ids = [
+      'be279206-4fef-458a-bc11-4caded8cbc3e',
+      '3f01e0f4-b2fa-4cb7-b725-e21a0df5a0c5',
+      'bfe6455c-a452-4941-8544-32fbebb49019',
+    ];
+
     this.printersMap.set(
-      id,
-      new Printer({ id, name: 'Test printer', host: 'localhost', port: 631, path: '/printers/EPSON_L210' }),
+      ids[0],
+      new Printer({
+        id: ids[0],
+        name: 'Ricoh Aficio MP5000',
+        host: 'localhost',
+        port: 631,
+        path: '/printers/RICOH_AFICIO_MP5000',
+      }),
+    );
+    this.printersMap.set(
+      ids[1],
+      new Printer({
+        id: ids[1],
+        name: 'Ricoh SP 3710DN',
+        host: 'localhost',
+        port: 631,
+        path: '/printers/RICOH_SP_3710DN',
+      }),
+    );
+    this.printersMap.set(
+      ids[2],
+      new Printer({ id: ids[2], name: 'EPSON L210', host: 'localhost', port: 631, path: '/printers/EPSON_L210' }),
     );
   }
 

@@ -10,6 +10,10 @@ import { ResponseOrderToOrderStateDto } from './response-order-to-order-state.dt
 
 @Exclude()
 export class ResponseOrderDto extends ResponseBaseEntityDto {
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
+  @ApiProperty({ description: `Order's id number`, example: 7 })
+  idNumber!: number;
+
   @AutoMap(() => ResponseStudentDto)
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: 'Student associated with order' })
@@ -31,11 +35,11 @@ export class ResponseOrderDto extends ResponseBaseEntityDto {
   tracking!: ResponseOrderToOrderStateDto[];
 
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
-  @ApiProperty({ description: `Order's deposit` })
+  @ApiProperty({ description: `Order's deposit`, example: 28.5 })
   deposit?: number;
 
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
-  @ApiProperty({ description: `Order's total price` })
+  @ApiProperty({ description: `Order's total price`, example: 163.5 })
   total!: number;
 
   constructor(partial: Partial<ResponseOrderDto>) {

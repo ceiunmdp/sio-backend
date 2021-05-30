@@ -10,11 +10,11 @@ import { Collection } from 'src/common/enums/collection.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
-import { ResponseScholarshipDto } from 'src/users/scholarships/dtos/response-scholarship.dto';
 import { Scholarship } from 'src/users/scholarships/entities/scholarship.entity';
 import { ScholarshipsService } from 'src/users/scholarships/scholarships.service';
 import { Connection } from 'typeorm';
 import { PartialUpdateLoggedInScholarshipDto } from './dto/partial-update-logged-in-scholarship.dto';
+import { ResponseLoggedInScholarshipDto } from './dto/response-logged-in-scholarship.dto';
 import { UpdateLoggedInScholarshipDto } from './dto/update-logged-in-scholarship.dto';
 
 @ApiTags(Collection.SCHOLARSHIP)
@@ -28,21 +28,21 @@ export class ScholarshipController {
 
   @Get()
   @Auth(UserRole.SCHOLARSHIP)
-  @Mapper(ResponseScholarshipDto)
+  @Mapper(ResponseLoggedInScholarshipDto)
   @BaseResponses()
-  @ApiOkResponse({ description: 'Currently logged in scholarship', type: ResponseScholarshipDto })
+  @ApiOkResponse({ description: 'Currently logged in scholarship', type: ResponseLoggedInScholarshipDto })
   async findOne(@User('id') id: string) {
     return this.scholarshipsService.findOne(id, undefined);
   }
 
   @Put()
   @Auth(UserRole.SCHOLARSHIP)
-  @Mapper(ResponseScholarshipDto)
+  @Mapper(ResponseLoggedInScholarshipDto)
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({
     description: 'Currently logged in scholarship updated successfully',
-    type: ResponseScholarshipDto,
+    type: ResponseLoggedInScholarshipDto,
   })
   async update(@User('id') id: string, @Body() updateLoggedInScholarshipDto: UpdateLoggedInScholarshipDto) {
     return this.scholarshipsService.update(id, updateLoggedInScholarshipDto, undefined);
@@ -50,12 +50,12 @@ export class ScholarshipController {
 
   @Patch()
   @Auth(UserRole.SCHOLARSHIP)
-  @Mapper(ResponseScholarshipDto)
+  @Mapper(ResponseLoggedInScholarshipDto)
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({
     description: 'Currently logged in scholarship partially updated successfully',
-    type: ResponseScholarshipDto,
+    type: ResponseLoggedInScholarshipDto,
   })
   async partialUpdate(
     @User('id') id: string,

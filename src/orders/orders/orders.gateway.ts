@@ -15,6 +15,7 @@ import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { AuthNGuard } from 'src/common/guards/authn.guard';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
+import { snakeCaseProperties } from 'src/common/utils/snakeCaseProperties';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { Connection } from 'typeorm';
@@ -67,18 +68,18 @@ export class OrdersGateway extends BaseGateway {
     );
   }
 
-  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  //! None of the interceptors cannot be triggered when request didn't originate in socket client
   emitNewPendingOrder(order: Order) {
     this.logger.log(`Emit event NEW_PENDING_ORDER: ${order.id}`);
-    this.emitEvent(OrderEvent.NEW_PENDING_ORDER, this.mapper.map(order, ResponseOrderDto), {
+    this.emitEvent(OrderEvent.NEW_PENDING_ORDER, snakeCaseProperties(this.mapper.map(order, ResponseOrderDto)), {
       room: order.campusId,
     });
   }
 
-  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  //! None of the interceptors cannot be triggered when request didn't originate in socket client
   emitUpdatedOrder(order: Order) {
     this.logger.log(`Emit event UPDATED_ORDER: ${order.id}`);
-    this.emitEvent(OrderEvent.UPDATED_ORDER, this.mapper.map(order, ResponseOrderDto), {
+    this.emitEvent(OrderEvent.UPDATED_ORDER, snakeCaseProperties(this.mapper.map(order, ResponseOrderDto)), {
       room: order.campusId,
     });
   }
@@ -102,22 +103,30 @@ export class OrdersGateway extends BaseGateway {
 
   // TODO: Migrate logic to appropiate gateway after NestJS v8 release
   //* OrderFilesGateway
-  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  //! None of the interceptors cannot be triggered when request didn't originate in socket client
   emitUpdatedOrderFile(orderFile: OrderFile) {
     this.logger.log(`Emit event UPDATED_ORDER_FILE: ${orderFile.id}`);
-    this.emitEvent(OrderFileEvent.UPDATED_ORDER_FILE, this.mapper.map(orderFile, ResponseOrderFileDto), {
-      room: orderFile.order.id,
-    });
+    this.emitEvent(
+      OrderFileEvent.UPDATED_ORDER_FILE,
+      snakeCaseProperties(this.mapper.map(orderFile, ResponseOrderFileDto)),
+      {
+        room: orderFile.order.id,
+      },
+    );
   }
   //* ---
 
   //* BindingGroupsGateway
-  //! MapperInterceptor cannot be triggered when request didn't originate in socket client
+  //! None of the interceptors cannot be triggered when request didn't originate in socket client
   async emitUpdatedBindingGroup(bindingGroup: BindingGroup) {
     this.logger.log(`Emit event UPDATED_BINDING_GROUP: ${bindingGroup.id}`);
-    this.emitEvent(BindingGroupEvent.UPDATED_BINDING_GROUP, this.mapper.map(bindingGroup, ResponseBindingGroupDto), {
-      room: bindingGroup.orderFiles[0].order.id,
-    });
+    this.emitEvent(
+      BindingGroupEvent.UPDATED_BINDING_GROUP,
+      snakeCaseProperties(this.mapper.map(bindingGroup, ResponseBindingGroupDto)),
+      {
+        room: bindingGroup.orderFiles[0].order.id,
+      },
+    );
   }
   //* ---
 }

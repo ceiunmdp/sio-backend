@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Patch, Put } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body,Controller,Get,Patch,Put } from '@nestjs/common';
+import { ApiOkResponse,ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/typeorm';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Mapper } from 'src/common/decorators/mapper.decorator';
@@ -10,10 +10,10 @@ import { Collection } from 'src/common/enums/collection.enum';
 import { UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
-import { ResponseStudentDto } from 'src/users/students/dto/response-student.dto';
 import { Student } from 'src/users/students/entities/student.entity';
 import { Connection } from 'typeorm';
 import { PartialUpdateLoggedInStudentDto } from './dto/partial-update-logged-in-student.dto';
+import { ResponseLoggedInStudentDto } from './dto/response-logged-in-student.dto';
 import { UpdateLoggedInStudentDto } from './dto/update-logged-in-student.dto';
 import { StudentService } from './student.service';
 
@@ -28,21 +28,21 @@ export class StudentController {
 
   @Get()
   @Auth(...UserRoleExpanded.STUDENT)
-  @Mapper(ResponseStudentDto)
+  @Mapper(ResponseLoggedInStudentDto)
   @BaseResponses()
-  @ApiOkResponse({ description: 'Currently logged in student', type: ResponseStudentDto })
+  @ApiOkResponse({ description: 'Currently logged in student', type: ResponseLoggedInStudentDto })
   async findOne(@User('id') id: string) {
     return this.studentService.findOne(id, undefined);
   }
 
   @Put()
   @Auth(...UserRoleExpanded.STUDENT)
-  @Mapper(ResponseStudentDto)
+  @Mapper(ResponseLoggedInStudentDto)
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({
     description: 'Currently logged in student updated successfully',
-    type: ResponseStudentDto,
+    type: ResponseLoggedInStudentDto,
   })
   async update(@User('id') id: string, @Body() updateLoggedInStudentDto: UpdateLoggedInStudentDto) {
     return this.studentService.update(id, updateLoggedInStudentDto, undefined);
@@ -50,12 +50,12 @@ export class StudentController {
 
   @Patch()
   @Auth(...UserRoleExpanded.STUDENT)
-  @Mapper(ResponseStudentDto)
+  @Mapper(ResponseLoggedInStudentDto)
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({
     description: 'Currently logged in student partially updated successfully',
-    type: ResponseStudentDto,
+    type: ResponseLoggedInStudentDto,
   })
   async partialUpdate(
     @User('id') id: string,

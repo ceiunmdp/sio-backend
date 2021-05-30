@@ -13,6 +13,15 @@ export class CampusUsersService extends GenericSubUserService<CampusUser> {
     super(usersService, CampusUser);
   }
 
+  async findCampusUserByCampusId(campusId: string, manager: EntityManager) {
+    const campusUsersRepository = this.getCampusUsersRepository(manager);
+
+    //* Only one user per campus is allowed in the system
+    return (
+      await campusUsersRepository.find({ where: { campus: { id: campusId } }, relations: this.getFindOneRelations() })
+    )[0];
+  }
+
   //! Override specific method
   async create(createCampusUserDto: CreateCampusUserDto, manager: EntityManager) {
     const campusUsersRepository = this.getCampusUsersRepository(manager);

@@ -11,6 +11,9 @@ import { OrderToOrderState } from './order-to-order-state.entity';
 
 @Entity('orders')
 export class Order extends BaseEntity {
+  @Column({ name: 'id_number', generated: 'increment', update: false })
+  readonly idNumber!: number;
+
   @RelationId((order: Order) => order.student)
   readonly studentId!: string;
 

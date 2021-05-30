@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
+import { CampusUsersModule } from 'src/users/campus-users/campus-users.module';
 import { StudentsModule } from 'src/users/students/students.module';
 import { MovementType } from './entities/movement-type.entity';
 import { Movement } from './entities/movement.entity';
@@ -11,7 +12,12 @@ import { MovementsService } from './movements.service';
 import './profiles/movement.profile';
 
 @Module({
-  imports: [AppConfigModule, StudentsModule, TypeOrmModule.forFeature([Movement, MovementType, MovementsRepository])],
+  imports: [
+    AppConfigModule,
+    CampusUsersModule,
+    StudentsModule,
+    TypeOrmModule.forFeature([Movement, MovementType, MovementsRepository]),
+  ],
   controllers: [MovementsController],
   providers: [MovementsService],
   exports: [MovementsService],

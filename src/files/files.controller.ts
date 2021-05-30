@@ -155,7 +155,7 @@ export class FilesController {
     const createFileDto = new CreateFileDto({
       name: file.originalname,
       mimetype: file.mimetype,
-      numberOfSheets: (await PDFDocument.load(readFileSync(file.path))).getPageCount(),
+      numberOfSheets: (await PDFDocument.load(readFileSync(file.path), { ignoreEncryption: true })).getPageCount(),
       size: file.size,
       path: file.path.slice(this.basePath.length + 1),
       ownerId: userId,

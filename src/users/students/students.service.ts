@@ -81,7 +81,7 @@ export class StudentsService extends GenericSubUserService<Student> {
 
     if (student) {
       if (student.balance >= amount) {
-        return studentsRepository.updateAndReload(studentId, { ...student, balance: +student.balance - amount });
+        return studentsRepository.updateAndReload(studentId, { ...student, balance: student.balance - amount });
       } else {
         throw new InsufficientMoneyException();
       }
@@ -95,7 +95,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     const student = await studentsRepository.findOne(studentId);
 
     if (student) {
-      return studentsRepository.updateAndReload(studentId, { ...student, balance: +student.balance + amount });
+      return studentsRepository.updateAndReload(studentId, { ...student, balance: student.balance + amount });
     } else {
       this.throwCustomNotFoundException(studentId);
     }

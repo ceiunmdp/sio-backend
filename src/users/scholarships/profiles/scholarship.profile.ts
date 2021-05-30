@@ -8,6 +8,7 @@ import { Scholarship } from '../entities/scholarship.entity';
 export class ScholarshipProfile extends ProfileBase {
   constructor(mapper: AutoMapper) {
     super();
+    mapper.createMap(Scholarship, ResponseStudentDto, { includeBase: [Student, ResponseStudentDto] });
     mapper.createMap(Scholarship, ResponseScholarshipDto, { includeBase: [Student, ResponseStudentDto] });
   }
 }

@@ -2,11 +2,10 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { WsResponse } from '@nestjs/websockets';
 import * as camelcaseKeys from 'camelcase-keys';
 import { Request } from 'express';
-import { isObject } from 'lodash';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as snakecaseKeys from 'snakecase-keys';
 import { isHttp } from '../utils/is-application-context-functions';
+import { snakeCaseProperties } from '../utils/snakeCaseProperties';
 
 export interface Response<T> {
   data: T | WsResponse<T>;
@@ -27,18 +26,14 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
     return next.handle().pipe(
       map((response) => {
         if (isHttp(context)) {
-          return { data: this.snakeCaseProperties(response) };
+          return { data: snakeCaseProperties(response) };
         } else {
           //* WS
           const res = response as unknown as WsResponse;
-          res.data = this.snakeCaseProperties(res.data);
+          res.data = snakeCaseProperties(res.data);
           return res;
         }
       }),
     );
-  }
-
-  private snakeCaseProperties(data: T) {
-    return isObject(data) ? snakecaseKeys(data, { deep: true }) : data;
   }
 }

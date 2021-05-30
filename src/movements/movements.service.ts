@@ -9,6 +9,7 @@ import { isAdmin, isCampus, isStudentOrScholarship } from 'src/common/utils/is-r
 import { filterQuery } from 'src/common/utils/query-builder';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { Order } from 'src/orders/orders/entities/order.entity';
+import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { StudentsService } from 'src/users/students/students.service';
 import { User } from 'src/users/users/entities/user.entity';
 import { Brackets, Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
@@ -23,6 +24,7 @@ export class MovementsService extends GenericCrudService<Movement> implements On
   constructor(
     @InjectConnection() private readonly connection: Connection,
     private readonly appConfigService: AppConfigService,
+    private readonly campusUsersService: CampusUsersService,
     private readonly studentsService: StudentsService,
   ) {
     super(Movement);
@@ -39,7 +41,8 @@ export class MovementsService extends GenericCrudService<Movement> implements On
 
     if (!(await movementTypesRepository.count())) {
       return movementTypesRepository.save([
-        new MovementType({ code: EMovementType.ORDER_PLACED, name: 'Pedido encargado' }),
+        new MovementType({ code: EMovementType.REQUESTED_ORDER, name: 'Pedido encargado' }),
+        new MovementType({ code: EMovementType.CANCELLED_ORDER, name: 'Pedido cancelado' }),
         new MovementType({ code: EMovementType.TOP_UP, name: 'Carga de saldo' }),
         new MovementType({ code: EMovementType.TRANSFER, name: 'Transferencia' }),
       ]);
@@ -66,12 +69,13 @@ export class MovementsService extends GenericCrudService<Movement> implements On
     );
   }
 
-  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Movement>, user: UserIdentity) {
+  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Movement>, user?: UserIdentity) {
     queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.source`, 'source');
     queryBuilder.leftJoinAndSelect(`${queryBuilder.alias}.target`, 'target');
     queryBuilder.innerJoinAndSelect(`${queryBuilder.alias}.type`, 'type');
 
-    if (!isAdmin(user)) {
+    //* /movements/me
+    if (user) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where('source_user_id = :sourceId', { sourceId: user.id }).orWhere('target_user_id = :targetId', {
@@ -180,16 +184,29 @@ export class MovementsService extends GenericCrudService<Movement> implements On
     }
   }
 
-  async createNewOrderMovement(order: Order, manager: EntityManager) {
+  async createRequestedOrderMovement(order: Order, manager: EntityManager) {
     const movementsRepository = this.getMovementsRepository(manager);
     const movementTypesRepository = this.getMovementTypesRepository(manager);
 
-    const movementType = await movementTypesRepository.findOne({ where: { code: EMovementType.ORDER_PLACED } });
+    const movementType = await movementTypesRepository.findOne({ where: { code: EMovementType.REQUESTED_ORDER } });
     return movementsRepository.saveAndReload({
       source: new User({ id: order.studentId }),
-      target: null,
+      target: await this.campusUsersService.findCampusUserByCampusId(order.campusId, manager),
       type: movementType,
       amount: order.total,
+    });
+  }
+
+  async createCancelledOrderMovement(campusId: string, studentId: string, total: number, manager: EntityManager) {
+    const movementsRepository = this.getMovementsRepository(manager);
+    const movementTypesRepository = this.getMovementTypesRepository(manager);
+
+    const movementType = await movementTypesRepository.findOne({ where: { code: EMovementType.CANCELLED_ORDER } });
+    return movementsRepository.saveAndReload({
+      source: await this.campusUsersService.findCampusUserByCampusId(campusId, manager),
+      target: new User({ id: studentId }),
+      type: movementType,
+      amount: total,
     });
   }
 

@@ -39,14 +39,8 @@ export class MovementsController {
   }
 
   @GetAll(Collection.MOVEMENTS, ResponseMovementDto)
-  @Auth(UserRole.ADMIN, UserRole.CAMPUS)
-  async findAll(
-    @Limit() limit: number,
-    @Page() page: number,
-    @Filter() where: Where,
-    @Sort() order: Order<Movement>,
-    @User() user: UserIdentity,
-  ) {
+  @Auth(UserRole.ADMIN)
+  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<Movement>) {
     return this.movementsService.findAll(
       {
         limit,
@@ -55,13 +49,11 @@ export class MovementsController {
       },
       where,
       order,
-      undefined,
-      user,
     );
   }
 
   @GetAll(Collection.MOVEMENTS, ResponseMovementDto, Path.ME)
-  @Auth(...UserRoleExpanded.STUDENT)
+  @Auth(UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findAllOwn(
     @Limit() limit: number,
     @Page() page: number,
@@ -83,7 +75,7 @@ export class MovementsController {
   }
 
   @GetById(Collection.MOVEMENTS, ResponseMovementDto)
-  @Auth(UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
+  @Auth(UserRole.ADMIN, UserRole.CAMPUS, ...UserRoleExpanded.STUDENT)
   async findOne(@Id() id: string, @User() user: UserIdentity) {
     return this.movementsService.findOne(id, undefined, user);
   }

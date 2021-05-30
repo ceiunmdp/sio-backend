@@ -142,10 +142,11 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     );
 
     const order = await this.getOrdersRepository(manager).saveAndReload(
-      await this.createOrder(createOrderDto, user.id, bindingGroupsMapWithBindingGroup, manager), this.getFindOneRelations()
+      await this.createOrder(createOrderDto, user.id, bindingGroupsMapWithBindingGroup, manager),
+      this.getFindOneRelations(),
     );
 
-    await this.movementsService.createNewOrderMovement(order, manager);
+    await this.movementsService.createRequestedOrderMovement(order, manager);
     this.ordersGateway.emitNewPendingOrder(order);
     return order;
   }
@@ -337,6 +338,13 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
       },
       this.getFindOneRelations(),
     );
+
+    //* If order in REQUESTED state is cancelled, return money to student and create new movement
+    if (order.state.code === EOrderState.REQUESTED && desiredState.code === EOrderState.CANCELLED) {
+      await this.studentsService.topUpBalance(order.studentId, order.total, manager);
+      await this.movementsService.createCancelledOrderMovement(order.campusId, order.studentId, order.total, manager);
+    }
+
     this.ordersGateway.emitUpdatedOrder(updatedOrder);
     return updatedOrder;
   }
