@@ -28,6 +28,7 @@ import { ResponseOrderFileDto } from './dtos/response/response-order-file.dto';
 import { PartialUpdateOrderFileDto } from './dtos/update/partial-update-order-file.dto';
 import { UpdateOrderFileDto } from './dtos/update/update-order-file.dto';
 import { OrderFile } from './entities/order-file.entity';
+import { EFileState } from './enums/e-file-state.enum';
 import { OrderFilesService } from './order-files.service';
 
 @ApiTags(Collection.ORDER_FILES)
@@ -81,7 +82,7 @@ export class OrderFilesController {
   @PutById(Collection.ORDER_FILES, ResponseOrderFileDto)
   @Auth(UserRole.ADMIN, UserRole.CAMPUS)
   async update(@Id() id: string, @Body() updateOrderFileDto: UpdateOrderFileDto, @User() user: UserIdentity) {
-    this.checkPrinterExists(updateOrderFileDto.printerId);
+    this.checkParametersCombinationIsCorrect(updateOrderFileDto);
     return this.orderFilesService.update(id, updateOrderFileDto, undefined, user);
   }
 
@@ -89,11 +90,22 @@ export class OrderFilesController {
   @Auth(UserRole.ADMIN, UserRole.CAMPUS)
   async partialUpdate(
     @Id() id: string,
-    @Body() partialUpdateOrderFileDto: PartialUpdateOrderFileDto & Pick<UpdateOrderFileDto, 'printerId'>,
+    @Body() partialUpdateOrderFileDto: PartialUpdateOrderFileDto,
     @User() user: UserIdentity,
   ) {
-    this.checkPrinterExists(partialUpdateOrderFileDto.printerId);
+    this.checkParametersCombinationIsCorrect(partialUpdateOrderFileDto);
     return this.orderFilesService.update(id, partialUpdateOrderFileDto, undefined, user);
+  }
+
+  private checkParametersCombinationIsCorrect(updateOrderFileDto: PartialUpdateOrderFileDto) {
+    if (updateOrderFileDto.printerId) {
+      this.checkPrinterExists(updateOrderFileDto.printerId);
+      if (updateOrderFileDto.state.code === EFileState.PRINTED) {
+        throw new UnprocessableEntityException('printer_id is not required to update OrderFile to PRINTED state.');
+      }
+    } else if (updateOrderFileDto.state.code === EFileState.PRINTING) {
+      throw new UnprocessableEntityException('printer_id is required to update OrderFile to PRINTING state.');
+    }
   }
 
   private checkPrinterExists(printerId: string) {
@@ -101,7 +113,7 @@ export class OrderFilesController {
       this.printersService.findOne(printerId);
     } catch (err) {
       if (err instanceof NotFoundException) {
-        throw new UnprocessableEntityException('printer_id provided does not correspond to any existing Printer');
+        throw new UnprocessableEntityException('printer_id provided does not correspond to any existing Printer.');
       } else {
         throw err;
       }

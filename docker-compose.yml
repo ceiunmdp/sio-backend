@@ -3,7 +3,7 @@ version: '3.7'
 services:
   app:
     container_name: nestjs
-    image: manuelnucci/nestjs-dev:1.11.0
+    image: manuelnucci/nestjs-dev:1.12.0
     env_file:
       - .env
     networks:

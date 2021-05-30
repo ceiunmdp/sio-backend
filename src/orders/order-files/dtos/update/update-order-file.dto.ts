@@ -11,7 +11,7 @@ export class UpdateOrderFileDto {
     description: `Printer's UUID`,
     example: 'be279206-4fef-458a-bc11-4caded8cbc3e',
   })
-  printerId!: string;
+  printerId?: string;
 
   @AutoMap(() => UpdateFileStateDto)
   @ValidateNested()
