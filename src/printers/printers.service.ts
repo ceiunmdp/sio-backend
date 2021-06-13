@@ -25,39 +25,7 @@ export class PrintersService {
 
   constructor(private readonly logger: CustomLoggerService) {
     this.logger.context = PrintersService.name;
-    // this.setBrowserConfiguration();
-
-    // TODO: Momentary
-    const ids = [
-      'be279206-4fef-458a-bc11-4caded8cbc3e',
-      '3f01e0f4-b2fa-4cb7-b725-e21a0df5a0c5',
-      'bfe6455c-a452-4941-8544-32fbebb49019',
-    ];
-
-    this.printersMap.set(
-      ids[0],
-      new Printer({
-        id: ids[0],
-        name: 'Ricoh Aficio MP5000',
-        host: 'localhost',
-        port: 631,
-        path: '/printers/RICOH_AFICIO_MP5000',
-      }),
-    );
-    this.printersMap.set(
-      ids[1],
-      new Printer({
-        id: ids[1],
-        name: 'Ricoh SP 3710DN',
-        host: 'localhost',
-        port: 631,
-        path: '/printers/RICOH_SP_3710DN',
-      }),
-    );
-    this.printersMap.set(
-      ids[2],
-      new Printer({ id: ids[2], name: 'EPSON L210', host: 'localhost', port: 631, path: '/printers/EPSON_L210' }),
-    );
+    this.setBrowserConfiguration();
   }
 
   private setBrowserConfiguration() {
@@ -101,31 +69,21 @@ export class PrintersService {
     }
   }
 
-  // async printFile(printerId: string, file: File, configuration: Configuration) {
-  //   const printer = new ipp.Printer(this.findOne(printerId).getUrl());
-
-  //   // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_5500');
-  //   // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_8000');
-  //   // const printer = new ipp.Printer('http://localhost:631/printers/Savin_8060');
-
-  //   await this.checkIfConfigurationIsSupported(printer, file.mimetype, configuration);
-  //   // await this.checkIfConfigurationIsSupported(printer, null, configuration);
-
-  //   return this.sendJob(printer, file, configuration);
-
-  //   // TODO: Once the job is finished, file state should change to "Printed"
-  // }
-
   async printFile(printerId: string, file: File, configuration: Configuration, cb: () => Promise<OrderFile>) {
+    const printer = new ipp.Printer(this.findOne(printerId).getUrl());
+
+    // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_5500');
+    // const printer = new ipp.Printer('http://localhost:631/printers/Ricoh_Aficio_MP_8000');
+    // const printer = new ipp.Printer('http://localhost:631/printers/Savin_8060');
+
+    await this.checkIfConfigurationIsSupported(printer, file.mimetype, configuration);
+    // await this.checkIfConfigurationIsSupported(printer, null, configuration);
+
+    const jobNumber = await this.sendJob(printer, file, configuration);
     //* Once the job is finished, file state should change to "Printed"
-    setTimeout(async () => {
-      try {
-        await cb();
-      } catch (err) {
-        // TODO: Decide what to do
-        console.log(err);
-      }
-    }, 15 * 1000);
+    await cb();
+
+    return jobNumber;
   }
 
   private async checkIfConfigurationIsSupported(printer: ipp.Printer, mimetype: string, configuration: Configuration) {
