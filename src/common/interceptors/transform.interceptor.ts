@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { isHttp } from '../utils/is-application-context-functions';
-import { snakeCaseProperties } from '../utils/snakeCaseProperties';
+import { snakeCaseProperties } from '../utils/snake-case-properties';
 
 export interface Response<T> {
   data: T | WsResponse<T>;

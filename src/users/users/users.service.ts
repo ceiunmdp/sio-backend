@@ -8,7 +8,7 @@ import { Order } from 'src/common/interfaces/order.type';
 import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
-import { buildMapBasedOnProperty } from 'src/common/utils/buildMapBasedOnProperty';
+import { buildMapBasedOnProperty } from 'src/common/utils/build-map-based-on-property';
 import { filterQuery } from 'src/common/utils/query-builder';
 import { FirebaseConfigService } from 'src/config/firebase/firebase-config.service';
 import { CustomLoggerService } from 'src/global/custom-logger.service';

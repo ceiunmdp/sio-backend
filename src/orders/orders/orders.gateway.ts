@@ -15,7 +15,7 @@ import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { AuthNGuard } from 'src/common/guards/authn.guard';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
-import { snakeCaseProperties } from 'src/common/utils/snakeCaseProperties';
+import { snakeCaseProperties } from 'src/common/utils/snake-case-properties';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { Connection } from 'typeorm';
