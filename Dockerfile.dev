@@ -3,15 +3,6 @@ FROM node:14.17.0-alpine3.13 AS build
 
 WORKDIR /home/node/app
 
-RUN apk --no-cache add \
-  openrc=0.42.1-r20 \
-  python3=3.8.10-r0 \
-  make=4.3-r0 \
-  g++=10.2.1_pre1-r3 \
-  avahi=0.8-r2 \
-  avahi-dev=0.8-r2 \
-  avahi-compat-libdns_sd=0.8-r2
-RUN rc-update add avahi-daemon
 RUN chown node:node -R /home/node
 
 # Set non-root user
@@ -38,15 +29,6 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /home/node/app
 
-RUN apk --no-cache add \
-  openrc=0.42.1-r19 \
-  python3=3.8.10-r0 \
-  make=4.3-r0 \
-  g++=10.2.1_pre1-r3 \
-  avahi=0.8-r2 \
-  avahi-dev=0.8-r2 \
-  avahi-compat-libdns_sd=0.8-r2
-RUN rc-update add avahi-daemon
 RUN chown node:node -R /home/node
 
 # Set non-root user

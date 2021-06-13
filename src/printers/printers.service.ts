@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { readFileSync } from 'fs-extra';
 import * as ipp from 'ipp';
-import * as mdns from 'mdns';
 import { multirange } from 'multi-integer-range';
 import { PDFDocument } from 'pdf-lib';
 import { File } from 'src/files/entities/file.entity';
@@ -20,7 +19,7 @@ import { getJobAttributes, getPrinterAttributes, printJob } from './utils/promis
 
 @Injectable()
 export class PrintersService {
-  private browser: mdns.Browser;
+  // private browser: mdns.Browser;
   private printersMap: Map<string, Printer> = new Map();
 
   constructor(private readonly logger: CustomLoggerService) {
@@ -60,34 +59,34 @@ export class PrintersService {
     );
   }
 
-  private setBrowserConfiguration() {
-    mdns.Browser.defaultResolverSequence[1] =
-      'DNSServiceGetAddrInfo' in mdns.dns_sd
-        ? mdns.rst.DNSServiceGetAddrInfo()
-        : mdns.rst.getaddrinfo({ families: [4] });
+  // private setBrowserConfiguration() {
+  //   mdns.Browser.defaultResolverSequence[1] =
+  //     'DNSServiceGetAddrInfo' in mdns.dns_sd
+  //       ? mdns.rst.DNSServiceGetAddrInfo()
+  //       : mdns.rst.getaddrinfo({ families: [4] });
 
-    this.browser = mdns.createBrowser(mdns.tcp('ipp'));
+  //   this.browser = mdns.createBrowser(mdns.tcp('ipp'));
 
-    this.browser.on('serviceUp', (service) => {
-      this.logger.log(`Added printer: ${service.name}`);
-      this.printersMap.set(service.txtRecord.UUID, this.createPrinter(service));
-    });
+  //   this.browser.on('serviceUp', (service) => {
+  //     this.logger.log(`Added printer: ${service.name}`);
+  //     this.printersMap.set(service.txtRecord.UUID, this.createPrinter(service));
+  //   });
 
-    this.browser.on('serviceDown', ({ name }) => {
-      this.logger.log(`Removed printer: ${name}`);
-      this.printersMap.forEach((printer, id) => {
-        if (printer.name === name) {
-          this.printersMap.delete(id);
-        }
-      });
-    });
+  //   this.browser.on('serviceDown', ({ name }) => {
+  //     this.logger.log(`Removed printer: ${name}`);
+  //     this.printersMap.forEach((printer, id) => {
+  //       if (printer.name === name) {
+  //         this.printersMap.delete(id);
+  //       }
+  //     });
+  //   });
 
-    this.browser.start();
-  }
+  //   this.browser.start();
+  // }
 
-  private createPrinter({ name, host, port, txtRecord: { UUID, rp } }: mdns.Service) {
-    return new Printer({ id: UUID, name, host, port, path: rp });
-  }
+  // private createPrinter({ name, host, port, txtRecord: { UUID, rp } }: mdns.Service) {
+  //   return new Printer({ id: UUID, name, host, port, path: rp });
+  // }
 
   findAll() {
     return Array.from(this.printersMap.values());
