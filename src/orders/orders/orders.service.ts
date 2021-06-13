@@ -83,11 +83,13 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     if (user) {
       switch (user.role) {
         case UserRole.CAMPUS:
-          queryBuilder.andWhere('campus_id = :campusId', { campusId: user.id });
+          queryBuilder
+            .innerJoinAndSelect('campus.campusUsers', 'campusUser')
+            .andWhere('campusUser.id = :campusUserId', { campusUserId: user.id });
           break;
         case UserRole.STUDENT:
         case UserRole.SCHOLARSHIP:
-          queryBuilder.andWhere('student_id = :studentId', { studentId: user.id });
+          queryBuilder.andWhere(`${queryBuilder.alias}.student_id = :studentId`, { studentId: user.id });
           break;
         default:
           //* UserRole.ADMIN

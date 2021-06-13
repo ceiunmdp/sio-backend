@@ -315,7 +315,6 @@ export class FilesService extends GenericCrudService<File> {
         .andWhere('state.code NOT IN (:...activeStates)', {
           activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],
         })
-        // .andWhere(`state.code NOT IN ('${EOrderState.REQUESTED}','${EOrderState.IN_PROCESS}')`)
         .getMany();
 
       return this.removeFromFSandUpdateDB(files, manager);
