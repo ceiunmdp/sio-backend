@@ -50,6 +50,10 @@ export class PrintersService {
       });
     });
 
+    this.browser.on('error', (error) => {
+      this.logger.error(error);
+    });
+
     this.browser.start();
   }
 
