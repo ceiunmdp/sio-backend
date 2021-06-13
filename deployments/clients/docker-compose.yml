@@ -1,0 +1,91 @@
+version: '3.7'
+
+services:
+  # wireguard:
+  #   container_name: wireguard
+  #   image: linuxserver/wireguard:version-v1.0.20200827
+  #   cap_add:
+  #     - NET_ADMIN
+  #     - SYS_MODULE
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=America/Argentina/Buenos_Aires
+  #   networks:
+  #     - client
+  #   ports:
+  #     - 51820:51820/udp
+  #     - 631:631
+  #     - 5353:5353/udp
+  #   volumes:
+  #     - /lib/modules:/lib/modules
+  #     - ./wireguard/config:/config
+  #   sysctls:
+  #     - net.ipv4.conf.all.src_valid_mark=1
+  #   restart: unless-stopped
+
+  openvpn:
+    container_name: openvpn
+    image: dperson/openvpn-client
+    # cap_add, security_opt, and volume required for the image to function
+    cap_add:
+      - net_admin
+    environment:
+      TZ: 'America/Argentina/Buenos_Aires'
+    networks:
+      - client
+    # if using '-d' or 'DNS' you can't enable the `read_only: true` option
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+    security_opt:
+      - label:disable
+    stdin_open: true
+    tty: true
+    volumes:
+      - /dev/net:/dev/net:z
+      - ./vpn:/vpn
+    restart: unless-stopped
+
+  # web:
+  #   container_name: web-cups
+  #   image: dperson/nginx
+  #   command: -w "http://cups:631;/"
+  #   environment:
+  #     TZ: "America/Argentina/Buenos_Aires"
+  #   links:
+  #     - web:cups
+  #   networks:
+  #     - client
+  #   ports:
+  #     - 631:631
+  #   read_only: true
+  #   tmpfs:
+  #     - /run
+  #     - /tmp
+  #     - /var/cache/nginx
+  #   stdin_open: true
+  #   tty: true
+  #   depends_on:
+  #     - cups
+  #   restart: unless-stopped
+  # cups:
+  #   container_name: cups
+  #   image: ydkn/cups
+  #   environment:
+  #     ADMIN_PASSWORD: password
+  #   # privileged: true
+  #   network_mode: service:openvpn
+  #   volumes:
+  #     - /var/run/dbus:/var/run/dbus
+  #     - /dev/bus/usb:/dev/bus/usb
+  #     - ./cups:/etc/cups
+  #   depends_on:
+  #     - openvpn
+  #   restart: unless-stopped
+
+networks:
+  client:
+    name: client
+    driver: bridge
