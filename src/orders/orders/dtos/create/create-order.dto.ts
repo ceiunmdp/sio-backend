@@ -28,7 +28,10 @@ export class CreateOrderDto {
   orderFiles!: CreateOrderFileDto[];
 
   @ApiHideProperty()
-  deposit?: number;
+  subtotal?: number;
+
+  @ApiHideProperty()
+  discount?: number;
 
   @ApiHideProperty()
   total?: number;

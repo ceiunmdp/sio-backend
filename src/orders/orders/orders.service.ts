@@ -5,7 +5,6 @@ import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { isStudent, isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { ParameterType } from 'src/config/parameters/enums/parameter-type.enum';
 import { ParametersService } from 'src/config/parameters/parameters.service';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { BindingsService } from 'src/items/bindings/bindings.service';
@@ -130,10 +129,23 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
       bindingGroupsMapWithNumberOfSheetsOfBG,
       manager,
     );
-    await this.calculateTotalAndSubTotals(createOrderDto, bindingGroupsMapWithMostAppropiateBinding, manager);
 
+    createOrderDto.subtotal = await this.calculateSubtotal(
+      createOrderDto,
+      bindingGroupsMapWithMostAppropiateBinding,
+      manager,
+    );
     const numberOfSheetsFromOrder = this.getNumberOfSheetsFromOrder(createOrderDto.orderFiles);
-    createOrderDto.deposit = await this.calculateDeposit(createOrderDto.total, numberOfSheetsFromOrder, manager);
+
+    const { discount, total } = await this.calculateDiscountAndTotal(
+      createOrderDto,
+      numberOfSheetsFromOrder,
+      user,
+      manager,
+    );
+    createOrderDto.discount = discount;
+    createOrderDto.total = total;
+
     await this.payOrder(createOrderDto, numberOfSheetsFromOrder, user, manager);
 
     const bindingGroupsMapWithBindingGroup = await this.bindingGroupsService.buildBindingGroupsMapWithBindingGroup(
@@ -152,10 +164,19 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
   }
 
   private getNumberOfSheetsFromOrder(orderFiles: CreateOrderFileDto[]) {
-    return orderFiles.reduce(
-      (total, orderFile) => total + orderFile.configuration.numberOfSheets * orderFile.copies,
-      0,
-    );
+    let simpleSidedSheets = 0;
+    let doubleSidedSheets = 0;
+
+    orderFiles.forEach((orderFile) => {
+      const orderFileNumberOfSheets = orderFile.configuration.numberOfSheets * orderFile.copies;
+      if (orderFile.configuration.doubleSided) {
+        doubleSidedSheets += orderFileNumberOfSheets;
+      } else {
+        simpleSidedSheets += orderFileNumberOfSheets;
+      }
+    });
+
+    return { simpleSidedSheets, doubleSidedSheets };
   }
 
   private async buildBindingGroupsMapWithMostAppropiateBinding(
@@ -179,119 +200,95 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     return bindings.find((binding) => binding.sheetsLimit >= numberOfSheets);
   }
 
-  private async calculateTotalAndSubTotals(
+  private async calculateSubtotal(
     createOrderDto: Partial<CreateOrderDto>,
     bindingGroupsMap: Map<number, Binding>,
     manager: EntityManager,
   ) {
-    const simpleSidedPrice = (await this.itemsService.findByCode(EItem.SIMPLE_SIDED, manager)).price;
-    const doubleSidedPrice = (await this.itemsService.findByCode(EItem.DOUBLE_SIDED, manager)).price;
+    const simpleSidedPrice = await this.getSimpleSidedPrice(manager);
+    const doubleSidedPrice = await this.getDoubleSidedPrice(manager);
     const colourPrice = (await this.itemsService.findByCode(EItem.COLOUR, manager)).price;
 
-    let total = 0;
+    let subtotal = 0;
     createOrderDto.orderFiles.forEach((orderFile) => {
       orderFile.total = this.orderFilesService.calculateOrderFilePrice(orderFile, {
         simpleSided: simpleSidedPrice,
         doubleSided: doubleSidedPrice,
         colour: colourPrice,
       });
-      total += orderFile.total;
+      subtotal += orderFile.total;
     });
 
-    createOrderDto.total = total + this.calculateBindingGroupsPrice(bindingGroupsMap);
+    return subtotal + this.calculateBindingGroupsPrice(bindingGroupsMap);
   }
 
   private calculateBindingGroupsPrice(bindingGroupsMap: Map<number, Binding>) {
     return Array.from(bindingGroupsMap.values()).reduce((total, binding) => total + binding.price, 0);
   }
 
-  private async calculateDeposit(total: number, numberOfSheetsFromOrder: number, manager: EntityManager) {
-    const minimumNumberOfSheetsForDeposit = await this.getMinimumNumberOfSheetsForDeposit(manager);
-    const percentajeOfDeposit = await this.getPercentajeOfDeposit(manager);
-
-    if (numberOfSheetsFromOrder >= minimumNumberOfSheetsForDeposit) {
-      return (total * percentajeOfDeposit) / 100;
+  private async calculateDiscountAndTotal(
+    createOrderDto: Partial<CreateOrderDto>,
+    numberOfSheetsFromOrder: { simpleSidedSheets: number; doubleSidedSheets: number },
+    user: UserIdentity,
+    manager: EntityManager,
+  ) {
+    if (isStudent(user)) {
+      return { discount: 0, total: createOrderDto.subtotal };
     } else {
-      return null;
+      //* Scholarship
+      const remainingCopies = (await this.scholarshipsService.findOne(user.id, manager, user)).remainingCopies;
+
+      const discount = await this.getDiscount(numberOfSheetsFromOrder, remainingCopies, manager);
+      return { discount, total: createOrderDto.subtotal - discount };
     }
+  }
+
+  private async getDiscount(
+    { simpleSidedSheets, doubleSidedSheets }: { simpleSidedSheets: number; doubleSidedSheets: number },
+    remainingCopies: number,
+    manager: EntityManager,
+  ) {
+    // TODO: Define how price will be calculated (best or worst case scenario)
+    // TODO: We decided to go for the best scenario for the scholarship, which involves consuming first the doubleSidedSheets from the order
+    const simpleSidedPrice = await this.getSimpleSidedPrice(manager);
+    const doubleSidedPrice = await this.getDoubleSidedPrice(manager);
+
+    const initialCost = simpleSidedSheets * simpleSidedPrice + doubleSidedSheets * doubleSidedPrice;
+
+    if (doubleSidedSheets >= remainingCopies) {
+      doubleSidedSheets -= remainingCopies;
+    } else {
+      doubleSidedSheets = 0;
+      remainingCopies -= doubleSidedSheets;
+      if (simpleSidedSheets >= remainingCopies) {
+        simpleSidedSheets -= remainingCopies;
+      } else {
+        simpleSidedSheets = 0;
+      }
+    }
+
+    const finalCost = simpleSidedSheets * simpleSidedPrice + doubleSidedSheets * doubleSidedPrice;
+    return initialCost - finalCost;
   }
 
   private async payOrder(
     createOrderDto: Partial<CreateOrderDto>,
-    numberOfSheetsFromOrder: number,
+    numberOfSheetsFromOrder: { simpleSidedSheets: number; doubleSidedSheets: number },
     user: UserIdentity,
     manager: EntityManager,
   ) {
-    const amountPaid = createOrderDto.deposit ? createOrderDto.deposit : createOrderDto.total;
     if (isStudent(user)) {
-      await this.studentsService.useUpBalance(user.id, amountPaid, manager);
+      await this.studentsService.useUpBalance(user.id, createOrderDto.total, manager);
     } else {
-      // Scholarship
-      if (createOrderDto.deposit) {
-        const [newDeposit, newTotal] = await this.calculateNewDepositAndTotal(
-          numberOfSheetsFromOrder,
-          createOrderDto.total,
-          user,
-          manager,
-        );
-        createOrderDto.deposit = newDeposit;
-        createOrderDto.total = newTotal;
-
-        await this.scholarshipsService.useUpRemainingCopiesAndBalance(
-          numberOfSheetsFromOrder,
-          createOrderDto.deposit,
-          user,
-          manager,
-        );
-      } else {
-        createOrderDto.total = await this.calculateNewTotal(
-          numberOfSheetsFromOrder,
-          createOrderDto.total,
-          user,
-          manager,
-        );
-        await this.scholarshipsService.useUpRemainingCopiesAndBalance(
-          numberOfSheetsFromOrder,
-          createOrderDto.total,
-          user,
-          manager,
-        );
-      }
+      //* Scholarship
+      await this.scholarshipsService.useUpRemainingCopiesAndBalance(
+        createOrderDto.total,
+        numberOfSheetsFromOrder.simpleSidedSheets + numberOfSheetsFromOrder.doubleSidedSheets,
+        user,
+        manager,
+      );
+      // }
     }
-  }
-
-  private async calculateNewDepositAndTotal(
-    numberOfSheets: number,
-    total: number,
-    user: UserIdentity,
-    manager: EntityManager,
-  ) {
-    const remainingCopies = (await this.scholarshipsService.findOne(user.id, manager, user)).remainingCopies;
-
-    if (numberOfSheets > remainingCopies) {
-      //* Remaining copies not enough
-      const priceOfRemainingCopies = await this.getPriceOfRemainingCopies(numberOfSheets - remainingCopies, manager);
-
-      //* We know the order qualifies for a deposit
-      return [(priceOfRemainingCopies * (await this.getPercentajeOfDeposit(manager))) / 100, priceOfRemainingCopies];
-    } else {
-      return [null, total];
-    }
-  }
-
-  private async calculateNewTotal(numberOfSheets: number, total: number, user: UserIdentity, manager: EntityManager) {
-    const remainingCopies = (await this.scholarshipsService.findOne(user.id, manager, user)).remainingCopies;
-
-    if (numberOfSheets > remainingCopies) {
-      return this.getPriceOfRemainingCopies(numberOfSheets - remainingCopies, manager);
-    } else {
-      return total;
-    }
-  }
-
-  private async getPriceOfRemainingCopies(numberOfSheets: number, manager: EntityManager) {
-    // TODO: Define how price will be calculated (best or worst case scenario)
-    return numberOfSheets * (await this.itemsService.findByCode(EItem.DOUBLE_SIDED, manager)).price;
   }
 
   private async createOrder(
@@ -386,13 +383,12 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     }
   }
 
-  private async getMinimumNumberOfSheetsForDeposit(manager: EntityManager) {
-    return (await this.parametersService.findByCode(ParameterType.ORDERS_MINIMUM_NUMBER_OF_SHEETS_FOR_DEPOSIT, manager))
-      .value;
+  private async getSimpleSidedPrice(manager: EntityManager) {
+    return (await this.itemsService.findByCode(EItem.SIMPLE_SIDED, manager)).price;
   }
 
-  private async getPercentajeOfDeposit(manager: EntityManager) {
-    return (await this.parametersService.findByCode(ParameterType.ORDERS_PERCENTAGE_OF_DEPOSIT, manager)).value;
+  private async getDoubleSidedPrice(manager: EntityManager) {
+    return (await this.itemsService.findByCode(EItem.DOUBLE_SIDED, manager)).price;
   }
 
   protected getFindOneRelations(): string[] {

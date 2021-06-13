@@ -134,21 +134,23 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   async useUpRemainingCopiesAndBalance(
-    numberOfSheets: number,
     amount: number,
+    numberOfSheetsFromOrder: number,
     user: UserIdentity,
     manager: EntityManager,
   ) {
     const scholarshipsRepository = this.getScholarshipsRepository(manager);
     const scholarship = await this.findOne(user.id, manager, user);
-    const remainingCopies = scholarship.remainingCopies;
 
-    if (remainingCopies >= numberOfSheets) {
-      scholarship.remainingCopies = remainingCopies - numberOfSheets;
+    //* To calculate remaining price in Order, it is important to discriminate between the two types of sheets (simple and double)
+    //* Here it's not necessary, as all the sheets are equal from the point of view of Scholarship
+    if (scholarship.remainingCopies >= numberOfSheetsFromOrder) {
+      scholarship.remainingCopies -= numberOfSheetsFromOrder;
     } else {
       scholarship.remainingCopies = 0;
       await this.studentsService.useUpBalance(user.id, amount, manager);
     }
+
     return scholarshipsRepository.save(scholarship);
   }
 

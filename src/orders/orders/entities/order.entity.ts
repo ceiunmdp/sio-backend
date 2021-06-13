@@ -49,8 +49,11 @@ export class Order extends BaseEntity {
   @OneToMany(() => OrderToOrderState, (orderToOrderState) => orderToOrderState.order, { cascade: true })
   orderToOrderStates!: OrderToOrderState[];
 
-  @Column({ type: 'decimal', precision: 8, scale: 2, update: false, nullable: true }) //* Could be null in case student pays total sum
-  readonly deposit?: number;
+  @Column({ type: 'decimal', precision: 8, scale: 2, update: false })
+  readonly subtotal!: number;
+
+  @Column({ type: 'decimal', precision: 8, scale: 2, update: false })
+  readonly discount!: number;
 
   @Column({ type: 'decimal', precision: 8, scale: 2, update: false })
   readonly total!: number;

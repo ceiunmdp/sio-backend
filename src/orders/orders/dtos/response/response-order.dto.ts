@@ -35,8 +35,12 @@ export class ResponseOrderDto extends ResponseBaseEntityDto {
   tracking!: ResponseOrderToOrderStateDto[];
 
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
-  @ApiProperty({ description: `Order's deposit`, example: 28.5 })
-  deposit?: number;
+  @ApiProperty({ description: `Order's subtotal price`, example: 180 })
+  subtotal!: number;
+
+  @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
+  @ApiProperty({ description: `Order's discount (if applicable)`, example: 16.5 })
+  discount!: number;
 
   @Expose({ groups: [Group.ADMIN, Group.CAMPUS, ...Group.STUDENT] })
   @ApiProperty({ description: `Order's total price`, example: 163.5 })
