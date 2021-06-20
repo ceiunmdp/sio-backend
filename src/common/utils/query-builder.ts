@@ -12,10 +12,12 @@ export const filterQuery = <T>(query: SelectQueryBuilder<T>, where: Where) => {
 
 const traverseTree = (query: WhereExpression, where: Where, upperOperator = Operator.AND) => {
   Object.keys(where).forEach((key) => {
-    if (key === Operator.OR) {
-      query = query.orWhere(buildNewBrackets(where, Operator.OR));
-    } else if (key === Operator.AND) {
-      query = query.andWhere(buildNewBrackets(where, Operator.AND));
+    if (key === Operator.AND || key === Operator.OR) {
+      if (upperOperator === Operator.AND) {
+        query = query.andWhere(buildNewBrackets(where, key));
+      } else {
+        query = query.orWhere(buildNewBrackets(where, key));
+      }
     } else {
       // Field
       query = handleArgs(query, where as Field, upperOperator === Operator.AND ? 'andWhere' : 'orWhere');
