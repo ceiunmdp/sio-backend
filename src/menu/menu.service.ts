@@ -14,7 +14,7 @@ export class MenuService implements OnModuleInit {
     @InjectConnection() private readonly connection: Connection,
     private readonly appConfigService: AppConfigService,
     private readonly rolesService: RolesService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     if (!this.appConfigService.isProduction()) {
@@ -107,6 +107,41 @@ export class MenuService implements OnModuleInit {
         code: EFunctionality.MY_MOVEMENTS,
         supraFunctionality: movements,
       });
+      const users = new Functionality({
+        name: 'Usuarios',
+        code: EFunctionality.USERS,
+        supraFunctionality: operations,
+      });
+      const careers = new Functionality({
+        name: 'Carreras',
+        code: EFunctionality.CAREERS,
+        supraFunctionality: operations,
+      });
+      const courses = new Functionality({
+        name: 'Materias',
+        code: EFunctionality.COURSES,
+        supraFunctionality: operations,
+      });
+      const files = new Functionality({
+        name: 'Archivos',
+        code: EFunctionality.FILES,
+        supraFunctionality: operations,
+      });
+      const items = new Functionality({
+        name: 'Ítems',
+        code: EFunctionality.ITEMS,
+        supraFunctionality: operations,
+      });
+      const bindings = new Functionality({
+        name: 'Anillados',
+        code: EFunctionality.BINDINGS,
+        supraFunctionality: operations,
+      });
+      const parameters = new Functionality({
+        name: 'Paramétricas',
+        code: EFunctionality.PARAMETERS,
+        supraFunctionality: operations,
+      });
       const topUp = new Functionality({
         name: 'Cargar saldo',
         code: EFunctionality.TOP_UP,
@@ -118,23 +153,31 @@ export class MenuService implements OnModuleInit {
         supraFunctionality: operations,
       });
 
+
       // Roles
       const admin = await this.rolesService.findByCode(UserRole.ADMIN, manager);
       const campus = await this.rolesService.findByCode(UserRole.CAMPUS, manager);
       const professorship = await this.rolesService.findByCode(UserRole.PROFESSORSHIP, manager);
-      const scholarship = await this.rolesService.findByCode(UserRole.SCHOLARSHIP, manager);
       const student = await this.rolesService.findByCode(UserRole.STUDENT, manager);
+      const scholarship = await this.rolesService.findByCode(UserRole.SCHOLARSHIP, manager);
 
       home.roles = [admin, campus, professorship, scholarship, student];
       newOrder.roles = [student, scholarship];
       myOrders.roles = [campus, student, scholarship];
       myMovements.roles = [student, scholarship];
+      users.roles = [admin];
+      careers.roles = [admin];
+      courses.roles = [admin];
+      files.roles = [admin, professorship];
+      items.roles = [admin];
+      bindings.roles = [admin];
+      parameters.roles = [admin];
       topUp.roles = [campus];
       transferMoney.roles = [student, scholarship];
 
       menu = await menuRepository.save(menu);
       await menuRepository.save([home, orders, movements, operations]);
-      await menuRepository.save([newOrder, myOrders, myMovements, topUp, transferMoney]);
+      await menuRepository.save([newOrder, myOrders, myMovements, users, careers, courses, files, items, bindings, parameters, topUp, transferMoney]);
 
       return menuRepository.findDescendantsTree(menu);
     } else {
