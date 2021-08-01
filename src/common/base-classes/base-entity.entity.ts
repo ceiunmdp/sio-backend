@@ -4,14 +4,14 @@ export class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   readonly id!: string;
 
-  @CreateDateColumn({ name: 'create_date', update: false })
-  readonly createDate!: Date;
+  @CreateDateColumn({ name: 'created_at', update: false })
+  readonly createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'update_date' })
-  readonly updateDate!: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  readonly updatedAt!: Date;
 
-  @DeleteDateColumn({ name: 'delete_date' })
-  readonly deleteDate?: Date;
+  @DeleteDateColumn({ name: 'deleted_at' })
+  readonly deletedAt?: Date;
 
   @VersionColumn()
   readonly version!: number;

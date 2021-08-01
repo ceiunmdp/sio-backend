@@ -112,7 +112,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
       .andWhere('state.code IN (:...pendingStates)', {
         pendingStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS, EOrderState.READY],
       })
-      .orderBy('order.updateDate', 'ASC')
+      .orderBy('order.updatedAt', 'ASC')
       .getMany();
   }
 

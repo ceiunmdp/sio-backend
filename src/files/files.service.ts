@@ -310,7 +310,7 @@ export class FilesService extends GenericCrudService<File> {
         .innerJoin('orderFiles.order', 'order')
         .innerJoin('order.state', 'state')
         .withDeleted()
-        .where('file.deleteDate IS NOT NULL')
+        .where('file.deletedAt IS NOT NULL')
         .andWhere('file.physically_erased = :erased', { erased: false })
         .andWhere('state.code NOT IN (:...activeStates)', {
           activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],

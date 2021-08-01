@@ -43,7 +43,7 @@ export class CoursesService extends GenericCrudService<Course> {
         ...createCourseDto,
         careerCourseRelations: this.transformRelationsToTernary(createCourseDto.relations),
       });
-    } else if (course.deleteDate) {
+    } else if (course.deletedAt) {
       //* Recover course and update its relations based on request body
       const { id } = await coursesRepository.recover(course);
       return coursesRepository.saveAndReload({

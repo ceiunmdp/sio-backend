@@ -6,7 +6,7 @@ import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Re
 import { FileType } from '../enums/file-type.enum';
 
 @Entity('files')
-@Index('IX_files_delete_date', ['deleteDate'])
+@Index('IX_files_delete_date', ['deletedAt'])
 @Index('IX_files_type', ['type'])
 export class File extends BaseEntity {
   @Column()

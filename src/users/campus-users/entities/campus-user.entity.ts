@@ -1,6 +1,6 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
-import { ChildEntity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { ChildEntity, JoinColumn, OneToOne, RelationId } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @ChildEntity()
@@ -9,7 +9,7 @@ export class CampusUser extends User {
   readonly campusId!: string;
 
   @AutoMap(() => Campus)
-  @ManyToOne(() => Campus, (campus) => campus.campusUsers) //* Could be null for the other child entities
+  @OneToOne(() => Campus, (campus) => campus.campusUser) //* Could be null for the other child entities
   @JoinColumn({ name: 'campus_id' })
   readonly campus!: Campus;
 

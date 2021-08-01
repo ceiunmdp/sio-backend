@@ -26,7 +26,7 @@ export class CampusService extends GenericCrudService<Campus> {
     const campus = await this.findCampusByName(createCampusDto.name, campusRepository);
     if (!campus) {
       return campusRepository.saveAndReload(createCampusDto);
-    } else if (campus.deleteDate) {
+    } else if (campus.deletedAt) {
       return campusRepository.recover(campus);
     } else {
       this.throwCustomConflictException();
@@ -52,9 +52,9 @@ export class CampusService extends GenericCrudService<Campus> {
   protected async checkRemoveConditions({ id }: Campus, manager: EntityManager) {
     const course = await this.getCampusRepository(manager).findOne(id, { relations: ['campusUsers'] });
 
-    if (course.campusUsers.length) {
+    if (course.campusUser) {
       throw new BadRequestException(
-        `No es posible eliminar la sede ya que existen uno o más usuarios vinculados a la misma.`,
+        `No es posible eliminar la sede ya que existe un usuario vinculado a la misma.`,
       );
     }
   }

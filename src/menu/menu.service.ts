@@ -51,7 +51,7 @@ export class MenuService implements OnModuleInit {
       // Node
       const subFunctionalities = functionality.subFunctionalities;
 
-      const sortedSubFunctionalities = sortBy(subFunctionalities.slice(), (functionality) => functionality.createDate);
+      const sortedSubFunctionalities = sortBy(subFunctionalities.slice(), (functionality) => functionality.createdAt);
 
       const clonedSubFunctionalities = await Promise.all(
         sortedSubFunctionalities.map((f) => this.cloneDeepWithFunctionalitiesAllowed(f, userRole, manager)),

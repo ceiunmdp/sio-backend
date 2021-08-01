@@ -21,7 +21,7 @@ export class MovementProfile extends ProfileBase {
       .createMap(Movement, ResponseMovementDto, { includeBase: [BaseEntity, ResponseBaseEntityDto] })
       .forMember(
         (dest) => dest.date,
-        convertUsing(new DateStringConverter(), (src) => src.createDate),
+        convertUsing(new DateStringConverter(), (src) => src.createdAt),
       )
       .forMember(
         (responseMovementDto) => responseMovementDto.source,

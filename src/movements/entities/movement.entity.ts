@@ -18,7 +18,7 @@ export class Movement extends BaseEntity {
   readonly targetId!: string;
 
   @AutoMap(() => User)
-  @ManyToOne(() => User, (user) => user.movements, { nullable: true })
+  @ManyToOne(() => User, (user) => user.movements, { nullable: false })
   @JoinColumn({ name: 'target_user_id' })
   readonly target!: User;
 
