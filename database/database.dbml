@@ -1,0 +1,505 @@
+Project ICEI {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # ICEI Database
+    // **markdown content here**
+  '''
+}
+
+Enum users_type {
+  admin
+  campus_user
+  professorship
+  scholarship
+  student
+}
+
+Table users {
+  id uuid [pk]
+  uid varchar
+  full_name varchar
+  email varchar [not null]
+  disabled bool [not null]
+  dark_theme bool [not null]
+  type users_type [not null]
+  available_storage int8
+  storage_used int8
+  balance numeric(8,2)
+  dni varchar
+  available_copies int4
+  remaining_copies int4
+  campus_id uuid [ref: - campus.id]
+  course_id uuid [ref: - courses.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    uid [type: btree]
+    full_name [type: btree]
+    email [type: btree]
+    disabled [type: btree]
+    type [type: btree]
+    dni [unique]
+    campus_id [unique]
+    course_id [unique]
+  }
+}
+
+Table careers {
+  id uuid [pk]
+  name varchar
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+  }
+}
+
+Table courses {
+  id uuid [pk]
+  name varchar [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+  }
+}
+
+Table relations {
+  id uuid [pk]
+  name varchar [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+  }
+}
+
+Table careers_courses_relations {
+  id uiid [pk]
+  career_id uuid [not null, ref: > careers.id]
+  course_id uuid [not null, ref: > courses.id]
+  relation_id uuid [not null, ref: > relations.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+}
+
+Enum files_type {
+  system_staff
+  system_professorship
+  temporary
+}
+
+Table files {
+  id uuid [pk]
+  name varchar [not null]
+  mimetype varchar [not null]
+  number_of_sheets int4 [not null]
+  size int4 [not null]
+  path varchar [not null]
+  type files_type [not null]
+  physically_erased bool [not null]
+  owner_id uuid [ref: > users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    deleted_at [type: btree]
+    type [type: btree]
+  }
+}
+
+Table courses_files {
+  file_id uuid [pk, not null, ref: > files.id]
+  course_id uuid [pk, not null, ref: > courses.id]
+}
+
+Enum parameters_code {
+  users_minimum_balance_allowed
+  users_professorships_initial_available_storage
+  users_scholarships_initial_available_copies
+  orders_minimum_number_of_sheets_for_deposit
+  orders_percentage_of_deposit
+  files_max_size_allowed
+}
+
+Table parameters {
+  id uuid [pk]
+  name varchar [not null]
+  code parameters_code [not null]
+  value int8 [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
+
+Enum items_code {
+  simple_sided
+  double_sided
+  colour
+}
+
+Enum items_type {
+  item
+  binding
+}
+
+Table items {
+  id uuid [pk]
+  name varchar [not null]
+  code items_code
+  price numeric(8,2) [not null]
+  type items_type [not null]
+  sheets_limit int4
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+    type [type: btree]
+  }
+}
+
+Table registration_tokens {
+  id uuid [pk]
+  token varchar [not null]
+  user_id uuid [not null, ref: - users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    user_id [unique]
+  }
+}
+
+Enum functionalities_code {
+  menu
+  home
+  orders
+  movements
+  operations
+  new_order
+  my_orders
+  my_movements
+  top_up
+  transfer_money
+}
+
+Table functionalities {
+  id uuid [pk]
+  name varchar [not null]
+  code functionalities_code [not null]
+  supraFunctionalityId uuid [ref: - functionalities.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
+
+Table functionalities_closure {
+  id_ancestor uuid [pk, not null, ref: > functionalities.id]
+  id_descendant uuid [pk, not null, ref: > functionalities.id]
+
+  Indexes {
+    id_ancestor [type: btree]
+    id_descendant [type: btree]
+  }
+}
+
+Enum roles_code {
+  admin
+  campus_user
+  professorship
+  scholarship
+  student
+}
+
+Table roles {
+  id uuid [pk]
+  name varchar [not null]
+  code roles_code [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
+
+Table functionalities_roles {
+  functionality_id uuid [pk, not null, ref: > functionalities.id]
+  role_id uuid [pk, not null, ref: > roles.id]
+
+  Indexes {
+    functionality_id [type: btree]
+    role_id [type: btree]
+  }
+}
+
+Table users_roles {
+  user_id uuid [pk, not null, ref: > users.id]
+  role_id uuid [pk, not null, ref: > roles.id]
+
+  Indexes {
+    user_id [type: btree]
+    role_id [type: btree]
+  }
+}
+
+Enum notification_types_code {
+  top_up
+  incoming_transfer
+  promotion_to_scholarship
+  degradation_to_student
+  available_copies_restored
+  order_in_process
+  order_ready
+  order_cancelled
+  order_undelivered
+  order_delivered
+}
+
+Table notification_types {
+  id uuid [pk]
+  name varchar [not null]
+  code notification_types_code [not null]
+  title_template varchar [not null]
+  body_template varchar [not null]
+  image_url_template varchar [not null]
+  data_template varchar [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
+
+Table notifications {
+  id uuid [pk]
+  message_id varchar [not null]
+  title varchar [not null]
+  body varchar
+  image_url varchar
+  data varchar
+  read bool [not null]
+  user_id uuid [not null, ref: > users.id]
+  notification_type_id uuid [not null, ref: > notification_types.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    read [type: btree]
+  }
+}
+
+Enum movement_types_code {
+  requested_order
+  cancelled_order
+  top_up
+  transfer
+}
+
+Table movement_types {
+  id uuid [pk]
+  name varchar [not null]
+  code movement_types_code [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
+
+Table movements {
+  id uuid [pk]
+  amount numeric(8,2) [not null]
+  source_user_id uuid [not null, ref: > users.id]
+  target_user_id uuid [not null, ref: > users.id]
+  movement_type_id uuid [not null, ref: > movement_types.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+}
+
+Table campus {
+  id uuid [pk]
+  name varchar [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+  }
+}
+
+Table orders {
+  id uuid [pk]
+  id_number serial [not null, increment]
+  subtotal numeric(8,2) [not null]
+  discount numeric(8,2) [not null]
+  total numeric(8,2) [not null]
+  student_id uuid [not null, ref: > users.id]
+  campus_id uuid [not null, ref: > campus.id]
+   state_id uuid [not null, ref: > order_states.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+}
+
+Enum order_states_code {
+  requested
+  in_process
+  ready
+  cancelled
+  undelivered
+  delivered
+}
+
+Table order_states {
+  id uuid [pk]
+  name varchar [not null]
+  code order_states_code [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
+
+Table orders_to_order_states {
+  order_id uuid [pk, not null, ref: > orders.id]
+  order_state_id uuid [pk, not null, ref: > order_states.id]
+  timestamp timestamp [not null]
+}
+
+Table order_files {
+  id uuid [pk]
+  position int4
+  total numeric(8,2) [not null]
+  order_id uuid [not null, ref: > orders.id]
+  file_id uuid [not null, ref: > files.id]
+  file_state_id uuid [not null, ref: > file_states.id]
+  configuration_id uuid [not null, ref: > configurations.id]
+  binding_group_id uuid [ref: > binding_groups.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+}
+
+Table configurations {
+  id uuid [pk]
+  colour bool [not null]
+  double_sided bool [not null]
+  range varchar [not null]
+  number_of_sheets int4 [not null]
+  slides_per_sheet int4 [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+}
+
+Enum file_states_code {
+  to_print
+  printing
+  printed
+}
+
+Table file_states {
+  id uuid [pk]
+  name varchar [not null]
+  code file_states_code [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
+
+Table binding_groups {
+  id uuid [pk]
+  name varchar [not null]
+  price numeric(8,2) [not null]
+  binding_group_state_id uuid [not null, ref: > binding_group_states.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+}
+
+Enum binding_group_state {
+  to_ring
+  ringed
+}
+
+Table binding_group_states {
+  id uuid [pk]
+  name varchar [not null]
+  code binding_group_state [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  version int4 [not null]
+
+  Indexes {
+    name [unique]
+    code [unique]
+  }
+}
