@@ -157,7 +157,7 @@ export class MovementsService extends GenericCrudService<Movement> implements On
     const newMovement = await this.createMovement(createMovementDto, manager);
 
     try {
-      await this.studentsService.useUpBalance(createMovementDto.sourceId, createMovementDto.amount, manager);
+      await this.studentsService.useUpBalance(createMovementDto.sourceId, createMovementDto.amount, false, manager);
       await this.studentsService.topUpBalance(createMovementDto.targetId, createMovementDto.amount, manager);
       return newMovement;
     } catch (error) {

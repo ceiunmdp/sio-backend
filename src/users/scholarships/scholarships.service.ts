@@ -140,15 +140,16 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     manager: EntityManager,
   ) {
     const scholarshipsRepository = this.getScholarshipsRepository(manager);
-    const scholarship = await this.findOne(user.id, manager, user);
+    let scholarship = await this.findOne(user.id, manager, user);
 
     //* To calculate remaining price in Order, it is important to discriminate between the two types of sheets (simple and double)
     //* Here it's not necessary, as all the sheets are equal from the point of view of Scholarship
     if (scholarship.remainingCopies >= numberOfSheetsFromOrder) {
       scholarship.remainingCopies -= numberOfSheetsFromOrder;
     } else {
+      await this.studentsService.useUpBalance(user.id, amount, true, manager);
+      scholarship = await this.findOne(user.id, manager, user);
       scholarship.remainingCopies = 0;
-      await this.studentsService.useUpBalance(user.id, amount, manager);
     }
 
     return scholarshipsRepository.save(scholarship);

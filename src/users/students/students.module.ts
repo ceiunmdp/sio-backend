@@ -1,6 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigModule } from 'src/config/app/app-config.module';
+import { ParametersModule } from 'src/config/parameters/parameters.module';
 import { ScholarshipsModule } from '../scholarships/scholarships.module';
 import { UsersModule } from '../users/users.module';
 import { Student } from './entities/student.entity';
@@ -13,6 +14,7 @@ import { StudentsService } from './students.service';
 @Module({
   imports: [
     AppConfigModule,
+    ParametersModule,
     UsersModule,
     forwardRef(() => ScholarshipsModule),
     TypeOrmModule.forFeature([Student, StudentsRepository]),

@@ -1,5 +1,7 @@
 import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
+import { ParameterType } from 'src/config/parameters/enums/parameter-type.enum';
+import { ParametersService } from 'src/config/parameters/parameters.service';
 import { EntityManager } from 'typeorm';
 import { ScholarshipsService } from '../scholarships/scholarships.service';
 import { UsersService } from '../users/users.service';
@@ -15,6 +17,7 @@ import { StudentsRepository } from './students.repository';
 export class StudentsService extends GenericSubUserService<Student> {
   constructor(
     usersService: UsersService,
+    private readonly parametersService: ParametersService,
     @Inject(forwardRef(() => ScholarshipsService)) private readonly scholarshipsService: ScholarshipsService,
   ) {
     super(usersService, Student);
@@ -75,12 +78,13 @@ export class StudentsService extends GenericSubUserService<Student> {
     throw new Error('Method not implemented.');
   }
 
-  async useUpBalance(studentId: string, amount: number, manager: EntityManager) {
+  async useUpBalance(studentId: string, amount: number, allowNegativeBalanceConsumption: boolean, manager: EntityManager) {
     const studentsRepository = this.getStudentsRepository(manager);
     const student = await studentsRepository.findOne(studentId);
 
     if (student) {
-      if (student.balance >= amount) {
+      const availableBalance = allowNegativeBalanceConsumption ? student.balance + Math.abs(await this.getMinimumBalanceAllowed(manager)) : student.balance
+      if (availableBalance >= amount) {
         return studentsRepository.updateAndReload(studentId, { ...student, balance: student.balance - amount });
       } else {
         throw new InsufficientMoneyException();
@@ -99,6 +103,10 @@ export class StudentsService extends GenericSubUserService<Student> {
     } else {
       this.throwCustomNotFoundException(studentId);
     }
+  }
+
+  private async getMinimumBalanceAllowed(manager: EntityManager) {
+    return (await this.parametersService.findByCode(ParameterType.USERS_MINIMUM_BALANCE_ALLOWED, manager)).value;
   }
 
   private getStudentsRepository(manager: EntityManager) {

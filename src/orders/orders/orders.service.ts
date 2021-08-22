@@ -5,7 +5,6 @@ import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { isStudent, isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { AppConfigService } from 'src/config/app/app-config.service';
-import { ParametersService } from 'src/config/parameters/parameters.service';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
 import { BindingsService } from 'src/items/bindings/bindings.service';
 import { Binding } from 'src/items/bindings/entities/binding.entity';
@@ -41,7 +40,6 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     @Inject(forwardRef(() => BindingGroupsService)) private readonly bindingGroupsService: BindingGroupsService,
     @Inject(forwardRef(() => OrderFilesService)) private readonly orderFilesService: OrderFilesService,
     private readonly movementsService: MovementsService,
-    private readonly parametersService: ParametersService,
     private readonly studentsService: StudentsService,
     private readonly scholarshipsService: ScholarshipsService,
     @Inject(forwardRef(() => OrdersGateway)) private readonly ordersGateway: OrdersGateway,
@@ -280,7 +278,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     manager: EntityManager,
   ) {
     if (isStudent(user)) {
-      await this.studentsService.useUpBalance(user.id, createOrderDto.total, manager);
+      await this.studentsService.useUpBalance(user.id, createOrderDto.total, true, manager);
     } else {
       //* Scholarship
       await this.scholarshipsService.useUpRemainingCopiesAndBalance(

@@ -32,7 +32,6 @@ import './profiles/order.profile';
     GuardsModule,
     MovementsModule,
     forwardRef(() => OrderFilesModule),
-    ParametersModule,
     ScholarshipsModule,
     StudentsModule,
     TypeOrmModule.forFeature([Order, OrderToOrderState, OrderState]),
