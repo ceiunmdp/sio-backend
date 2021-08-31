@@ -1,6 +1,6 @@
 export enum EFunctionality {
   MENU = 'menu',
-
+  CAMPUSES = 'campuses',
   HOME = 'home',
   ORDERS = 'orders',
   MOVEMENTS = 'movements',
