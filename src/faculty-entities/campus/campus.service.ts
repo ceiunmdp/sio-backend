@@ -50,7 +50,7 @@ export class CampusService extends GenericCrudService<Campus> {
 
   //* remove
   protected async checkRemoveConditions({ id }: Campus, manager: EntityManager) {
-    const course = await this.getCampusRepository(manager).findOne(id, { relations: ['campusUsers'] });
+    const course = await this.getCampusRepository(manager).findOne(id, { relations: ['campusUser'] });
 
     if (course.campusUser) {
       throw new BadRequestException(
