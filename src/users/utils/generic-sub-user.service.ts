@@ -57,7 +57,9 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
   async create(createDto: DeepPartial<T>, manager: EntityManager) {
     const subUserRepository = this.getRepository(manager);
 
-    const newSubUser = await subUserRepository.save(createDto);
+    //! Generate a new object instead of passing the original to avoid being overwritten by the .save() method
+    //! Doing this the object will never have 'createdAt' and 'updatedAt' properties that confuses Firebase's library
+    const newSubUser = await subUserRepository.save({...createDto});
 
     //* Copy 'id' to 'uid' after saving entity
     await subUserRepository.save({ ...newSubUser, uid: newSubUser.id });
