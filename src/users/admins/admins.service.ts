@@ -8,7 +8,6 @@ import { UserNotFoundInDatabaseException } from '../users/exceptions/user-not-fo
 import { UserNotFoundInFirebaseException } from '../users/exceptions/user-not-found-in-firebase.exception';
 import { UsersService } from '../users/users.service';
 import { GenericSubUserService } from '../utils/generic-sub-user.service';
-import { PartialUpdateAdminDto } from './dtos/partial-update-admin.dto';
 import { Admin } from './entities/admin.entity';
 
 @Injectable()
@@ -53,15 +52,7 @@ export class AdminsService extends GenericSubUserService<Admin> {
     }
   }
 
-  async update(id: string, updateAdminDto: PartialUpdateAdminDto, manager: EntityManager, user?: UserIdentity) {
-    if (id === user.id && updateAdminDto.disabled) {
-      throw new BadRequestException('No es posible deshabilitarse a sí mismo como administrador.');
-    } else {
-      return super.update(id, updateAdminDto, manager, user);
-    }
-  }
-
-  async remove(id: string, options: RemoveOptions, manager: EntityManager, user?: UserIdentity) {
+  async remove(id: string, options: RemoveOptions, manager: EntityManager, user: UserIdentity) {
     if (id !== user.id) {
       return super.remove(id, options, manager, user);
     } else {

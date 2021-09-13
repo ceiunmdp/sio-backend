@@ -12,11 +12,13 @@ import { PatchById } from 'src/common/decorators/methods/patch-by-id.decorator';
 import { PutById } from 'src/common/decorators/methods/put-by-id.decorator';
 import { Limit, Page } from 'src/common/decorators/pagination.decorator';
 import { Sort } from 'src/common/decorators/sort.decorator';
+import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { Path } from 'src/common/enums/path.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { Order } from 'src/common/interfaces/order.type';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { Where } from 'src/common/interfaces/where.type';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -24,13 +26,13 @@ import { Connection } from 'typeorm';
 import { PartialUpdateUserDto } from './dtos/partial-update-user.dto';
 import { ResponseUserDto } from './dtos/response-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { User } from './entities/user.entity';
+import { User as UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 @ApiTags(Collection.USERS)
 @Controller()
 export class UsersController {
-  private readonly usersService: CrudService<User>;
+  private readonly usersService: CrudService<UserEntity>;
 
   constructor(
     @InjectConnection() connection: Connection,
@@ -42,7 +44,7 @@ export class UsersController {
 
   @GetAll(Collection.USERS, ResponseUserDto)
   @Auth(UserRole.ADMIN)
-  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<User>) {
+  async findAll(@Limit() limit: number, @Page() page: number, @Filter() where: Where, @Sort() order: Order<UserEntity>) {
     return this.usersService.findAll(
       {
         limit,
@@ -63,14 +65,14 @@ export class UsersController {
   @PutById(Collection.USERS, ResponseUserDto, ID_AS_UUID_V4)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async update(@Id() id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(@Id() id: string, @Body() updateUserDto: UpdateUserDto, @User() user: UserIdentity) {
+    return this.usersService.update(id, updateUserDto, undefined, user);
   }
 
   @PatchById(Collection.USERS, ResponseUserDto, ID_AS_UUID_V4)
   @Auth(UserRole.ADMIN)
   @ApiConflictResponse({ description: 'Email already assigned to another user', type: CustomError })
-  async partialUpdate(@Id() id: string, @Body() partialUpdateUserDto: PartialUpdateUserDto) {
-    return this.usersService.update(id, partialUpdateUserDto);
+  async partialUpdate(@Id() id: string, @Body() partialUpdateUserDto: PartialUpdateUserDto, @User() user: UserIdentity) {
+    return this.usersService.update(id, partialUpdateUserDto, undefined, user);
   }
 }

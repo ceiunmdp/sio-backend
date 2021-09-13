@@ -78,7 +78,7 @@ export class MenuService implements OnModuleInit {
       let menu = new Functionality({ name: 'Menu', code: EFunctionality.MENU });
 
       // Second level
-      const home = new Functionality({ name: 'Inicio', code: EFunctionality.HOME, supraFunctionality: menu });
+      const principal = new Functionality({ name: 'Principal', code: EFunctionality.PRINCIPAL, supraFunctionality: menu });
       const orders = new Functionality({ name: 'Pedidos', code: EFunctionality.ORDERS, supraFunctionality: menu });
       const movements = new Functionality({
         name: 'Movimientos',
@@ -92,6 +92,7 @@ export class MenuService implements OnModuleInit {
       });
 
       // Third level
+      const home = new Functionality({ name: 'Inicio', code: EFunctionality.HOME, supraFunctionality: principal });
       const newOrder = new Functionality({
         name: 'Nuevo pedido',
         code: EFunctionality.NEW_ORDER,
@@ -182,8 +183,8 @@ export class MenuService implements OnModuleInit {
       transferMoney.roles = [student, scholarship];
 
       menu = await menuRepository.save(menu);
-      await menuRepository.save([home, orders, movements, operations]);
-      await menuRepository.save([newOrder, myOrders, myMovements, users, campuses, careers, courses, files, items, bindings, parameters, topUp, transferMoney]);
+      await menuRepository.save([principal, orders, movements, operations]);
+      await menuRepository.save([home, newOrder, myOrders, myMovements, users, campuses, careers, courses, files, items, bindings, parameters, topUp, transferMoney]);
 
       return menuRepository.findDescendantsTree(menu);
     } else {

@@ -9,21 +9,22 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { UserRoleExpanded } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { Student } from 'src/users/students/entities/student.entity';
+import { StudentsService } from 'src/users/students/students.service';
 import { Connection } from 'typeorm';
 import { PartialUpdateLoggedInStudentDto } from './dto/partial-update-logged-in-student.dto';
 import { ResponseLoggedInStudentDto } from './dto/response-logged-in-student.dto';
 import { UpdateLoggedInStudentDto } from './dto/update-logged-in-student.dto';
-import { StudentService } from './student.service';
 
 @ApiTags(Collection.STUDENT)
 @Controller()
 export class StudentController {
   private readonly studentService: CrudService<Student>;
 
-  constructor(@InjectConnection() connection: Connection, studentService: StudentService) {
-    this.studentService = new ProxyCrudService(connection, studentService);
+  constructor(@InjectConnection() connection: Connection, studentsService: StudentsService) {
+    this.studentService = new ProxyCrudService(connection, studentsService);
   }
 
   @Get()
@@ -44,8 +45,8 @@ export class StudentController {
     description: 'Currently logged in student updated successfully',
     type: ResponseLoggedInStudentDto,
   })
-  async update(@User('id') id: string, @Body() updateLoggedInStudentDto: UpdateLoggedInStudentDto) {
-    return this.studentService.update(id, updateLoggedInStudentDto, undefined);
+  async update(@Body() updateLoggedInStudentDto: UpdateLoggedInStudentDto, @User() user: UserIdentity) {
+    return this.studentService.update(user.id, updateLoggedInStudentDto, undefined, user);
   }
 
   @Patch()
@@ -58,9 +59,9 @@ export class StudentController {
     type: ResponseLoggedInStudentDto,
   })
   async partialUpdate(
-    @User('id') id: string,
     @Body() partialUpdateLoggedInStudentDto: PartialUpdateLoggedInStudentDto,
+    @User() user: UserIdentity,
   ) {
-    return this.studentService.update(id, partialUpdateLoggedInStudentDto, undefined);
+    return this.studentService.update(user.id, partialUpdateLoggedInStudentDto, undefined, user);
   }
 }

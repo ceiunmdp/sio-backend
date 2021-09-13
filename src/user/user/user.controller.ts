@@ -11,19 +11,19 @@ import { Collection } from 'src/common/enums/collection.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { User as UserEntity } from 'src/users/users/entities/user.entity';
+import { UsersService } from 'src/users/users/users.service';
 import { Connection } from 'typeorm';
 import { ResponseUserDto } from '../../users/users/dtos/response-user.dto';
 import { PartialUpdateLoggedInUserDto } from './dto/partial-update-logged-in-user.dto';
 import { UpdateLoggedInUserDto } from './dto/update-logged-in-user.dto';
-import { UserService } from './user.service';
 
 @ApiTags(Collection.USER)
 @Controller()
 export class UserController {
   private readonly userService: CrudService<UserEntity>;
 
-  constructor(@InjectConnection() connection: Connection, userService: UserService) {
-    this.userService = new ProxyCrudService(connection, userService);
+  constructor(@InjectConnection() connection: Connection, usersService: UsersService) {
+    this.userService = new ProxyCrudService(connection, usersService);
   }
 
   @Get()

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import got from 'got';
 import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
@@ -173,16 +173,23 @@ export class UsersService implements CrudService<User> {
     );
   }
 
-  async update<T extends DeepPartial<User>>(id: string, updateUserDto: T, manager: EntityManager) {
+  async update<T extends DeepPartial<User>>(id: string, updateUserDto: T, manager: EntityManager, userIdentity: UserIdentity) {
     try {
-      const uid = await this.findUid(id, manager);
+      const user = await this.findOne(id, manager)
+      await this.checkUpdateConditions(updateUserDto, user, manager, userIdentity)
       const userRecord = await admin
-        .auth()
-        .updateUser(uid, { ...updateUserDto, ...(!!updateUserDto.email && { emailVerified: false }) });
+      .auth()
+      .updateUser(user.uid, { ...updateUserDto, ...(!!updateUserDto.email && { emailVerified: false }) });
       await this.getUsersRepository(manager).updateAndReload(id, updateUserDto);
       return await this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
       throw this.handleError(error);
+    }
+  }
+
+  async checkUpdateConditions<T extends DeepPartial<User>>(updateUserDto: T, user: User, _manager: EntityManager, userIdentity: UserIdentity) {
+    if (user.id === userIdentity.id && updateUserDto.disabled) {
+      throw new BadRequestException('No es posible deshabilitarse a sí mismo como usuario.');
     }
   }
 
@@ -305,7 +312,9 @@ export class UsersService implements CrudService<User> {
   }
 
   private handleError(error: Error) {
-    if (error instanceof Error) {
+    if (error instanceof HttpException) {
+      return error
+    } else if (error instanceof Error) {
       const firebaseError = error as unknown as admin.FirebaseError;
       return this.firebaseErrorHandlerService.handleError(firebaseError);
     } else {

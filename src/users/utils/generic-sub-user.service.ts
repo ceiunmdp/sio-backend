@@ -70,13 +70,13 @@ export abstract class GenericSubUserService<T extends User> implements CrudServi
     return this.userMerger.mergeSubUser(user, newSubUser);
   }
 
-  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, userIdentity?: UserIdentity) {
+  async update(id: string, updateDto: DeepPartial<T>, manager: EntityManager, userIdentity: UserIdentity) {
     const subUser = await this.findOne(id, manager, userIdentity);
 
     await this.checkUpdateConditions(updateDto, subUser, manager, userIdentity);
 
+    const user = await this.usersService.update(id, updateDto, manager, userIdentity);
     const updatedSubUser = await this.getRepository(manager).save({ ...updateDto, id });
-    const user = await this.usersService.update(id, updateDto, manager);
 
     return this.userMerger.mergeSubUser(user, updatedSubUser);
   }

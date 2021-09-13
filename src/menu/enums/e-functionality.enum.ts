@@ -1,15 +1,17 @@
 export enum EFunctionality {
   MENU = 'menu',
-  CAMPUSES = 'campuses',
-  HOME = 'home',
+
+  PRINCIPAL = 'principal',
   ORDERS = 'orders',
   MOVEMENTS = 'movements',
   OPERATIONS = 'operations',
 
+  HOME = 'home',
   NEW_ORDER = 'new_order',
   MY_ORDERS = 'my_orders',
   MY_MOVEMENTS = 'my_movements',
   USERS = 'users',
+  CAMPUSES = 'campuses',
   CAREERS = 'careers',
   COURSES = 'courses',
   FILES = 'files',

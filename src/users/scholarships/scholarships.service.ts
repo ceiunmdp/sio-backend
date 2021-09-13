@@ -41,7 +41,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     id: string,
     updateScholarshipDto: PartialUpdateScholarshipDto,
     manager: EntityManager,
-    userIdentity?: UserIdentity,
+    userIdentity: UserIdentity,
   ) {
     const scholarship = await this.findOne(id, manager, userIdentity);
 
@@ -57,7 +57,7 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
       updatedScholarship = { ...updatedScholarship, availableCopies: null, remainingCopies: null };
     }
 
-    const user = await this.usersService.update(id, updateScholarshipDto, manager);
+    const user = await this.usersService.update(id, updateScholarshipDto, manager, userIdentity);
     return this.userMerger.mergeSubUser(user, updatedScholarship);
   }
 

@@ -1,4 +1,4 @@
-import { Brackets, SelectQueryBuilder, WhereExpression } from 'typeorm';
+import { Brackets, SelectQueryBuilder, WhereExpressionBuilder } from 'typeorm';
 import { Operator } from '../enums/operator.enum';
 import { Field, Where } from '../interfaces/where.type';
 
@@ -10,7 +10,7 @@ export const filterQuery = <T>(query: SelectQueryBuilder<T>, where: Where) => {
   }
 };
 
-const traverseTree = (query: WhereExpression, where: Where, upperOperator = Operator.AND) => {
+const traverseTree = (query: WhereExpressionBuilder, where: Where, upperOperator = Operator.AND) => {
   Object.keys(where).forEach((key) => {
     if (key === Operator.AND || key === Operator.OR) {
       if (upperOperator === Operator.AND) {
@@ -35,7 +35,7 @@ const buildNewBrackets = (where: Where, operator: Operator) => {
   );
 };
 
-const handleArgs = (query: WhereExpression, field: Field, andOr: 'andWhere' | 'orWhere') => {
+const handleArgs = (query: WhereExpressionBuilder, field: Field, andOr: 'andWhere' | 'orWhere') => {
   const fieldsArgs = Object.entries(field);
 
   fieldsArgs.map((fieldArg) => {

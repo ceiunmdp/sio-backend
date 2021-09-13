@@ -38,7 +38,7 @@ export class StudentsService extends GenericSubUserService<Student> {
     id: string,
     updateStudentDto: PartialUpdateStudentDto,
     manager: EntityManager,
-    userIdentity?: UserIdentity,
+    userIdentity: UserIdentity,
   ) {
     const student = await this.findOne(id, manager, userIdentity);
 
@@ -51,14 +51,14 @@ export class StudentsService extends GenericSubUserService<Student> {
       await this.scholarshipsService.promoteStudentToScholarship(id, manager);
     }
 
-    const user = await this.usersService.update(id, updateStudentDto, manager);
+    const user = await this.usersService.update(id, updateStudentDto, manager, userIdentity);
     return this.userMerger.mergeSubUser(user, updatedStudent);
   }
 
   async updateBulk(
     partialUpdateStudentsBulkDto: PartialUpdateStudentBulkDto[],
     manager: EntityManager,
-    user?: UserIdentity,
+    user: UserIdentity,
   ) {
     return Promise.all(partialUpdateStudentsBulkDto.map((student) => this.update(student.id, student, manager, user)));
   }
