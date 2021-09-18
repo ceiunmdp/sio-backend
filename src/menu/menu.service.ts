@@ -93,6 +93,16 @@ export class MenuService implements OnModuleInit {
 
       // Third level
       const home = new Functionality({ name: 'Inicio', code: EFunctionality.HOME, supraFunctionality: principal });
+      const activeOrders = new Functionality({
+        name: 'Pedidos activos',
+        code: EFunctionality.ACTIVE_ORDERS,
+        supraFunctionality: orders,
+      });
+      const historicalOrders = new Functionality({
+        name: 'Pedidos históricos',
+        code: EFunctionality.HISTORICAL_ORDERS,
+        supraFunctionality: orders,
+      });
       const newOrder = new Functionality({
         name: 'Nuevo pedido',
         code: EFunctionality.NEW_ORDER,
@@ -102,6 +112,11 @@ export class MenuService implements OnModuleInit {
         name: 'Mis pedidos',
         code: EFunctionality.MY_ORDERS,
         supraFunctionality: orders,
+      });
+      const movementsList = new Functionality({
+        name: 'Listado de movimientos',
+        code: EFunctionality.MOVEMENTS_LIST,
+        supraFunctionality: movements,
       });
       const myMovements = new Functionality({
         name: 'Mis movimientos',
@@ -167,9 +182,12 @@ export class MenuService implements OnModuleInit {
       const student = await this.rolesService.findByCode(UserRole.STUDENT, manager);
       const scholarship = await this.rolesService.findByCode(UserRole.SCHOLARSHIP, manager);
 
-      home.roles = [admin, campus, professorship, scholarship, student];
+      home.roles = [campus, student, scholarship];
+      activeOrders.roles = [campus];
+      historicalOrders.roles = [campus];
       newOrder.roles = [student, scholarship];
-      myOrders.roles = [campus, student, scholarship];
+      myOrders.roles = [student, scholarship];
+      movementsList.roles = [campus];
       myMovements.roles = [student, scholarship];
       users.roles = [admin];
       campuses.roles = [admin];
@@ -184,7 +202,25 @@ export class MenuService implements OnModuleInit {
 
       menu = await menuRepository.save(menu);
       await menuRepository.save([principal, orders, movements, operations]);
-      await menuRepository.save([home, newOrder, myOrders, myMovements, users, campuses, careers, courses, files, items, bindings, parameters, topUp, transferMoney]);
+      await menuRepository.save([
+        home,
+        activeOrders,
+        historicalOrders,
+        newOrder,
+        myOrders,
+        movementsList,
+        myMovements,
+        users,
+        campuses,
+        careers,
+        courses,
+        files,
+        items,
+        bindings,
+        parameters,
+        topUp,
+        transferMoney
+      ]);
 
       return menuRepository.findDescendantsTree(menu);
     } else {
