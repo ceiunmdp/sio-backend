@@ -50,9 +50,9 @@ export class CampusService extends GenericCrudService<Campus> {
 
   //* remove
   protected async checkRemoveConditions({ id }: Campus, manager: EntityManager) {
-    const course = await this.getCampusRepository(manager).findOne(id, { relations: ['campusUser'] });
+    const campus = await this.getCampusRepository(manager).findOne(id, { relations: ['campusUser'] });
 
-    if (course.campusUser) {
+    if (campus.campusUser) {
       throw new BadRequestException(
         `No es posible eliminar la sede ya que existe un usuario vinculado a la misma.`,
       );

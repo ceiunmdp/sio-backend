@@ -77,7 +77,9 @@ export class CareersService extends GenericCrudService<Career> implements OnModu
   }
 
   //* remove
-  protected async checkRemoveConditions(career: Career) {
+  protected async checkRemoveConditions({id}: Career, manager: EntityManager) {
+    const career = await this.getCareersRepository(manager).findOne(id, { relations: ['careerCourseRelations'] });
+
     if (career.careerCourseRelations.length) {
       throw new BadRequestException(`No es posible eliminar la carrera ya que está vinculada con una o más materias.`);
     }
