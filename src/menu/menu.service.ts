@@ -193,7 +193,7 @@ export class MenuService implements OnModuleInit {
       campuses.roles = [admin];
       careers.roles = [admin];
       courses.roles = [admin];
-      files.roles = [admin, professorship];
+      files.roles = [admin, campus, professorship];
       items.roles = [admin];
       bindings.roles = [admin];
       parameters.roles = [admin];
