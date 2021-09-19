@@ -73,13 +73,18 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
     parentCollectionIds: GenericInterface,
   ) {
     queryBuilder
+      //* https://stackoverflow.com/questions/66117005/typeorm-left-joining-without-deletedat-is-null/66124903#66124903
+      //* Include deleted tuples from base entity and all the joined ones (we aim to include the deleted files that make up the OrderFile)
+      .withDeleted()
       .innerJoin(`${queryBuilder.alias}.order`, 'order')
       .andWhere('order.id = :orderId', { orderId: parentCollectionIds.orderId })
       .innerJoinAndSelect(`${queryBuilder.alias}.file`, 'file')
       .innerJoinAndSelect(`${queryBuilder.alias}.state`, 'state')
       .innerJoinAndSelect(`${queryBuilder.alias}.configuration`, 'configuration')
       .leftJoinAndSelect(`${queryBuilder.alias}.bindingGroup`, 'bindingGroup')
-      .leftJoinAndSelect('bindingGroup.state', 'bindingGroupState');
+      .leftJoinAndSelect('bindingGroup.state', 'bindingGroupState')
+      //* After all the joins have been made, exclude the OrderFiles that were deleted (not a possible scenario at the time of writing)
+      .andWhere(`${queryBuilder.alias}.deletedAt IS NULL`)
 
     if (isStudentOrScholarship(user)) {
       queryBuilder.andWhere('order.student_id = :studentId', { studentId: user.id });
