@@ -2,7 +2,6 @@ import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GuardsModule } from 'src/common/guards/guards.module';
 import { AppConfigModule } from 'src/config/app/app-config.module';
-import { FilesModule } from 'src/files/files.module';
 import { PrintersModule } from 'src/printers/printers.module';
 import { CampusUsersModule } from 'src/users/campus-users/campus-users.module';
 import { OrdersModule } from '../orders/orders.module';
@@ -18,7 +17,6 @@ import './profiles/order-file.profile';
   imports: [
     AppConfigModule,
     CampusUsersModule,
-    FilesModule,
     GuardsModule,
     forwardRef(() => OrdersModule),
     PrintersModule,

@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import { flatten } from 'lodash';
-import { lookup } from 'mime-types';
 import { IsolationLevel } from 'src/common/enums/isolation-level.enum';
 import { GenericInterface } from 'src/common/interfaces/generic.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
@@ -17,7 +16,6 @@ import { GenericCrudService } from 'src/common/services/generic-crud.service';
 import { isStudentOrScholarship } from 'src/common/utils/is-role-functions';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { File } from 'src/files/entities/file.entity';
-import { FilesService } from 'src/files/files.service';
 import { PrintersService } from 'src/printers/printers.service';
 import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { BindingGroup } from '../binding-groups/entities/binding-group.entity';
@@ -38,12 +36,9 @@ import { OrderFilesRepository } from './order-files.repository';
 
 @Injectable()
 export class OrderFilesService extends GenericCrudService<OrderFile> implements OnModuleInit {
-  private readonly pdfMimeType = lookup('pdf') as string;
-
   constructor(
     @InjectConnection() private readonly connection: Connection,
     private readonly appConfigService: AppConfigService,
-    private readonly filesService: FilesService,
     @Inject(forwardRef(() => OrdersService)) private readonly ordersService: OrdersService,
     private readonly ordersGateway: OrdersGateway,
     // private readonly orderFilesGateway: OrderFilesGateway,
@@ -262,6 +257,10 @@ export class OrderFilesService extends GenericCrudService<OrderFile> implements 
       }
     } else {
       //* state.code === EFileState.PRINTED
+      if (order.state.code !== EOrderState.IN_PROCESS) {
+        //* In case order isn't in IN PROCESS state (first file to print is transitioned directly to PRINTED)
+        await this.ordersService.update(order.id, { state: { code: EOrderState.IN_PROCESS } }, manager, user);
+      }
       if (await this.areAllOrderFilesFromOrderPrintedAndRinged(order.id, manager)) {
         await this.ordersService.update(order.id, { state: { code: EOrderState.READY } }, manager, user);
       }
