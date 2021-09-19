@@ -1,8 +1,9 @@
 import { AutoMap } from 'nestjsx-automapper';
 import { BaseEntity } from 'src/common/base-classes/base-entity.entity';
 import { Course } from 'src/faculty-entities/courses/entities/course.entity';
+import { OrderFile } from 'src/orders/order-files/entities/order-file.entity';
 import { User } from 'src/users/users/entities/user.entity';
-import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { FileType } from '../enums/file-type.enum';
 
 @Entity('files')
@@ -40,6 +41,10 @@ export class File extends BaseEntity {
     inverseJoinColumn: { name: 'course_id' },
   })
   courses!: Course[]; //* Only SystemStaff files can alter its related courses
+
+  @AutoMap(() => OrderFile)
+  @OneToMany(() => OrderFile, (orderFile) => orderFile.file)
+  readonly orderFiles!: OrderFile[];
 
   @Column({ type: 'enum', enum: FileType, update: false })
   readonly type!: FileType;

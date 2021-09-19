@@ -40,6 +40,7 @@ export class TasksService {
 
   async update(id: string, { running, time }: PartialUpdateTaskDto) {
     const cronJob = (await this.findOne(id)).cronJob;
+    //* Store previous state to later compare with the new one
     const previousState = cronJob.running;
 
     if (time) {
@@ -49,6 +50,9 @@ export class TasksService {
     if (running !== undefined) {
       running ? cronJob.start() : cronJob.stop();
     } else {
+      //* If running property was not updated but the time was, then the default behaviour is to set running to false
+      //* To avoid this behaviour, we compare the previous state with the current one, and if they differ (the new one will always be "false", the previous could have been either of them)
+      //* then we know that the previous state was "true" and we must keep it that way.
       if (cronJob.running !== previousState) {
         cronJob.start();
       }
