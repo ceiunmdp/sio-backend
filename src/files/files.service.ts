@@ -22,7 +22,7 @@ import { Professorship } from 'src/users/professorships/entities/professorship.e
 import { ExceededAvailableStorageException } from 'src/users/professorships/exceptions/exceeded-available-storage.exception';
 import { ProfessorshipsService } from 'src/users/professorships/professorships.service';
 import { User } from 'src/users/users/entities/user.entity';
-import { DeepPartial, EntityManager, getConnection, SelectQueryBuilder } from 'typeorm';
+import { Brackets, DeepPartial, EntityManager, getConnection, SelectQueryBuilder } from 'typeorm';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { PartialUpdateFileDto } from './dtos/partial-update-file.dto';
 import { File } from './entities/file.entity';
@@ -305,16 +305,19 @@ export class FilesService extends GenericCrudService<File> {
       const files = await manager
         .createQueryBuilder()
         .select('file')
+        .distinct(true)
         .from(File, 'file')
-        .innerJoin('file.orderFiles', 'orderFiles')
-        .innerJoin('orderFiles.order', 'order')
-        .innerJoin('order.state', 'state')
+        .leftJoin('file.orderFiles', 'orderFiles')
+        .leftJoin('orderFiles.order', 'order')
+        .leftJoin('order.state', 'state')
         .withDeleted()
         .where('file.deletedAt IS NOT NULL')
         .andWhere('file.physically_erased = :erased', { erased: false })
-        .andWhere('state.code NOT IN (:...activeStates)', {
-          activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],
-        })
+        .andWhere(new Brackets(qb =>
+          qb.where('state.code NOT IN (:...activeStates)', {
+            activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],
+          }).orWhere('state.code IS NULL')
+        ))
         .getMany();
 
       return this.removeFromFSandUpdateDB(files, manager);
