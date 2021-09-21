@@ -21,10 +21,10 @@ import { UpdateLoggedInStudentDto } from './dto/update-logged-in-student.dto';
 @ApiTags(Collection.STUDENT)
 @Controller()
 export class StudentController {
-  private readonly studentService: CrudService<Student>;
+  private readonly studentsService: CrudService<Student>;
 
   constructor(@InjectConnection() connection: Connection, studentsService: StudentsService) {
-    this.studentService = new ProxyCrudService(connection, studentsService);
+    this.studentsService = new ProxyCrudService(connection, studentsService);
   }
 
   @Get()
@@ -33,7 +33,7 @@ export class StudentController {
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in student', type: ResponseLoggedInStudentDto })
   async findOne(@User('id') id: string) {
-    return this.studentService.findOne(id, undefined);
+    return this.studentsService.findOne(id, undefined);
   }
 
   @Put()
@@ -46,7 +46,7 @@ export class StudentController {
     type: ResponseLoggedInStudentDto,
   })
   async update(@Body() updateLoggedInStudentDto: UpdateLoggedInStudentDto, @User() user: UserIdentity) {
-    return this.studentService.update(user.id, updateLoggedInStudentDto, undefined, user);
+    return this.studentsService.update(user.id, updateLoggedInStudentDto, undefined, user);
   }
 
   @Patch()
@@ -62,6 +62,6 @@ export class StudentController {
     @Body() partialUpdateLoggedInStudentDto: PartialUpdateLoggedInStudentDto,
     @User() user: UserIdentity,
   ) {
-    return this.studentService.update(user.id, partialUpdateLoggedInStudentDto, undefined, user);
+    return this.studentsService.update(user.id, partialUpdateLoggedInStudentDto, undefined, user);
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import camelcase from 'camelcase';
-import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, paginate, PaginationTypeEnum } from 'nestjs-typeorm-paginate';
 import { DeepPartial, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { BaseEntity } from '../base-classes/base-entity.entity';
 import { CrudService } from '../interfaces/crud-service.interface';
@@ -28,7 +28,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(camelcase(this.type.name)), where);
     queryBuilder = this.addExtraClauses(queryBuilder, user, parentCollectionIds);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
-    return paginate<T>(queryBuilder, options);
+    return paginate<T>(queryBuilder, {...options, paginationType: PaginationTypeEnum.TAKE_AND_SKIP});
   }
 
   protected addExtraClauses(

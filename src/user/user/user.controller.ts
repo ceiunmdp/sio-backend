@@ -9,6 +9,7 @@ import { BaseResponses } from 'src/common/decorators/methods/responses/base-resp
 import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { User as UserEntity } from 'src/users/users/entities/user.entity';
 import { UsersService } from 'src/users/users/users.service';
@@ -20,10 +21,10 @@ import { UpdateLoggedInUserDto } from './dto/update-logged-in-user.dto';
 @ApiTags(Collection.USER)
 @Controller()
 export class UserController {
-  private readonly userService: CrudService<UserEntity>;
+  private readonly usersService: CrudService<UserEntity>;
 
   constructor(@InjectConnection() connection: Connection, usersService: UsersService) {
-    this.userService = new ProxyCrudService(connection, usersService);
+    this.usersService = new ProxyCrudService(connection, usersService);
   }
 
   @Get()
@@ -32,7 +33,7 @@ export class UserController {
   @BaseResponses()
   @ApiOkResponse({ description: 'Currently logged in user', type: ResponseUserDto })
   async findOne(@User('id') id: string) {
-    return this.userService.findOne(id, undefined);
+    return this.usersService.findOne(id, undefined);
   }
 
   @Put()
@@ -41,8 +42,8 @@ export class UserController {
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently logged in user updated successfully', type: ResponseUserDto })
-  async update(@User('id') id: string, @Body() updateLoggedInUserDto: UpdateLoggedInUserDto) {
-    return this.userService.update(id, updateLoggedInUserDto, undefined);
+  async update(@User('id') id: string, @Body() updateLoggedInUserDto: UpdateLoggedInUserDto, @User() user: UserIdentity) {
+    return this.usersService.update(id, updateLoggedInUserDto, undefined, user);
   }
 
   @Patch()
@@ -51,7 +52,11 @@ export class UserController {
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently logged in user partially updated successfully', type: ResponseUserDto })
-  async partialUpdate(@User('id') id: string, @Body() partialUpdateLoggedInUserDto: PartialUpdateLoggedInUserDto) {
-    return this.userService.update(id, partialUpdateLoggedInUserDto, undefined);
+  async partialUpdate(
+    @User('id') id: string,
+    @Body() partialUpdateLoggedInUserDto: PartialUpdateLoggedInUserDto,
+    @User() user: UserIdentity
+  ) {
+    return this.usersService.update(id, partialUpdateLoggedInUserDto, undefined, user);
   }
 }
