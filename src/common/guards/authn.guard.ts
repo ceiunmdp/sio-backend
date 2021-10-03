@@ -4,6 +4,7 @@ import * as admin from 'firebase-admin';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
 import { FirebaseErrorHandlerService } from '../../global/firebase-error-handler.service';
 import { Environment } from '../enums/environment.enum';
+import { UserRole } from '../enums/user-role.enum';
 import { ExpiredIdTokenException } from '../exceptions/expired-id-token.exception';
 import { InvalidIdTokenException } from '../exceptions/invalid-id-token.exception';
 import { UnauthorizedWsException } from '../exceptions/unauthorized-ws-exception';
@@ -81,11 +82,13 @@ export class AuthNGuard implements CanActivate {
   async verifyAndDecodeToken(idToken: string, isHttp: boolean): Promise<DecodedIdToken> {
     try {
       const decodedIdToken = await this.verifyAndDecodeIdToken(idToken);
-      if (!decodedIdToken.role) {
-        throw new UnauthorizedException('Request new Id Token with custom claims.');
-      } else if (!decodedIdToken.email_verified && process.env.NODE_ENV === Environment.PRODUCTION) {
+      if (!decodedIdToken.email_verified && process.env.NODE_ENV === Environment.PRODUCTION) {
         throw new UnauthorizedException('Email not verified.');
       } else {
+        if (!decodedIdToken.role) {
+          //* Set provisional role just to be able to pass AuthN Guard. The role will be set later in UserIdentitySetterInterceptor
+          decodedIdToken.role = UserRole.STUDENT
+        }
         return decodedIdToken;
       }
     } catch (error) {

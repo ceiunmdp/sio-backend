@@ -97,6 +97,6 @@ export class CampusUsersController {
   @DeleteById(Collection.CAMPUS_USERS)
   @Auth(UserRole.ADMIN)
   async remove(@Id() id: string, @User() user: UserIdentity) {
-    return this.campusUsersService.remove(id, { softRemove: false }, undefined, user);
+    return this.campusUsersService.remove(id, { softRemove: true }, undefined, user);
   }
 }

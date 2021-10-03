@@ -296,20 +296,20 @@ export class UsersService implements CrudService<User> {
 
     try {
       await admin.auth().setCustomUserClaims(uid, payload);
-      await this.revokeRefreshToken(uid);
+      // await this.revokeRefreshToken(uid);
       return;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  private async revokeRefreshToken(uid: string) {
-    try {
-      return await admin.auth().revokeRefreshTokens(uid);
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
+  // private async revokeRefreshToken(uid: string) {
+  //   try {
+  //     return await admin.auth().revokeRefreshTokens(uid);
+  //   } catch (error) {
+  //     throw this.handleError(error);
+  //   }
+  // }
 
   private handleError(error: Error) {
     if (error instanceof HttpException) {
