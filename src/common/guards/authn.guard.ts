@@ -115,6 +115,6 @@ export class AuthNGuard implements CanActivate {
 
   private async verifyAndDecodeIdToken(idToken: string) {
     // TODO: Evaluate if the additional verification is required to the authentication flow
-    return admin.auth().verifyIdToken(idToken, true) as unknown as DecodedIdToken;
+    return admin.auth().verifyIdToken(idToken) as unknown as DecodedIdToken;
   }
 }
