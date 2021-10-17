@@ -65,10 +65,14 @@ export class StudentsService extends GenericSubUserService<Student> {
 
   protected async checkUpdateConditions(
     updateStudentDto: PartialUpdateStudentDto,
-    _student: Student,
+    student: Student,
     manager: EntityManager,
   ) {
-    if (updateStudentDto.dni && (await this.usersService.isDniRepeated(updateStudentDto.dni, manager))) {
+    if (
+      updateStudentDto.dni &&
+      updateStudentDto.dni !== student.dni &&
+      (await this.usersService.isDniRepeated(updateStudentDto.dni, manager))
+    ) {
       throw new ConflictException(`Ya existe un usuario con el DNI elegido.`);
     }
   }
@@ -78,12 +82,19 @@ export class StudentsService extends GenericSubUserService<Student> {
     throw new Error('Method not implemented.');
   }
 
-  async useUpBalance(studentId: string, amount: number, allowNegativeBalanceConsumption: boolean, manager: EntityManager) {
+  async useUpBalance(
+    studentId: string,
+    amount: number,
+    allowNegativeBalanceConsumption: boolean,
+    manager: EntityManager,
+  ) {
     const studentsRepository = this.getStudentsRepository(manager);
     const student = await studentsRepository.findOne(studentId);
 
     if (student) {
-      const availableBalance = allowNegativeBalanceConsumption ? student.balance + Math.abs(await this.getMinimumBalanceAllowed(manager)) : student.balance
+      const availableBalance = allowNegativeBalanceConsumption
+        ? student.balance + Math.abs(await this.getMinimumBalanceAllowed(manager))
+        : student.balance;
       if (availableBalance >= amount) {
         return studentsRepository.updateAndReload(studentId, { ...student, balance: student.balance - amount });
       } else {

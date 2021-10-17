@@ -9,6 +9,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { Scholarship } from 'src/users/scholarships/entities/scholarship.entity';
 import { ScholarshipsService } from 'src/users/scholarships/scholarships.service';
@@ -44,8 +45,12 @@ export class ScholarshipController {
     description: 'Currently logged in scholarship updated successfully',
     type: ResponseLoggedInScholarshipDto,
   })
-  async update(@User('id') id: string, @Body() updateLoggedInScholarshipDto: UpdateLoggedInScholarshipDto) {
-    return this.scholarshipsService.update(id, updateLoggedInScholarshipDto, undefined);
+  async update(
+    @User('id') id: string,
+    @Body() updateLoggedInScholarshipDto: UpdateLoggedInScholarshipDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.scholarshipsService.update(id, updateLoggedInScholarshipDto, undefined, user);
   }
 
   @Patch()
@@ -60,7 +65,8 @@ export class ScholarshipController {
   async partialUpdate(
     @User('id') id: string,
     @Body() partialUpdateLoggedInScholarshipDto: PartialUpdateLoggedInScholarshipDto,
+    @User() user: UserIdentity,
   ) {
-    return this.scholarshipsService.update(id, partialUpdateLoggedInScholarshipDto, undefined);
+    return this.scholarshipsService.update(id, partialUpdateLoggedInScholarshipDto, undefined, user);
   }
 }

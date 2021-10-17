@@ -79,7 +79,11 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     if (updateScholarshipDto.remainingCopies) {
       this.checkIfRemainingCopiesSurpassesAvailableCopies(updateScholarshipDto, scholarship);
     }
-    if (updateScholarshipDto.dni && (await this.usersService.isDniRepeated(updateScholarshipDto.dni, manager))) {
+    if (
+      updateScholarshipDto.dni &&
+      updateScholarshipDto.dni !== scholarship.dni &&
+      (await this.usersService.isDniRepeated(updateScholarshipDto.dni, manager))
+    ) {
       throw new ConflictException(`Ya existe un usuario con el DNI elegido.`);
     }
   }
