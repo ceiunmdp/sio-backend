@@ -9,6 +9,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { AdminsService } from 'src/users/admins/admins.service';
 import { ResponseAdminDto } from 'src/users/admins/dtos/response-admin.dto';
@@ -41,8 +42,12 @@ export class AdminController {
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently logged in admin updated successfully', type: ResponseAdminDto })
-  async update(@User('id') id: string, @Body() updateLoggedInAdminDto: UpdateLoggedInAdminDto) {
-    return this.adminsService.update(id, updateLoggedInAdminDto, undefined);
+  async update(
+    @User('id') id: string,
+    @Body() updateLoggedInAdminDto: UpdateLoggedInAdminDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.adminsService.update(id, updateLoggedInAdminDto, undefined, user);
   }
 
   @Patch()
@@ -54,7 +59,11 @@ export class AdminController {
     description: 'Currently logged in admin partially updated successfully',
     type: ResponseAdminDto,
   })
-  async partialUpdate(@User('id') id: string, @Body() partialUpdateLoggedInAdminDto: PartialUpdateLoggedInAdminDto) {
-    return this.adminsService.update(id, partialUpdateLoggedInAdminDto, undefined);
+  async partialUpdate(
+    @User('id') id: string,
+    @Body() partialUpdateLoggedInAdminDto: PartialUpdateLoggedInAdminDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.adminsService.update(id, partialUpdateLoggedInAdminDto, undefined, user);
   }
 }

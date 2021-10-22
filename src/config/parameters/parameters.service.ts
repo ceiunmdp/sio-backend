@@ -42,16 +42,16 @@ export class ParametersService extends GenericCrudService<Parameter> implements 
           code: ParameterType.USERS_SCHOLARSHIPS_INITIAL_AVAILABLE_COPIES,
           value: 500,
         }),
-        new Parameter({
-          name: 'Mínimo número de hojas requerido para poder señar un pedido',
-          code: ParameterType.ORDERS_MINIMUM_NUMBER_OF_SHEETS_FOR_DEPOSIT,
-          value: 200,
-        }),
-        new Parameter({
-          name: 'Porcentaje del total del pedido que será tomado como seña',
-          code: ParameterType.ORDERS_PERCENTAGE_OF_DEPOSIT,
-          value: 50,
-        }),
+        // new Parameter({
+        //   name: 'Mínimo número de hojas requerido para poder señar un pedido',
+        //   code: ParameterType.ORDERS_MINIMUM_NUMBER_OF_SHEETS_FOR_DEPOSIT,
+        //   value: 200,
+        // }),
+        // new Parameter({
+        //   name: 'Porcentaje del total del pedido que será tomado como seña',
+        //   code: ParameterType.ORDERS_PERCENTAGE_OF_DEPOSIT,
+        //   value: 50,
+        // }),
         new Parameter({
           name: 'Máximo tamaño de archivo habilitado para subir al sistema',
           code: ParameterType.FILES_MAX_SIZE_ALLOWED,

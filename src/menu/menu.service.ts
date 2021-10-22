@@ -14,7 +14,7 @@ export class MenuService implements OnModuleInit {
     @InjectConnection() private readonly connection: Connection,
     private readonly appConfigService: AppConfigService,
     private readonly rolesService: RolesService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     if (!this.appConfigService.isProduction()) {
@@ -78,7 +78,11 @@ export class MenuService implements OnModuleInit {
       let menu = new Functionality({ name: 'Menu', code: EFunctionality.MENU });
 
       // Second level
-      const principal = new Functionality({ name: 'Principal', code: EFunctionality.PRINCIPAL, supraFunctionality: menu });
+      const principal = new Functionality({
+        name: 'Principal',
+        code: EFunctionality.PRINCIPAL,
+        supraFunctionality: menu,
+      });
       const orders = new Functionality({ name: 'Pedidos', code: EFunctionality.ORDERS, supraFunctionality: menu });
       const movements = new Functionality({
         name: 'Movimientos',
@@ -174,7 +178,6 @@ export class MenuService implements OnModuleInit {
         supraFunctionality: operations,
       });
 
-
       // Roles
       const admin = await this.rolesService.findByCode(UserRole.ADMIN, manager);
       const campus = await this.rolesService.findByCode(UserRole.CAMPUS, manager);
@@ -182,7 +185,7 @@ export class MenuService implements OnModuleInit {
       const student = await this.rolesService.findByCode(UserRole.STUDENT, manager);
       const scholarship = await this.rolesService.findByCode(UserRole.SCHOLARSHIP, manager);
 
-      home.roles = [campus, student, scholarship];
+      home.roles = [student, scholarship];
       activeOrders.roles = [campus];
       historicalOrders.roles = [campus];
       newOrder.roles = [student, scholarship];
@@ -219,7 +222,7 @@ export class MenuService implements OnModuleInit {
         bindings,
         parameters,
         topUp,
-        transferMoney
+        transferMoney,
       ]);
 
       return menuRepository.findDescendantsTree(menu);
@@ -242,10 +245,10 @@ export class MenuService implements OnModuleInit {
   private async removeTree(functionality: Functionality, menuRepository: TreeRepository<Functionality>) {
     if (!functionality.subFunctionalities.length) {
       //! "remove" works when the native connection.transaction() is used
-      return await menuRepository.remove(functionality);
+      return menuRepository.remove(functionality);
     } else {
       await Promise.all(functionality.subFunctionalities.map((f) => this.removeTree(f, menuRepository)));
-      return await menuRepository.remove(functionality);
+      return menuRepository.remove(functionality);
     }
   }
 }

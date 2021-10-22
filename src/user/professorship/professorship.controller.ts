@@ -9,6 +9,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { ResponseProfessorshipDto } from 'src/users/professorships/dtos/response-professorship.dto';
 import { Professorship } from 'src/users/professorships/entities/professorship.entity';
@@ -44,8 +45,12 @@ export class ProfessorshipController {
     description: 'Currently logged in professorship updated successfully',
     type: ResponseProfessorshipDto,
   })
-  async update(@User('id') id: string, @Body() updateLoggedInProfessorshipDto: UpdateLoggedInProfessorshipDto) {
-    return this.professorshipsService.update(id, updateLoggedInProfessorshipDto, undefined);
+  async update(
+    @User('id') id: string,
+    @Body() updateLoggedInProfessorshipDto: UpdateLoggedInProfessorshipDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.professorshipsService.update(id, updateLoggedInProfessorshipDto, undefined, user);
   }
 
   @Patch()
@@ -60,7 +65,8 @@ export class ProfessorshipController {
   async partialUpdate(
     @User('id') id: string,
     @Body() partialUpdateLoggedInProfessorshipDto: PartialUpdateLoggedInProfessorshipDto,
+    @User() user: UserIdentity,
   ) {
-    return this.professorshipsService.update(id, partialUpdateLoggedInProfessorshipDto, undefined);
+    return this.professorshipsService.update(id, partialUpdateLoggedInProfessorshipDto, undefined, user);
   }
 }

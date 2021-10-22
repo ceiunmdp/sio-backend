@@ -9,6 +9,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { Collection } from 'src/common/enums/collection.enum';
 import { UserRole } from 'src/common/enums/user-role.enum';
 import { CrudService } from 'src/common/interfaces/crud-service.interface';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { ProxyCrudService } from 'src/common/services/proxy-crud.service';
 import { CampusUsersService } from 'src/users/campus-users/campus-users.service';
 import { ResponseCampusUserDto } from 'src/users/campus-users/dtos/response-campus-user.dto';
@@ -41,8 +42,12 @@ export class CampusUserController {
   @BaseResponses()
   @BaseBodyResponses()
   @ApiOkResponse({ description: 'Currently logged in campus user updated successfully', type: ResponseCampusUserDto })
-  async update(@User('id') id: string, @Body() updateLoggedInCampusUserDto: UpdateLoggedInCampusUserDto) {
-    return this.campusUsersService.update(id, updateLoggedInCampusUserDto, undefined);
+  async update(
+    @User('id') id: string,
+    @Body() updateLoggedInCampusUserDto: UpdateLoggedInCampusUserDto,
+    @User() user: UserIdentity,
+  ) {
+    return this.campusUsersService.update(id, updateLoggedInCampusUserDto, undefined, user);
   }
 
   @Patch()
@@ -57,7 +62,8 @@ export class CampusUserController {
   async partialUpdate(
     @User('id') id: string,
     @Body() partialUpdateLoggedInCampusUserDto: PartialUpdateLoggedInCampusUserDto,
+    @User() user: UserIdentity,
   ) {
-    return this.campusUsersService.update(id, partialUpdateLoggedInCampusUserDto, undefined);
+    return this.campusUsersService.update(id, partialUpdateLoggedInCampusUserDto, undefined, user);
   }
 }
