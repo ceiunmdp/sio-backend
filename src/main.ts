@@ -72,25 +72,29 @@ const setupCORS = (app: NestExpressApplication) => {
 // };
 
 const setupRateLimiting = (app: NestExpressApplication) => {
-  // Prerequisite
-  enableTrustProxy(app);
+  const appConfigService = app.get(AppConfigService);
 
-  // Apply rate-limiter as global middleware
-  const apiConfigService = app.get(ApiConfigService);
-  const apiLimiter = rateLimit({
-    windowMs: apiConfigService.rateTimeframe * 60 * 1000,
-    max: apiConfigService.rateMaxConnections, // limit each IP to X requests per timeframe
-    handler: (req, res) => {
-      res.status(HttpStatus.TOO_MANY_REQUESTS).send(
-        app.get(HttpExceptionFilter).buildHttpError(req, {
-          status: HttpStatus.TOO_MANY_REQUESTS,
-          name: 'Too Many Requests',
-          message: `Demasiadas consultas realizadas a partir de esta IP, intente nuevamente después de ${apiConfigService.rateTimeframe} minutos`,
-        }),
-      );
-    },
-  });
-  app.use(Path.API, apiLimiter);
+  if (appConfigService.isProduction()) {
+    // Prerequisite
+    enableTrustProxy(app);
+
+    // Apply rate-limiter as global middleware
+    const apiConfigService = app.get(ApiConfigService);
+    const apiLimiter = rateLimit({
+      windowMs: apiConfigService.rateTimeframe * 60 * 1000,
+      max: apiConfigService.rateMaxConnections, // limit each IP to X requests per timeframe
+      handler: (req, res) => {
+        res.status(HttpStatus.TOO_MANY_REQUESTS).send(
+          app.get(HttpExceptionFilter).buildHttpError(req, {
+            status: HttpStatus.TOO_MANY_REQUESTS,
+            name: 'Too Many Requests',
+            message: `Demasiadas consultas realizadas a partir de esta IP, intente nuevamente después de ${apiConfigService.rateTimeframe} minutos`,
+          }),
+        );
+      },
+    });
+    app.use(Path.API, apiLimiter);
+  }
 };
 
 const enableTrustProxy = (app: NestExpressApplication) => {
@@ -100,19 +104,23 @@ const enableTrustProxy = (app: NestExpressApplication) => {
 };
 
 const setupSlowDown = (app: NestExpressApplication) => {
-  // Apply slow-down as global middleware
-  const apiConfigService = app.get(ApiConfigService);
-  const speedLimiter = slowDown({
-    windowMs: apiConfigService.speedTimeframe * 60 * 1000,
-    delayAfter: apiConfigService.speedDelayAfter, // allow Y requests per X minutes, then...
-    delayMs: apiConfigService.speedDelayMS, // begin adding Z ms of delay per request above Y:
-    // request # Y + 1 is delayed by Z ms
-    // request # Y + 2 is delayed by 2Z ms
-    // request # Y + 3 is delayed by 3Z ms
-    // etc.
-    maxDelayMs: apiConfigService.speedMaxDelayMS, // load balancer or reverse proxy that has a request timeout
-  });
-  app.use(Path.API, speedLimiter);
+  const appConfigService = app.get(AppConfigService);
+
+  if (appConfigService.isProduction()) {
+    // Apply slow-down as global middleware
+    const apiConfigService = app.get(ApiConfigService);
+    const speedLimiter = slowDown({
+      windowMs: apiConfigService.speedTimeframe * 60 * 1000,
+      delayAfter: apiConfigService.speedDelayAfter, // allow Y requests per X minutes, then...
+      delayMs: apiConfigService.speedDelayMS, // begin adding Z ms of delay per request above Y:
+      // request # Y + 1 is delayed by Z ms
+      // request # Y + 2 is delayed by 2Z ms
+      // request # Y + 3 is delayed by 3Z ms
+      // etc.
+      maxDelayMs: apiConfigService.speedMaxDelayMS, // load balancer or reverse proxy that has a request timeout
+    });
+    app.use(Path.API, speedLimiter);
+  }
 };
 
 // const enableAllExceptionsFilterGlobally = (app: NestExpressApplication) => {

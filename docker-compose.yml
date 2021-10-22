@@ -3,9 +3,9 @@ version: '3.7'
 services:
   app:
     container_name: nestjs
-    image: manuelnucci/nestjs-dev:1.17.14
+    image: manuelnucci/nestjs-dev:1.17.15
     env_file:
-      - .env
+      - ./env/development.env
     networks:
       - webnet
     volumes:

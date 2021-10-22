@@ -5,12 +5,13 @@ services:
     container_name: nestjs
     build:
       context: .
+      dockerfile: Dockerfile.dev
       target: build
       # target: production
-    image: manuelnucci/nestjs-dev:1.17.14
+    image: manuelnucci/nestjs-dev:1.17.15
     command: npm run start:debug
     env_file:
-      - .env
+      - ./env/development.env
     networks:
       - webnet
     volumes:

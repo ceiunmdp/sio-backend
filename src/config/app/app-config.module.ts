@@ -10,7 +10,7 @@ import appConfig from './app.config';
   imports: [
     ConfigModule.forRoot({
       // isGlobal: true, // No need to import ConfigModule in other modules once it's been loaded in the root module
-      // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
+      envFilePath: `env/${(process.env.NODE_ENV || 'local').toLowerCase()}.env`,
       load: [appConfig],
       expandVariables: true,
       validationSchema: Joi.object({

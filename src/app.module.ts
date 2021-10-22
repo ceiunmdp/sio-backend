@@ -28,8 +28,6 @@ import { GeneralUserModule } from './user/general-user.module';
 import { UserModule } from './user/user/user.module';
 import { GeneralUsersModule } from './users/general-users.module';
 
-// export const ENV = process.env.NODE_ENV;
-
 @Module({
   imports: [
     CoreModule,

@@ -10,7 +10,7 @@ import databaseConfig from './database.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
+      envFilePath: `env/${(process.env.NODE_ENV || 'local').toLowerCase()}.env`,
       load: [databaseConfig],
       expandVariables: true,
       validationSchema: Joi.object({

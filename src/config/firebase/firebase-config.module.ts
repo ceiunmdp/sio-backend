@@ -7,7 +7,7 @@ import firebaseConfig from './firebase.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
+      envFilePath: `env/${(process.env.NODE_ENV || 'local').toLowerCase()}.env`,
       load: [firebaseConfig],
       expandVariables: true,
       validationSchema: Joi.object({

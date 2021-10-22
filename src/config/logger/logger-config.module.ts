@@ -10,7 +10,7 @@ import loggerConfig from './logger.config';
   imports: [
     AppConfigModule,
     ConfigModule.forRoot({
-      // envFilePath: path.resolve(process.cwd(), 'env', !ENV ? '.env' : `.env.${ENV}`),
+      envFilePath: `env/${(process.env.NODE_ENV || 'local').toLowerCase()}.env`,
       load: [loggerConfig],
       expandVariables: true,
       validationSchema: Joi.object({
