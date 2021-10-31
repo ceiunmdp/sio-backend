@@ -76,9 +76,13 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     scholarship: Scholarship,
     manager: EntityManager,
   ) {
-    if (updateScholarshipDto.remainingCopies) {
-      this.checkIfRemainingCopiesSurpassesAvailableCopies(updateScholarshipDto, scholarship);
+    if (updateScholarshipDto.remainingCopies || updateScholarshipDto.availableCopies) {
+      const remainingCopies = updateScholarshipDto.remainingCopies || scholarship.remainingCopies;
+      const availableCopies = updateScholarshipDto.availableCopies || scholarship.availableCopies;
+
+      this.checkIfRemainingCopiesSurpassesAvailableCopies(remainingCopies, availableCopies);
     }
+
     if (
       updateScholarshipDto.dni &&
       updateScholarshipDto.dni !== scholarship.dni &&
@@ -88,14 +92,9 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     }
   }
 
-  private checkIfRemainingCopiesSurpassesAvailableCopies(dto: PartialUpdateScholarshipDto, scholarship: Scholarship) {
-    if (
-      (dto.availableCopies && dto.remainingCopies > dto.availableCopies) ||
-      (!dto.availableCopies && dto.remainingCopies > scholarship.availableCopies)
-    ) {
-      throw new BadRequestException(
-        'Las copias disponibles del becado no pueden superar el total de copias habilitadas',
-      );
+  private checkIfRemainingCopiesSurpassesAvailableCopies(remainingCopies: number, availableCopies: number) {
+    if (remainingCopies > availableCopies) {
+      throw new BadRequestException('Las copias restantes del becado no pueden superar el total de copias habilitadas');
     }
   }
 

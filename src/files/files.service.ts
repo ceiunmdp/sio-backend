@@ -36,7 +36,6 @@ import { parentDirectory } from './utils/parent-directory';
 @Injectable()
 export class FilesService extends GenericCrudService<File> {
   private basePath: string;
-  private temporaryFilesDirectory: string;
 
   constructor(
     @Inject(forwardRef(() => ProfessorshipsService)) private readonly professorshipsService: ProfessorshipsService,
@@ -44,7 +43,6 @@ export class FilesService extends GenericCrudService<File> {
   ) {
     super(File);
     this.basePath = multerConfigService.basePath;
-    this.temporaryFilesDirectory = multerConfigService.temporaryFilesDirectory;
   }
 
   //* findAll
@@ -60,8 +58,17 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   async findContentById(id: string, manager: EntityManager, user: UserIdentity) {
-    const file = await this.findOne(id, manager, user);
-    return readFile(this.getFullPath(file.path));
+    const file = await this.getFilesRepository(manager).findOne(id, {
+      withDeleted: true,
+      where: { physicallyErased: false },
+    });
+
+    if (file) {
+      await this.checkFindOneConditions(file, manager, user);
+      return readFile(this.getFullPath(file.path));
+    } else {
+      this.throwCustomNotFoundException(id);
+    }
   }
 
   //* findOne // findContentById
@@ -70,7 +77,7 @@ export class FilesService extends GenericCrudService<File> {
   }
 
   private userCanReadFile(file: File, user: UserIdentity) {
-    //* All users can access system files. Temporary files are only accessible by its owners, campus users and admins
+    //* All users can read system staff and professorship files. Temporary files are only accessible by its owners, campus users and admins
     if (isTemporaryFile(file)) {
       if (isProfessorship(user) || (isStudentOrScholarship(user) && !isFileFromUser(user.id, file))) {
         throw new ForbiddenException('Prohibido el acceso al recurso.');
@@ -102,14 +109,14 @@ export class FilesService extends GenericCrudService<File> {
       );
     } catch (error) {
       if (error instanceof ExceededAvailableStorageException) {
-        await this.removeFromFS(createFileDtos.map((createFileDtos) => createFileDtos.path));
+        await this.removeFromFS(createFileDtos.map((createFileDto) => createFileDto.path));
       }
       throw error;
     }
   }
 
   private async checkIfUserCanUploadFiles(user: UserIdentity, createFileDtos: CreateFileDto[], manager: EntityManager) {
-    return !isProfessorship(user) || (await this.canProfessorshipUploadFiles(user, createFileDtos, manager));
+    return !isProfessorship(user) || this.canProfessorshipUploadFiles(user, createFileDtos, manager);
   }
 
   private async canProfessorshipUploadFiles(
@@ -209,7 +216,7 @@ export class FilesService extends GenericCrudService<File> {
     if (!coursesIds.includes(courseId)) {
       copyFile.path = path.replace(courseId, coursesIds[0]);
     }
-    copyFile.courses = coursesIds.map((courseId) => new Course({ id: courseId }));
+    copyFile.courses = coursesIds.map((id) => new Course({ id }));
     return copyFile;
   }
 
@@ -238,7 +245,9 @@ export class FilesService extends GenericCrudService<File> {
 
   async softRemoveByCourseId(courseId: string, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
+    const filesToSoftRemove = [];
 
+    //* Find first all the files that qualify to be soft removed
     //! "find" method does not work using where on a many to many relation
     const files = await filesRepository
       .createQueryBuilder('file')
@@ -246,7 +255,15 @@ export class FilesService extends GenericCrudService<File> {
       .where('course.id = :courseId', { courseId })
       .getMany();
 
-    return filesRepository.softRemove(files);
+    //* Once we have all the candidate files, check for each of them if they have only the course desired to be removed.
+    //* In case there's one or more additional courses linked with the file, we must discard it because it's still active in the system.
+    for (const file of files) {
+      if ((await filesRepository.findOne(file.id, { relations: this.getFindOneRelations() })).courses.length == 1) {
+        filesToSoftRemove.push(file);
+      }
+    }
+
+    return filesRepository.softRemove(filesToSoftRemove);
   }
 
   //* Method useful to delete temporary files
@@ -289,10 +306,10 @@ export class FilesService extends GenericCrudService<File> {
     return filesRepository.save(files);
   }
 
-  async unlinkFilesFromProfessorship(professorship: Professorship, manager: EntityManager) {
+  async unlinkFilesFromUser(user: User, manager: EntityManager) {
     const filesRepository = this.getFilesRepository(manager);
 
-    const files = await filesRepository.find({ where: { owner: { id: professorship.id } } });
+    const files = await filesRepository.find({ where: { owner: { id: user.id } } });
     files.forEach((file) => (file.owner = null));
     await filesRepository.save(files);
   }
@@ -313,11 +330,15 @@ export class FilesService extends GenericCrudService<File> {
         .withDeleted()
         .where('file.deletedAt IS NOT NULL')
         .andWhere('file.physically_erased = :erased', { erased: false })
-        .andWhere(new Brackets(qb =>
-          qb.where('state.code NOT IN (:...activeStates)', {
-            activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],
-          }).orWhere('state.code IS NULL')
-        ))
+        .andWhere(
+          new Brackets((qb) =>
+            qb
+              .where('state.code NOT IN (:...activeStates)', {
+                activeStates: [EOrderState.REQUESTED, EOrderState.IN_PROCESS],
+              })
+              .orWhere('state.code IS NULL'),
+          ),
+        )
         .getMany();
 
       return this.removeFromFSandUpdateDB(files, manager);

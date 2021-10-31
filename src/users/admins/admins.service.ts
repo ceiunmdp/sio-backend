@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/typeorm';
 import { RemoveOptions } from 'src/common/interfaces/remove-options.interface';
 import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { AppConfigService } from 'src/config/app/app-config.service';
+import { FilesService } from 'src/files/files.service';
 import { Connection, EntityManager } from 'typeorm';
 import { UserNotFoundInDatabaseException } from '../users/exceptions/user-not-found-in-database.exception';
 import { UserNotFoundInFirebaseException } from '../users/exceptions/user-not-found-in-firebase.exception';
@@ -15,6 +16,7 @@ export class AdminsService extends GenericSubUserService<Admin> {
   constructor(
     @InjectConnection() connection: Connection,
     private readonly appConfigService: AppConfigService,
+    private readonly filesService: FilesService,
     usersService: UsersService,
   ) {
     super(usersService, Admin);
@@ -50,6 +52,10 @@ export class AdminsService extends GenericSubUserService<Admin> {
         return this.usersService.setRole(admin, manager);
       }
     }
+  }
+
+  protected async beforeRemove(admin: Admin, manager: EntityManager) {
+    await this.filesService.unlinkFilesFromUser(admin, manager);
   }
 
   async remove(id: string, options: RemoveOptions, manager: EntityManager, user: UserIdentity) {

@@ -28,7 +28,7 @@ export abstract class GenericCrudService<T extends BaseEntity> implements CrudSe
     let queryBuilder = filterQuery<T>(entitiesRepository.createQueryBuilder(camelcase(this.type.name)), where);
     queryBuilder = this.addExtraClauses(queryBuilder, user, parentCollectionIds);
     queryBuilder = this.addOrderByClausesToQueryBuilder(queryBuilder, order);
-    return paginate<T>(queryBuilder, {...options, paginationType: PaginationTypeEnum.TAKE_AND_SKIP});
+    return paginate<T>(queryBuilder, { ...options, paginationType: PaginationTypeEnum.TAKE_AND_SKIP });
   }
 
   protected addExtraClauses(

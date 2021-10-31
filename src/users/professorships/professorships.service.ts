@@ -64,7 +64,7 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
   }
 
   protected async beforeRemove(professorship: Professorship, manager: EntityManager) {
-    await this.filesService.unlinkFilesFromProfessorship(professorship, manager);
+    await this.filesService.unlinkFilesFromUser(professorship, manager);
   }
 
   // TODO: Try to use methods developed inside this class instead of accessing repository directly
