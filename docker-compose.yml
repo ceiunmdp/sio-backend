@@ -3,21 +3,18 @@ version: '3.7'
 services:
   app:
     container_name: nestjs
-    image: manuelnucci/nestjs-dev:1.17.17
+    image: manuelnucci/nestjs-dev:1.17.18
     env_file:
       - ./env/development.env
     networks:
       - webnet
     volumes:
       - ./files:/home/node/app/files
-      - /var/run/dbus:/var/run/dbus
     ports:
       - ${APP_PORT}:${APP_PORT}
       - 9229:9229
     depends_on:
       - postgres
-      # - mysql
-      # - cups
     restart: unless-stopped
   postgres:
     container_name: postgres
@@ -37,56 +34,6 @@ services:
       - 5432:5432
     restart: unless-stopped
 
-  # mysql:
-  #   container_name: mysql
-  #   image: mysql:8.0.21
-  #   command:
-  #     [
-  #       'mysqld',
-  #       '--character-set-server',
-  #       'utf8mb4',
-  #       '--collation-server',
-  #       'utf8mb4_spanish_ci',
-  #       '--default-authentication-plugin',
-  #       'mysql_native_password',
-  #     ]
-  #   environment:
-  #     MYSQL_DATABASE: ${TYPEORM_DATABASE}
-  #     MYSQL_USER: ${TYPEORM_USERNAME}
-  #     MYSQL_PASSWORD: ${TYPEORM_PASSWORD}
-  #     MYSQL_ROOT_PASSWORD: ${TYPEORM_PASSWORD}
-  #     # TZ: 'America/Argentina/Buenos_Aires'
-  #   networks:
-  #     - webnet
-  #   volumes:
-  #     - mysql_data:/var/lib/mysql
-  #   ports:
-  #     - 3306:3306
-  #   restart: unless-stopped
-  # cups:
-  #   container_name: cups
-  #   image: ydkn/cups
-  #   environment:
-  #     ADMIN_PASSWORD: password
-  #   networks:
-  #     - webnet
-  #   volumes:
-  #     - cups:/etc/cups
-  #   ports:
-  #     - 631:631
-  #   restart: unless-stopped
-  # cups:
-  #   container_name: cups
-  #   image: lemariva/rpi-cups
-  #   privileged: true
-  #   volumes:
-  #     - /var/run/dbus:/var/run/dbus
-  #     - /dev/bus/usb:/dev/bus/usb
-  #     - ./printers.conf:/etc/cups/printers.conf
-  #   ports:
-  #     - 631:631
-  #   restart: unless-stopped
-
 networks:
   webnet:
     name: webnet
@@ -94,7 +41,3 @@ networks:
 volumes:
   pgdata:
     name: pgdata_dev
-  # mysql_data:
-  #   name: mysql_data
-  # cups:
-  #   name: cups

@@ -1,6 +1,7 @@
 # Don't copy this folders into the image
 **/node_modules
 **/.git
+**/.github
 **/README.md
 **/LICENSE
 **/.vscode
@@ -8,13 +9,13 @@
 **/npm-debug.log
 **/coverage
 **/.env
+**/env
+**/.blackbox
 **/.editorconfig
-**/.aws
 **/dist
 **/docs
 **/documentation
 
 /database
-/driver-options
 /files
 /logs
