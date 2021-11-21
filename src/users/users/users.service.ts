@@ -173,13 +173,24 @@ export class UsersService implements CrudService<User> {
     );
   }
 
-  async update<T extends DeepPartial<User>>(id: string, updateUserDto: T, manager: EntityManager, userIdentity: UserIdentity) {
+  async update<T extends DeepPartial<User>>(
+    id: string,
+    updateUserDto: T,
+    manager: EntityManager,
+    userIdentity: UserIdentity,
+  ) {
     try {
-      const user = await this.findOne(id, manager)
-      await this.checkUpdateConditions(updateUserDto, user, manager, userIdentity)
+      const user = await this.findOne(id, manager);
+      await this.checkUpdateConditions(updateUserDto, user, manager, userIdentity);
       const userRecord = await admin
-      .auth()
-      .updateUser(user.uid, { ...updateUserDto, ...(!!updateUserDto.email && { emailVerified: false }) });
+        .auth()
+        .updateUser(user.uid, { ...updateUserDto, ...(!!updateUserDto.email && { emailVerified: false }) });
+
+      if (updateUserDto.disabled) {
+        //* In case user is disabled, expire session immediately
+        await this.revokeRefreshToken(user.uid);
+      }
+
       await this.getUsersRepository(manager).updateAndReload(id, updateUserDto);
       return await this.transformUserRecordToUser(userRecord, manager);
     } catch (error) {
@@ -187,7 +198,12 @@ export class UsersService implements CrudService<User> {
     }
   }
 
-  async checkUpdateConditions<T extends DeepPartial<User>>(updateUserDto: T, user: User, _manager: EntityManager, userIdentity: UserIdentity) {
+  async checkUpdateConditions<T extends DeepPartial<User>>(
+    updateUserDto: T,
+    user: User,
+    _manager: EntityManager,
+    userIdentity: UserIdentity,
+  ) {
     if (user.id === userIdentity.id && updateUserDto.disabled) {
       throw new BadRequestException('No es posible deshabilitarse a sí mismo como usuario.');
     }
@@ -296,24 +312,24 @@ export class UsersService implements CrudService<User> {
 
     try {
       await admin.auth().setCustomUserClaims(uid, payload);
-      // await this.revokeRefreshToken(uid);
+      await this.revokeRefreshToken(uid);
       return;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  // private async revokeRefreshToken(uid: string) {
-  //   try {
-  //     return await admin.auth().revokeRefreshTokens(uid);
-  //   } catch (error) {
-  //     throw this.handleError(error);
-  //   }
-  // }
+  private async revokeRefreshToken(uid: string) {
+    try {
+      return admin.auth().revokeRefreshTokens(uid);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
 
   private handleError(error: Error) {
     if (error instanceof HttpException) {
-      return error
+      return error;
     } else if (error instanceof Error) {
       const firebaseError = error as unknown as admin.FirebaseError;
       return this.firebaseErrorHandlerService.handleError(firebaseError);

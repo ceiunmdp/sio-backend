@@ -8,5 +8,6 @@ export enum FirebaseError {
   INVALID_ID_TOKEN = 'auth/invalid-id-token',
   INVALID_UID = 'auth/invalid-uid',
   UID_ALREADY_EXISTS = 'auth/uid-already-exists',
+  USER_DISABLED = 'auth/user-disabled',
   USER_NOT_FOUND = 'auth/user-not-found',
 }

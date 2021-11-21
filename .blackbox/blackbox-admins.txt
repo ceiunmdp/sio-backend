@@ -1,2 +1,3 @@
-ci.pipeline@gmail.com
+github.actions@gmail.com
 manuucci96@gmail.com
+sebastiancanonaco@gmail.com

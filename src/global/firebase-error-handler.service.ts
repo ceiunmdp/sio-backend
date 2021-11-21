@@ -22,6 +22,7 @@ export class FirebaseErrorHandlerService {
         case FirebaseError.ARGUMENT_ERROR:
         case FirebaseError.ID_TOKEN_REVOKED:
         case FirebaseError.INVALID_ID_TOKEN:
+        case FirebaseError.USER_DISABLED:
           return new InvalidIdTokenException();
         case FirebaseError.EMAIL_ALREADY_EXISTS:
           return new EmailAlreadyExistsException();

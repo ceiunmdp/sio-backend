@@ -87,7 +87,7 @@ export class AuthNGuard implements CanActivate {
       } else {
         if (!decodedIdToken.role) {
           //* Set provisional role just to be able to pass AuthN Guard. The role will be set later in UserIdentitySetterInterceptor
-          decodedIdToken.role = UserRole.STUDENT
+          decodedIdToken.role = UserRole.STUDENT;
         }
         return decodedIdToken;
       }
@@ -114,7 +114,7 @@ export class AuthNGuard implements CanActivate {
   }
 
   private async verifyAndDecodeIdToken(idToken: string) {
-    // TODO: Evaluate if the additional verification is required to the authentication flow
-    return admin.auth().verifyIdToken(idToken) as unknown as DecodedIdToken;
+    // * Verify ID Token and check if it has been revoked
+    return admin.auth().verifyIdToken(idToken, true) as unknown as DecodedIdToken;
   }
 }
