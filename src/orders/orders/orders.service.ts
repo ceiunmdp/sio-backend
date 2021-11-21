@@ -232,7 +232,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     user: UserIdentity,
     manager: EntityManager,
   ) {
-    if (isStudent(user)) {
+    if (isStudent(user) || !createOrderDto.useFreeCopies) {
       return { discount: 0, total: createOrderDto.subtotal };
     } else {
       //* Scholarship
@@ -277,7 +277,7 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
     user: UserIdentity,
     manager: EntityManager,
   ) {
-    if (isStudent(user)) {
+    if (isStudent(user) || !createOrderDto.useFreeCopies) {
       await this.studentsService.useUpBalance(user.id, createOrderDto.total, true, manager);
     } else {
       //* Scholarship
@@ -287,7 +287,6 @@ export class OrdersService extends GenericCrudService<Order> implements OnModule
         user,
         manager,
       );
-      // }
     }
   }
 

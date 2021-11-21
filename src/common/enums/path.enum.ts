@@ -12,6 +12,7 @@ export enum Path {
   FILES = '/files',
 
   HEALTH = '/health',
+  STORAGE = '/storage',
 
   ITEMS = '/items',
   BINDINGS = '/bindings',

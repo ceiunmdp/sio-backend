@@ -35,7 +35,7 @@ import { parentDirectory } from './utils/parent-directory';
 
 @Injectable()
 export class FilesService extends GenericCrudService<File> {
-  private basePath: string;
+  private readonly basePath: string;
 
   constructor(
     @Inject(forwardRef(() => ProfessorshipsService)) private readonly professorshipsService: ProfessorshipsService,

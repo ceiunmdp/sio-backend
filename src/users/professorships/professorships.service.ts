@@ -45,9 +45,10 @@ export class ProfessorshipsService extends GenericSubUserService<Professorship> 
   }
 
   private async getInitialAvailableStorage(manager: EntityManager) {
-    return (
-      await this.parametersService.findByCode(ParameterType.USERS_PROFESSORSHIPS_INITIAL_AVAILABLE_STORAGE, manager)
-    ).value;
+    return Number(
+      (await this.parametersService.findByCode(ParameterType.USERS_PROFESSORSHIPS_INITIAL_AVAILABLE_STORAGE, manager))
+        .value,
+    );
   }
 
   private async afterInsert(professorship: Professorship, manager: EntityManager) {

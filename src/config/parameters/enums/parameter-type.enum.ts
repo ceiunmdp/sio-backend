@@ -7,4 +7,8 @@ export enum ParameterType {
   ORDERS_PERCENTAGE_OF_DEPOSIT = 'orders_percentage_of_deposit',
 
   FILES_MAX_SIZE_ALLOWED = 'files_max_size_allowed',
+
+  FAQS_LINK = 'faqs_link',
+  FACEBOOK_LINK = 'facebook_link',
+  INSTAGRAM_LINK = 'instagram_link',
 }

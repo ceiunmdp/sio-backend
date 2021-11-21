@@ -117,7 +117,9 @@ export class StudentsService extends GenericSubUserService<Student> {
   }
 
   private async getMinimumBalanceAllowed(manager: EntityManager) {
-    return (await this.parametersService.findByCode(ParameterType.USERS_MINIMUM_BALANCE_ALLOWED, manager)).value;
+    return Number(
+      (await this.parametersService.findByCode(ParameterType.USERS_MINIMUM_BALANCE_ALLOWED, manager)).value,
+    );
   }
 
   private getStudentsRepository(manager: EntityManager) {

@@ -13,7 +13,6 @@ import { SocketWithUserData } from '../interfaces/socket-with-user-data.interfac
 import { DecodedIdToken } from '../interfaces/user-identity.interface';
 import { isHttp } from '../utils/is-application-context-functions';
 
-
 @Injectable()
 export class UserIdentitySetterInterceptor implements NestInterceptor {
   constructor(
@@ -33,20 +32,23 @@ export class UserIdentitySetterInterceptor implements NestInterceptor {
       user = context.switchToWs().getClient<SocketWithUserData>().user as DecodedIdToken;
     }
 
-    const uid = user.uid;
-    const entity = await manager.findOne(User, { where: { uid } });
-    if (!entity) {
-      const { displayName, email } = await this.usersService.findUserRecord(uid);
-      const student = await this.studentsService.create(new CreateStudentDto({ uid, displayName, email }), manager);
+    if (user) {
+      //* Endpoint is protected
+      const uid = user.uid;
+      const entity = await manager.findOne(User, { where: { uid } });
+      if (!entity) {
+        const { displayName, email } = await this.usersService.findUserRecord(uid);
+        const student = await this.studentsService.create(new CreateStudentDto({ uid, displayName, email }), manager);
 
-      try {
-        //* Set 'id' and 'role' custom claims in token, once the student has been created locally.
-        await admin.auth().setCustomUserClaims(uid, { id: student.id, role: UserRole.STUDENT })
+        try {
+          //* Set 'id' and 'role' custom claims in token, once the student has been created locally.
+          await admin.auth().setCustomUserClaims(uid, { id: student.id, role: UserRole.STUDENT });
 
-        //* Populdate request object to allow petition to continue it's course
-        user.id = student.id;
-      } catch (error) {
-        throw this.firebaseErrorHandlerService.handleError(error)
+          //* Populdate request object to allow petition to continue it's course
+          user.id = student.id;
+        } catch (error) {
+          throw this.firebaseErrorHandlerService.handleError(error);
+        }
       }
     }
 

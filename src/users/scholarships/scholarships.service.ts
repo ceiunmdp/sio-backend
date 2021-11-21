@@ -113,8 +113,10 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
   }
 
   private async getInitialAvailableCopies(manager: EntityManager) {
-    return (await this.parametersService.findByCode(ParameterType.USERS_SCHOLARSHIPS_INITIAL_AVAILABLE_COPIES, manager))
-      .value;
+    return Number(
+      (await this.parametersService.findByCode(ParameterType.USERS_SCHOLARSHIPS_INITIAL_AVAILABLE_COPIES, manager))
+        .value,
+    );
   }
 
   private async degradeScholarshipToStudent(scholarshipId: string, manager: EntityManager) {
@@ -168,7 +170,6 @@ export class ScholarshipsService extends GenericSubUserService<Scholarship> {
     });
 
     await scholarshipsRepository.save(scholarshipStudents);
-    return;
   }
 
   private getScholarshipsRepository(manager: EntityManager) {

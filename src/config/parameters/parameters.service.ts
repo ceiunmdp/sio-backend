@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import * as bytes from 'bytes';
+import { UserIdentity } from 'src/common/interfaces/user-identity.interface';
 import { GenericCrudService } from 'src/common/services/generic-crud.service';
-import { Connection, EntityManager } from 'typeorm';
+import { isAdmin } from 'src/common/utils/is-role-functions';
+import { Connection, EntityManager, SelectQueryBuilder } from 'typeorm';
 import { AppConfigService } from '../app/app-config.service';
 import { Parameter } from './entities/parameter.entity';
 import { ParameterType } from './enums/parameter-type.enum';
@@ -30,17 +32,17 @@ export class ParametersService extends GenericCrudService<Parameter> implements 
         new Parameter({
           name: 'Mínimo saldo habilitado para el usuario',
           code: ParameterType.USERS_MINIMUM_BALANCE_ALLOWED,
-          value: 0,
+          value: '0',
         }),
         new Parameter({
           name: 'Almacenamiento inicialmente disponible para el usuario cátedra',
           code: ParameterType.USERS_PROFESSORSHIPS_INITIAL_AVAILABLE_STORAGE,
-          value: bytes('1GB'),
+          value: String(bytes('1GB')),
         }),
         new Parameter({
           name: 'Copias inicialmente disponibles para el usuario becado',
           code: ParameterType.USERS_SCHOLARSHIPS_INITIAL_AVAILABLE_COPIES,
-          value: 500,
+          value: '500',
         }),
         // new Parameter({
         //   name: 'Mínimo número de hojas requerido para poder señar un pedido',
@@ -55,10 +57,38 @@ export class ParametersService extends GenericCrudService<Parameter> implements 
         new Parameter({
           name: 'Máximo tamaño de archivo habilitado para subir al sistema',
           code: ParameterType.FILES_MAX_SIZE_ALLOWED,
-          value: bytes('100MB'),
+          value: String(bytes('100MB')),
+        }),
+        new Parameter({
+          name: 'Link a FAQs',
+          code: ParameterType.FAQS_LINK,
+          value: 'https://linktr.ee/C.E.I',
+        }),
+        new Parameter({
+          name: 'Link al perfil de Facebook del CEI',
+          code: ParameterType.FACEBOOK_LINK,
+          value: 'https://www.facebook.com/cei.unmdp/',
+        }),
+        new Parameter({
+          name: 'Link al perfil de Instagram del CEI',
+          code: ParameterType.INSTAGRAM_LINK,
+          value: 'https://www.instagram.com/cei_unmdp/',
         }),
       ]);
     }
+  }
+
+  //* findAll
+  protected addExtraClauses(queryBuilder: SelectQueryBuilder<Parameter>, user?: UserIdentity) {
+    //* /parameters/me
+    if (user && !isAdmin(user)) {
+      // * Filter only public parameters that all users are able to see
+      queryBuilder.andWhere('code IN (:...publicParameters)', {
+        publicParameters: [ParameterType.FAQS_LINK, ParameterType.FACEBOOK_LINK, ParameterType.INSTAGRAM_LINK],
+      });
+    }
+
+    return queryBuilder;
   }
 
   async findByCode(code: ParameterType, manager: EntityManager) {

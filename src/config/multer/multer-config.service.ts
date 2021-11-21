@@ -81,7 +81,7 @@ export class MulterConfigService implements MulterOptionsFactory {
   private async checkCoursesIdsAreValidCourses(ids: string[]) {
     const courses = await this.connection.manager.getRepository(Course).find({ where: { id: In(ids) } });
 
-    if (!(ids.length === courses.length)) {
+    if (ids.length !== courses.length) {
       const coursesSet = new Set(courses.map((course) => course.id));
       ids.forEach((id) => {
         if (!coursesSet.has(id))
@@ -104,9 +104,10 @@ export class MulterConfigService implements MulterOptionsFactory {
   private async getLimits() {
     try {
       return {
-        fileSize: (
-          await this.parametersService.findByCode(ParameterType.FILES_MAX_SIZE_ALLOWED, this.connection.manager)
-        ).value,
+        fileSize: Number(
+          (await this.parametersService.findByCode(ParameterType.FILES_MAX_SIZE_ALLOWED, this.connection.manager))
+            .value,
+        ),
       };
     } catch (error) {
       return {

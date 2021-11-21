@@ -36,6 +36,8 @@ $ docker-compose -f docker-compose.dev.yml up -d
 $ npm run start:prod
 ```
 
+Once the app is runnning go to http://localhost:3000. To access the API documentation (running in development mode) go to http://localhost:3000/api/docs
+
 ## Git
 
 ```bash
@@ -95,6 +97,8 @@ $ docker build -t <IMAGE_NAME>:<TAG_NAME> .
 # run containers
 $ docker-compose up -d
 ```
+
+Once the app is runnning go to http://localhost:3000. To access the API documentation (running in development mode) go to http://localhost:3000/api/docs
 
 ## Documentation
 

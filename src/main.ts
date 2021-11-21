@@ -156,7 +156,7 @@ const setupSwaggerUI = (app: NestExpressApplication) => {
     const options = new DocumentBuilder()
       .setTitle('API Documentation')
       .setDescription('List of endpoints exposed by NestJS server')
-      .setContact('ICEI Support', 'https://support.icei.com.ar', 'support@icei.com.ar')
+      .setContact('SIO Support', 'https://support.sio.com.ar', 'support@sio.com.ar')
       .setVersion('1.0.0')
       // .setLicense('MIT', 'url')
       // .setTermsOfService('Terms of Service')

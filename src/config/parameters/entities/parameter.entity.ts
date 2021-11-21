@@ -12,8 +12,8 @@ export class Parameter extends BaseEntity {
   @Column({ type: 'enum', enum: ParameterType, update: false })
   readonly code!: ParameterType;
 
-  @Column({ type: 'bigint' })
-  value!: number;
+  @Column()
+  value!: string;
 
   constructor(partial: Partial<Parameter>) {
     super(partial);

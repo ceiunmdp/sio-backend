@@ -1,6 +1,6 @@
 {
   "name": "icei-nestjs",
-  "version": "1.17.18",
+  "version": "1.18.0",
   "description": "",
   "author": "Manuel Nucci",
   "private": true,
@@ -64,6 +64,7 @@
     "cache-manager": "^3.4.4",
     "camelcase": "^6.2.0",
     "camelcase-keys": "^7.0.0",
+    "check-disk-space": "^3.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "compression": "^1.7.4",

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   CallHandler,
   ExecutionContext,
   HttpException,
@@ -7,9 +6,9 @@ import {
   Injectable,
   InternalServerErrorException,
   NestInterceptor,
+  PayloadTooLargeException,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { MulterError } from 'multer';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CustomLoggerService } from 'src/global/custom-logger.service';
@@ -33,10 +32,6 @@ export class ErrorsInterceptor implements NestInterceptor {
       return this.handleWsException(error);
     } else if (error instanceof TimeoutError) {
       return this.handleTimeoutError(error, isHttp);
-      // } else if (error instanceof EntityNotFoundError) {
-      //   return this.handleEntityNotFoundError(error, isHttp);
-    } else if (error instanceof MulterError) {
-      return this.handleMulterError(error, isHttp);
     } else if (error instanceof QueryFailedError) {
       return this.handleQueryFailedError(error, isHttp);
     } else {
@@ -56,6 +51,11 @@ export class ErrorsInterceptor implements NestInterceptor {
   }
 
   private handleHttpException(error: HttpException) {
+    if (error instanceof PayloadTooLargeException) {
+      // * Handle exception when max size of file is exceeded
+      const errorResponse = error.getResponse() as { error: string; message: string };
+      errorResponse.message = 'Archivo demasiado grande, intente con uno más pequeño.';
+    }
     this.logError(error, error.getStatus());
     return error;
   }
@@ -69,20 +69,6 @@ export class ErrorsInterceptor implements NestInterceptor {
     this.logError(timeoutError, HttpStatus.INTERNAL_SERVER_ERROR);
     const error = this.buildError('Internal Server Error', 'Server Timeout');
     return isHttp ? new InternalServerErrorException(error) : new WsException(timeoutError);
-  }
-
-  private handleMulterError(multerError: MulterError, isHttp: boolean) {
-    this.logError(multerError, HttpStatus.BAD_REQUEST);
-
-    let message;
-    if (multerError.code === 'LIMIT_FILE_SIZE') {
-      message = 'Archivo demasiado grande. Solo es posible subir archivos hasta 100 MB.';
-    } else {
-      message = 'Evaluate rest of cases.';
-    }
-
-    const error = this.buildError(multerError.name, message);
-    return isHttp ? new BadRequestException(error) : new WsException(error);
   }
 
   private handleQueryFailedError(queryFailedError: QueryFailedError, isHttp: boolean) {
