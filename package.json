@@ -1,8 +1,8 @@
 {
-  "name": "icei-nestjs",
+  "name": "sio-nestjs",
   "version": "1.18.1",
   "description": "",
-  "author": "Manuel Nucci",
+  "author": "CEI",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -31,8 +31,9 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+      "prepare-commit-msg": "git secrets --prepare_commit_msg_hook -- '$@'",
+      "pre-commit": "git secrets --pre_commit_hook -- '$@' && lint-staged",
+      "commit-msg": "git secrets --commit_msg_hook -- '$@' && commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {
