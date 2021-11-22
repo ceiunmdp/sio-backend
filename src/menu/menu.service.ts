@@ -142,6 +142,11 @@ export class MenuService implements OnModuleInit {
         code: EFunctionality.CAREERS,
         supraFunctionality: operations,
       });
+      const relations = new Functionality({
+        name: 'Relaciones',
+        code: EFunctionality.RELATIONS,
+        supraFunctionality: operations,
+      });
       const courses = new Functionality({
         name: 'Materias',
         code: EFunctionality.COURSES,
@@ -195,6 +200,7 @@ export class MenuService implements OnModuleInit {
       users.roles = [admin];
       campuses.roles = [admin];
       careers.roles = [admin];
+      relations.roles = [admin];
       courses.roles = [admin];
       files.roles = [admin, campus, professorship];
       items.roles = [admin];
@@ -216,6 +222,7 @@ export class MenuService implements OnModuleInit {
         users,
         campuses,
         careers,
+        relations,
         courses,
         files,
         items,

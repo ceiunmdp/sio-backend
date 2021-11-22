@@ -19,6 +19,7 @@ export enum EFunctionality {
   USERS = 'users',
   CAMPUSES = 'campuses',
   CAREERS = 'careers',
+  RELATIONS = 'relations',
   COURSES = 'courses',
   FILES = 'files',
   ITEMS = 'items',
