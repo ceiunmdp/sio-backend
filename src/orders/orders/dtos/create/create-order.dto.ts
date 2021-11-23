@@ -1,6 +1,6 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsBoolean, ValidateNested } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsOptional, ValidateNested } from 'class-validator';
 import { AutoMap } from 'nestjsx-automapper';
 import { IsEntityExist } from 'src/common/decorators/is-entity-exist.decorator';
 import { Campus } from 'src/faculty-entities/campus/entities/campus.entity';
@@ -15,13 +15,15 @@ export class CreateOrderDto {
   })
   campusId!: string;
 
+  @IsOptional()
   @IsBoolean()
   @ApiProperty({
     name: 'use_free_copies',
     description: "Whether to use available copies in order's payment",
     example: true,
+    default: false,
   })
-  useFreeCopies!: boolean;
+  useFreeCopies?: boolean = false;
 
   @AutoMap(() => CreateOrderFileDto)
   @IsArray()
