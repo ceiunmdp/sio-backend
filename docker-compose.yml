@@ -2,25 +2,31 @@ version: '3.7'
 
 services:
   app:
-    container_name: nestjs
-    image: manuelnucci/nestjs-dev:1.19.1
+    container_name: sio
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # target: build
+      target: production
+    image: ceiunmdp/sio:0.9.0
     env_file:
-      - ./env/development.env
+      - ./env/beta.env
     networks:
       - webnet
     volumes:
       - ./files:/home/node/app/files
     ports:
-      - ${APP_PORT}:${APP_PORT}
-      - 9229:9229
+      - 443:${APP_PORT}
     depends_on:
       - postgres
     restart: unless-stopped
   postgres:
-    container_name: postgres
+    container_name: postgres-beta
     build:
       context: ./database
-    image: postgres-dev:1.0.0
+    image: postgres:1.0.0
+    env_file:
+      - ./env/beta.env
     environment:
       POSTGRES_DB: ${TYPEORM_DATABASE}
       POSTGRES_USER: ${TYPEORM_USERNAME}
@@ -40,4 +46,4 @@ networks:
 
 volumes:
   pgdata:
-    name: pgdata_dev
+    name: pgdata_beta

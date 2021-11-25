@@ -44,7 +44,7 @@ RUN yarn install --frozen-lockfile --production && yarn cache clean
 # Copy results from previous stage
 COPY --chown=node:node --from=build /home/node/app/dist ./dist
 COPY --chown=node:node --from=build /home/node/app/public ./public
-COPY --chown=node:node --from=build /home/node/app/icei-firebase-admin-sdk.json ./
+COPY --chown=node:node --from=build /home/node/app/sio-beta-firebase-admin-sdk.json ./
 
 CMD [ "node", "dist/main.js" ]
 # CMD [ "node", "dist/main.js", "--max-old-space-size=350" ] # https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/docker/memory-limit.md
