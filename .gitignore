@@ -38,6 +38,7 @@ lerna-debug.log*
 # Environment Variables
 .env
 /env
+ormconfig.json
 
 # Static Content
 /client

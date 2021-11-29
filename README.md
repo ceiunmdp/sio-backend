@@ -109,10 +109,35 @@ $ npm run compodoc
 
 ## Migrations
 
+### Prerequisites
+
+- _ormconfig.json_ must exist in the root folder (the TypeORM CLI will use these variables instead of the ones in the _.env_ or _env/\*_ files)
+
+### How to work with migrations?
+
+Changes to the entity models (and therefore the database schema) should be made through **migrations**.
+
+In order to accomplish this task, it's necessary to generate a new migration that can be applied later on the productive database.
+
 ```bash
-TBD
+# Once some entity has been updated in the code but NOT in the database, generate a new migration file
+npm run typeorm:generate <MIGRATION_NAME>
+# Note: if the database was updated because of having synchronization turned on, the change will not be detected
+
+# In case a new migration wants to be created manually
+npm run typeorm:create <MIGRATION_NAME>
+# The generated file can then be updated based on the developer's needs
+
+# Run migrations UNTIL the last one
+npm run typeorm:run
+
+# Revert LAST migration
+npm run typeorm:revert
 ```
+
+In case synchronization is turned on, the migration could be generated against the productive database which was not affected yet. This is an alternative instead of being careful not to apply the changes once the code is updated in development mode.
 
 ## References
 
 - [Containerized development with NestJS and Docker](https://blog.logrocket.com/containerized-development-nestjs-docker/)
+- [TypeORM Migrations](https://typeorm.io/#/migrations)
