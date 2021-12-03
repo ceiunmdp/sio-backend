@@ -1,1 +1,2 @@
-icei-firebase-admin-sdk.json
+sio-dev-firebase-admin-sdk.json
+sio-prod-firebase-admin-sdk.json
