@@ -53,3 +53,4 @@ ormconfig.json
 /.blackbox/secring.gpg
 sio-dev-firebase-admin-sdk.json
 sio-prod-firebase-admin-sdk.json
+/sio-beta-firebase-admin-sdk.json
