@@ -38,20 +38,18 @@ lerna-debug.log*
 # Environment Variables
 .env
 /env
+ormconfig.json
 
 # Static Content
-/client
 /public
+!/public/do-not-delete-me.txt
 
 # Files
 /files
-
-# Driver options
-/driver-options
 
 # BlackBox
 /.blackbox/pubring.gpg~
 /.blackbox/pubring.kbx~
 /.blackbox/secring.gpg
-/icei-firebase-admin-sdk.json
-/sio-beta-firebase-admin-sdk.json
+sio-dev-firebase-admin-sdk.json
+sio-prod-firebase-admin-sdk.json

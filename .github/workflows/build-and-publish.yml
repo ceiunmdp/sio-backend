@@ -3,6 +3,7 @@ name: Build and publish Docker image
 on:
   push: # every pull request is followed by a push
     branches:
+      - main
       - develop
 
 jobs:
@@ -22,16 +23,34 @@ jobs:
           BLACKBOX_PUBKEY: ${{ secrets.BLACKBOX_PUBKEY }}
           BLACKBOX_PRIVKEY: ${{ secrets.BLACKBOX_PRIVKEY }}
 
+      - name: Set environment variables for main branch
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          echo "IMAGE_TAGS=latest,${{ env.PACKAGE_VERSION }}" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=sio-prod-firebase-admin-sdk.json" >> $GITHUB_ENV
+
+      - name: Set environment variables for develop branch
+        if: ${{ github.ref_name == 'develop' }}
+        run: |
+          echo "IMAGE_TAGS=${{ env.PACKAGE_VERSION }}-dev" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=sio-dev-firebase-admin-sdk.json" >> $GITHUB_ENV
+
+      - name: Set environment variables for beta branch
+        if: ${{ github.ref_name == 'beta' }}
+        run: |
+          echo "IMAGE_TAGS=${{ env.PACKAGE_VERSION }}-beta" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=sio-beta-firebase-admin-sdk.json" >> $GITHUB_ENV
+
       - name: Publish to Docker Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: manuelnucci/nestjs-dev
+          name: ceiunmdp/sio
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-          default_branch: develop
-          dockerfile: Dockerfile.dev
+          default_branch: ${{ env.GITHUB_REF_NAME }}
+          buildargs: GOOGLE_APPLICATION_CREDENTIALS=${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
           cache: true
-          tags: 'latest,${{ env.PACKAGE_VERSION }}'
+          tags: '${{ env.IMAGE_TAGS }}'
 
       - name: Safely delete any decrypted files
         uses: jrmcdonald/blackbox-github-actions@v0.2.0

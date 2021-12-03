@@ -1,6 +1,6 @@
 {
-  "name": "sio-nestjs",
-  "version": "1.19.1",
+  "name": "sio",
+  "version": "0.9.0",
   "description": "",
   "author": "CEI",
   "private": true,
