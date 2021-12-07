@@ -1,4 +1,4 @@
-FROM postgres:12.5
+FROM postgres:14.1
 
 # Copy scripts to run on container startup
 COPY ./scripts/ /docker-entrypoint-initdb.d/
