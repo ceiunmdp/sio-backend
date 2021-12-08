@@ -3,7 +3,7 @@ version: '3.7'
 services:
   app:
     container_name: sio
-    image: ceiunmdp/sio:0.9.0-beta
+    image: ceiunmdp/sio:0.9.1-beta
     env_file:
       - ./env/beta.env
     networks:

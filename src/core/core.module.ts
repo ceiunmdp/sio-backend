@@ -42,7 +42,7 @@ import { HealthModule } from 'src/health/health.module';
         setHeaders: (res: Response) => {
           res.setHeader(
             'Content-Security-Policy',
-            "connect-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://www.googleapis.com https://firestore.googleapis.com",
+            "connect-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com https://www.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com",
           );
         },
       },

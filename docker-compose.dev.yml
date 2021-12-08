@@ -6,7 +6,7 @@ services:
     build:
       context: .
       target: build
-    image: ceiunmdp/sio:0.9.0-dev
+    image: ceiunmdp/sio:0.9.1-dev
     command: npm run start:debug
     env_file:
       - ./env/development.env
