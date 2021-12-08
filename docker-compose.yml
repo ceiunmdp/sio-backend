@@ -16,7 +16,7 @@ services:
       - postgres
     restart: unless-stopped
   postgres:
-    container_name: postgres-sio
+    container_name: postgres
     build:
       context: ./database
     image: postgres-sio:1.0.0
