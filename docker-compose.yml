@@ -3,13 +3,14 @@ version: '3.7'
 services:
   app:
     container_name: sio
-    image: ceiunmdp/sio:0.9.1-beta
+    image: ceiunmdp/sio:0.9.2-beta
     env_file:
       - ./env/beta.env
     networks:
       - webnet
     volumes:
       - ./files:/home/node/app/files
+      - ./logs:/home/node/app/logs
     ports:
       - 80:${APP_PORT}
     depends_on:

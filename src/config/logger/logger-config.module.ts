@@ -16,7 +16,7 @@ import loggerConfig from './logger.config';
       validationSchema: Joi.object({
         LOGGER_DATE_PATTERN: Joi.when('NODE_ENV', {
           is: Environment.PRODUCTION,
-          then: Joi.string().default('YYYY-MM-DD_HH-mm-ss'),
+          then: Joi.string().default('YYYY-MM-DD_HH'),
         }),
         LOGGER_DIRNAME: Joi.when('NODE_ENV', { is: Environment.PRODUCTION, then: Joi.string().default('./logs') }),
         LOGGER_FILES_MAX_SIZE: Joi.when('NODE_ENV', {
